@@ -1,0 +1,17 @@
+Lab Energy: 25.5 MeV. N: 52. Z: 41
+*********************************************
+
+RealVolumen 83.2868
+ImaginarioVolumen  0.667776
+RealSpinOrbita  3.703
+ImaginarioSpinOrbita	-0.206
+ImaginarioSuperficie  13.8102
+RadioRealVolumen  1.174
+RadioCoulomb  1.698
+RadioImaginarioVolumen  1.563
+DifusividadRealVolumen  0.809
+DifusividadImaginarioVolumen  0.903879
+RadioSpinOrbita    1.234
+DifusividadSpinOrbita  0.813
+RadioImaginarioSuperficie  1.328
+DifusividadImaginarioSuperficie 0.668879
