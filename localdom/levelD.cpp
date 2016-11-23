@@ -1,5 +1,5 @@
 #include "levelD.h"
-
+using namespace std;
 /**
  * Constructor
 \param file is the name of the file (without *.ld extension) containg the input data

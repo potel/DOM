@@ -361,8 +361,8 @@ void AmplitudeCapture(struct parametros* parm)
 	complejo* wf=new complejo[1000];
 	complejo pot_p;
 	complejo pot_n;
-       	pot opt_in(4);
-       	pot opt_out(5);
+       	pot opt_in(3);
+       	pot opt_out(2);
 //	pot opt_in;
 //	pot opt_out;
 //	//pot opt_dumb(3);

@@ -1,3 +1,5 @@
+using namespace std;
+
 #include "scat.h"
 #include "waves.h"
 

@@ -1,3 +1,5 @@
+using namespace std;
+
 #include "merson.h"
 #include <sstream>
 

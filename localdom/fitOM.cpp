@@ -1,5 +1,5 @@
 #include "fitOM.h"
-
+using namespace std;
 //******************************************************************
   /**
    * calculates the total of the chi-squared which is minimized

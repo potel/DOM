@@ -1,9 +1,10 @@
+
+using namespace std;
 #include "compound.h"
 #include <iostream>
 #include <fstream>
 #include <algorithm>
 #include "compoundException.h"
-using namespace std;
 
 int const compound::dim = 32000;
 compound::compound()

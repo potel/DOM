@@ -1,6 +1,6 @@
 #include "channel.h"
 #include <string>
-
+using namespace std;
 channel::channel(string*StateFile, string*TransFile, double Q0)
 {
   //read in states for target

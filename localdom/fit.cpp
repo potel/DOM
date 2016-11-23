@@ -1,3 +1,5 @@
+using namespace std;
+
 #include "fit.h"
 
 string const fit::label[TotPara] = {"rC0","rC1","fEcoul","AHF0","AHF1","alpha",
