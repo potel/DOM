@@ -529,7 +529,7 @@ void AmplitudeCapture(struct parametros* parm)
 	r_F=1000.;
 	cout<<"Radio de fusion en ICER, new imag: "<<r_F<<" fm"<<endl;
 	e_res=st_fin->energia;
-	for(energia_out=2.;energia_out<10.;energia_out+=0.1)
+	for(energia_out=7.528;energia_out<7.531;energia_out+=0.002)
 	  //	for (energia_trans=1.3;energia_trans<8.;energia_trans+=1000.)
 	{
 		Ecm_out=((parm->T_masa)*energia_out/(parm->n1_masa+(parm->T_masa)));
@@ -548,6 +548,7 @@ void AmplitudeCapture(struct parametros* parm)
 		rhoE=parm->m_b*AMU*k_p/(8.*PI*PI*PI*HC*HC);
 		rhoE_n=parm->n1_masa*AMU*k_n/(8.*PI*PI*PI*HC*HC);
 		eta_f=carga_out*parm->res_carga*E2HC*(parm->m_b*parm->T_masa/(parm->m_b+parm->T_masa))*AMU/(HC*k_p);
+		//cout<<"eta_f: "<<eta_f<<endl;
 		cross_total=0.;
 		cross_total_elasticb=0.;
 		opt_in.potential(1.,0,0,energia_trans);
@@ -576,12 +577,12 @@ void AmplitudeCapture(struct parametros* parm)
 		}
 		}
 		//for(l=0;l<parm->ltransfer;l++)
-	       	for(l=0;l<5;l++)
+	       	for(l=0;l<1;l++)
 		{
-		  //	  misc2<<endl<<"& Proton energy: "<<energia_out<<" MeV. Neutron energy: "<<energia_trans<<" MeV"<<
-//				"  L:"<<l<<endl;
+		  	  misc2<<endl<<"& Proton energy: "<<energia_out<<" MeV. Neutron energy: "<<energia_trans<<" MeV"<<
+				"  L:"<<l<<endl;
 		  if(parm->koning_delaroche==0){
-		 for(n=0;n<parm->puntos;n++)
+		 for(n=0;n<parm->puntos;n++)  
 		   {
   			rn=step*(n+1.);
   			opt_in.GetPot(rn,l,l+0.5);
@@ -592,10 +593,11 @@ void AmplitudeCapture(struct parametros* parm)
   			v_down->r[n]=rn;
   			v_down->pot[n]=opt_in.Real+I*opt_in.Imag;
   			if(abs(is_pot_im)<1.e-10) v_down->pot[n]+=I*0.001*opt_in.Real;
+			//			misc2<<rn<<"  "<<real(v_up->pot[n])<<endl;
 		    }
 		  }
 
-			//exit(0);
+		  //exit(0);
 			cout<<"L: "<<l<<endl;
 			funcion_regular_up[0].energia=Ecm;
 			funcion_irregular_up[0].energia=Ecm;
@@ -609,14 +611,14 @@ void AmplitudeCapture(struct parametros* parm)
 			funcion_irregular_up[1].l=l;
 			funcion_regular_up[1].j=l+parm->n_spin;
 			funcion_irregular_up[1].j=l+parm->n_spin;
-			if (energia_trans<=0.) wronskiano_up=GeneraGreenFunctionLigada(&(funcion_regular_up[0]),&(funcion_irregular_up[0]),
+			if (Ecm<=0.) wronskiano_up=GeneraGreenFunctionLigada(&(funcion_regular_up[0]),&(funcion_irregular_up[0]),
 					v_up,parm->radio,parm->puntos,0.,
 					parm->n1_masa*parm->T_masa/(parm->n1_masa+parm->T_masa),parm->n_spin);
-			if (energia_trans>0.)
+			if (Ecm>0.)
 			{
 				GeneraGreenFunction(funcion_regular_up,funcion_irregular_up,v_up,
 						0.,parm->n1_masa*parm->T_masa/(parm->n1_masa+parm->T_masa),
-						parm->radio,parm->puntos,parm->matching_radio,0.);
+						parm->radio,parm->puntos,parm->matching_radio,parm->n_spin);
 //				exit(0);
 				wronskiano_up=k_n;
 			}
@@ -664,14 +666,15 @@ void AmplitudeCapture(struct parametros* parm)
 			vp_down->r[n]=rn;
 			vp_down->pot[n]=opt_out.Real+I*opt_out.Imag;
 		        if(abs(is_pot_im_out)<1.e-10) vp_down->pot[n]+=I*0.005*opt_out.Real;
-//		misc2<<rn<<"  "<<real(v_up->pot[n])
+			//			misc2<<rn<<"  "<<real(vp_up->pot[n])<<endl;
 //			<<"  "<<imag(v_up->pot[n])<<endl;
 			      }
 			  }
+			  //			  exit(0);
 			if(parm->remnant==1 && parm->prior==1) {
 //				GeneraRemnant(optico,core,&parm->pot_opt[indx_ingreso],vp_down,parm->T_carga*parm->P_carga,
 //						parm->res_carga*carga_out,0,0,parm->mu_Aa,parm->m_b);
-				GeneraRemnant(optico,core,&parm->pot_opt[indx_ingreso],vp_down,parm->T_carga*parm->P_carga,
+			  GeneraRemnant(optico,core,&parm->pot_opt[indx_ingreso],vp_down,parm->T_carga*parm->P_carga,
 							0.,0,0,parm->mu_Aa,parm->m_b);
 
 			}
@@ -681,7 +684,7 @@ void AmplitudeCapture(struct parametros* parm)
 				gl_up->j=lp+parm->n_spin;
 				//misc4<<"& proton up"<<endl;
 				GeneraDWspin(gl_up,vp_up,0.,parm->m_b*parm->res_masa/(parm->m_b+parm->res_masa),
-						parm->radio,parm->puntos,parm->matching_radio,&fp2);
+					     parm->radio,parm->puntos,parm->matching_radio,&fp2);
 				//cout<<"up: "<<gl_up->wf[10]<<endl;
 				gl_down->energia=Ecm_out;
 				gl_down->l=lp;
@@ -703,6 +706,7 @@ void AmplitudeCapture(struct parametros* parm)
 				for(ld=abs(l-lp);(ld<=l+lp)&&(ld<parm->lmax);ld++)
 //				for(ld=1;ld<2;ld++)
 				{
+				  //				  cout<<l<<"   lp:  "<<lp<<"    ld: "<<ld<<endl;
 					rhofac=(16.*pow(PI,2.5)*pow(I,ld-lp)*pow(-1.,l)*
 							exp_delta_coulomb_f[lp]*exp_delta_coulomb_i[ld]*sqrt(2.*ld+1.))/(parm->k_Aa*k_p*sqrt(2.*l+1.));
 					fl->energia=parm->energia_cm;
@@ -762,7 +766,8 @@ void AmplitudeCapture(struct parametros* parm)
 //					for(m=0;m<=lp;m++){
 //						phi_resonant[n][l][m][lp]=phim[m];
 //					}
-					//misc2<<rn<<"  "<<real(phi_up[n][1][0][0])<<"  "<<imag(phi_up[n][1][0][0])<<"  "<<abs(phi_up[n][1][0][0])<<endl;
+					//cout<<"lp: "<<lp<<"   ld: "<<ld<<endl;
+					misc2<<rn<<"  "<<real(phi_up[n][0][0][0])<<"  "<<imag(phi_up[n][0][0][0])<<"  "<<abs(phi_up[n][0][0][0])<<endl;
 				}
 				//exit(0);
 			}
@@ -1370,10 +1375,10 @@ void ElasticBreakup(complejo*** T,complejo**** rho,double En,potencial_optico* v
 		up=((l+1.)/sqrt((l+1.)*(l+1.)+l*l));
 		down=(l/sqrt((l+1.)*(l+1.)+l*l));
 		fp<<endl<<"& spin up"<<endl;
-		GeneraDWspin(chi_lup,v_up,carga_trans*parm->T_carga,masa_trans*masaT/(masa_trans+masaT),
+		GeneraDWspin(chi_lup,v_up,0.,masa_trans*masaT/(masa_trans+masaT),
 				parm->radio,parm->puntos,parm->matching_radio,&fp);
 		fp<<"& spin down"<<endl;
-		GeneraDWspin(chi_ldown,v_down,carga_trans*parm->T_carga,masa_trans*masaT/(masa_trans+masaT),
+		GeneraDWspin(chi_ldown,v_down,0.,masa_trans*masaT/(masa_trans+masaT),
 				parm->radio,parm->puntos,parm->matching_radio,&fp);
 		for(m=0;m<=l;m++)
 		{
