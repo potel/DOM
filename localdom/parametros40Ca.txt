@@ -1,6 +1,6 @@
 num_st 2	# numero de estados. En una reacción, tiene que ser igual a a_numst+B_numst
 lmin 0      # momento angular mínimo. En una reacción tiene que ser 0.
-lmax 20 # momento angular máximo. En una reacción, número de ondas parciales.
+lmax 15 # momento angular máximo. En una reacción, número de ondas parciales.
 ltransfer 10 #momento angular transferido maximo. Usado para la captura neutronica.
 emin -1000.    # energía mínima. 
 emax 0. 	   # energía máxima.
@@ -69,7 +69,7 @@ res_N 21
 
 
 proyectil a		# define cual es el proyectil
-energia_lab  40.
+energia_lab  20.
  Qvalue   -2.2245 # Q-value de la reacción
 #Qvalue 6.2755
 
@@ -86,7 +86,7 @@ dw_spinB 0.   #spin de las ondas distorsionadas salientes
 lambda  0.	# momento angular del cluster transferido
 n_spin 0.
 a_Sn  -7.66247 # energía de extracción de un neutrón para el núcleo a-1 (debe ser<0, típicamente será la energía del estado del núcleo a con energía mas baja)
-B_Sn      -4.24091 # energía de extracción de un neutrón para el núcleo B-1 (debe ser<0, típicamente será la energía del estado del núcleo B con energía mas baja)
+B_Sn      -8.1 # energía de extracción de un neutrón para el núcleo B-1 (debe ser<0, típicamente será la energía del estado del núcleo B con energía mas baja)
 +++++++++++++++++++ Parametros numericos +++++++++++++++++++++++++++++++++++
 
 r_Ccmin 0.     # valor mínimo de r_Cc

@@ -1,0 +1,19 @@
+### define resources needed:
+### walltime - how long you expect the job to run
+#PBS -l walltime=0:23:50:00
+#PBS -l feature=intel16 
+### nodes:ppn - how many nodes & cores per node (ppn) that you require
+#PBS -l nodes=1:ppn=1
+ 
+### mem: amount of memory that the job will need
+#PBS -l mem=1gb
+ 
+### you can give your job a name for easier identification
+#PBS -N DOM
+#PBS -M potel@nscl.msu.edu
+#PBS -m abe
+module load GSL/1.15 
+### change to the working directory  
+cd /mnt/ls15/scratch/users/potel/DOM/localdom
+### call your executable
+/mnt/ls15/scratch/users/potel/DOM/localdom/dpdom parametros48Ca.txt

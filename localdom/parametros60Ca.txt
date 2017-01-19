@@ -41,17 +41,17 @@ base3  20
 #P_masa 2.014101
 #res_masa  93.907278  
 
-m_A    40   # Masas
+m_A    60   # Masas
 m_a    2.
-m_B	   41
+m_B	   61
 m_b    1.
 n1_masa 1.0
-T_masa 41.
+T_masa 61.
 P_masa 2.0
-res_masa  41
+res_masa  61
 
-dompot_n 0 #DOM potential for neutrons: 0-> 40Ca, 2->48Ca, 4->60Ca
-dompot_p 1 #DOM potential for protons: 1-> 40Ca, 3->48Ca, 5->60Ca
+dompot_n 4 #DOM potential for neutrons: 0-> 40Ca, 2->48Ca, 4->60Ca
+dompot_p 5 #DOM potential for protons: 1-> 40Ca, 3->48Ca, 5->60Ca
 
 Z_a    1  # cargas
 Z_A     20
@@ -63,13 +63,13 @@ T_carga 20
 
 
 P_N 1
-T_N 20
-res_N 21
+T_N 60
+res_N 61
 
 
 
 proyectil a		# define cual es el proyectil
-energia_lab  40.
+energia_lab  20.
  Qvalue   -2.2245 # Q-value de la reacción
 #Qvalue 6.2755
 
@@ -86,7 +86,7 @@ dw_spinB 0.   #spin de las ondas distorsionadas salientes
 lambda  0.	# momento angular del cluster transferido
 n_spin 0.
 a_Sn  -7.66247 # energía de extracción de un neutrón para el núcleo a-1 (debe ser<0, típicamente será la energía del estado del núcleo a con energía mas baja)
-B_Sn      -4.24091 # energía de extracción de un neutrón para el núcleo B-1 (debe ser<0, típicamente será la energía del estado del núcleo B con energía mas baja)
+B_Sn      1.43 # energía de extracción de un neutrón para el núcleo B-1 (debe ser<0, típicamente será la energía del estado del núcleo B con energía mas baja)
 +++++++++++++++++++ Parametros numericos +++++++++++++++++++++++++++++++++++
 
 r_Ccmin 0.     # valor mínimo de r_Cc

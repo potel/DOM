@@ -92,6 +92,8 @@ double angle1;
 int base1;
 int base2;
 int base3;
+int dompot_n;
+int dompot_p;
 double m_A;
 double m_a;
 double m_B;

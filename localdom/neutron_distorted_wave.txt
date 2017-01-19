@@ -1,7 +1,0 @@
-
-& spin up
-
-& Energia: 0.00113265  Momento angular orbital: 0  Momento angular total: 0
-& spin down
-
-& Energia: 0.00113265  Momento angular orbital: 0  Momento angular total: 0
