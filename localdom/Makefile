@@ -9,8 +9,8 @@ whit.o coul.o compound.o level.o channel.o expInt.o reaction.o volume.o surface.
 #DEPS = test.h structs.h definiciones.h tremendo.h
 CC=g++
 LIBDIR=/usr/local/lib
-CFLAGSX=-I.:/usr/local/include -L$(LIBDIR) -lgsl -lgslcblas
-CFLAGS=-L$(LIBRARY_PATH)   -lgsl -lgslcblas
+CFLAGS=-I.:/usr/local/include -L$(LIBDIR) -lgsl -lgslcblas
+#CFLAGS=-L$(LIBRARY_PATH)   -lgsl -lgslcblas
 #CFLAGS=-L$(LIBRARY_PATH) -L/opt/software/GCC/4.4.5/lib -I/opt/software/GCC/4.4.5/include  -lgsl -lgslcblas
 #%.o: %.c $(DEPS)
 #	$(CC) -c -o $@ $< $(CFLAGS)
@@ -19,7 +19,7 @@ CFLAGS=-L$(LIBRARY_PATH)   -lgsl -lgslcblas
 dpdom: irreducible.o $(OBJECTS) 
 	g++ -o dpdom  $(OBJECTS) $(CPPFLAGS) $(CFLAGS) 
 #dpdomx: irreducible.o $(OBJECTS) 
-	$(CC) -o dpdom  $(OBJECTS)  $(CFLAGSX) 
+#	$(CC) -o dpdom  $(OBJECTS)  $(CFLAGSX) 
 
 #irreducible: irreducible.o $(OBJECTS) 
 #	$(CC) -o irreducible irreducible.o $(OBJECTS) $(CPPFLAGS) $(CFLAGS) 

@@ -26,6 +26,7 @@ scatt_pot 4
 prior 1
 remnant 1
 core_pot 1
+capture_angular 0
 ++++++++++++++ Descripción de la reacción +++++++++++++++++++++++++++++++++++++
 
 base1  20   # tamaños de la base usada para describir los estados de partícula independiente

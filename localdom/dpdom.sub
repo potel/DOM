@@ -12,9 +12,11 @@
 #PBS -N DOM
 #PBS -M potel@nscl.msu.edu
 #PBS -m abe
-module load GSL/1.15 
+module load GSL/1.15
+cp /mnt/home/potel/DOM/localdom/dpdom  /mnt/ls15/scratch/users/potel/DOM/localdom
+cp /mnt/home/potel/DOM/localdom/parametros*.* /mnt/ls15/scratch/users/potel/DOM/localdom
 ### change to the working directory  
 cd /mnt/ls15/scratch/users/potel/DOM/localdom
 ### call your executable
-/mnt/ls15/scratch/users/potel/DOM/localdom/dpdom parametros48Ca.txt
+/mnt/ls15/scratch/users/potel/DOM/localdom/dpdom parametros60Ca_40MeV.txt
 echo DOM calculation finished

@@ -57,6 +57,8 @@ void LeeParametros(const char *fname,struct parametros *x)
     x->scatt_pot=200;
     x->angle0=0;
     x->angle1=180;
+    x->lmin=0;
+    x->capture_angular=0;
     strcpy(x->flcoef,"nada");
     strcpy(x->file_dens,"\0");
     potopt=0;
@@ -87,11 +89,15 @@ void LeeParametros(const char *fname,struct parametros *x)
 		ReadParS(aux,"a_tipo_fun",x->a_tipo_fun);
 		ReadParS(aux,"B_tipo_fun",x->B_tipo_fun);
 		ReadParD(aux,"a_potcm",&(x->a_potcm));
+                ReadParD(aux,"enerange_min",&(x->enerange_min));
+                ReadParD(aux,"enerange_max",&(x->enerange_max));
+                ReadParD(aux,"enerange_step",&(x->enerange_step));
 		ReadParS(aux,"proyectil",x->proyectil);
 		ReadParS(aux,"unidades",x->unidades);
 		ReadParD(aux,"num_st",&(x->num_st));
 		ReadParD(aux,"dompot_n",&(x->dompot_n));
 		ReadParD(aux,"dompot_p",&(x->dompot_p));
+		ReadParD(aux,"capture_angular",&(x->dompot_p));
 		ReadParD(aux,"two_trans",&(x->two_trans));
 		ReadParD(aux,"one_trans",&(x->one_trans));
 		ReadParD(aux,"capture",&(x->capture));
@@ -224,7 +230,7 @@ void Capture(struct parametros* parm)
 	double* D0=new double[1];
 	double* rms=new double[1];
 	cout<<"Generando potenciales de campo medio"<<endl;
-	HanShiShen(25.5,52,41);
+	HanShiShen(parm->energia_lab,parm->T_N,parm->T_carga);
 	for(n=0;n<parm->num_cm;n++)
 	{
 		GeneraPotencialCM(parm,&(parm->pot[n]));
@@ -342,15 +348,54 @@ void AmplitudeCapture(struct parametros* parm)
 	ofstream fp6;
 	fp6.open("talys_angular2.txt");
 	ofstream fp7;
-	if (parm->dompot_n==0) fp7.open("SpinParity40Ca_20MeV.txt");
-	if (parm->dompot_n==2) fp7.open("SpinParity48Ca_20MeV.txt");
-	if (parm->dompot_n==4) fp7.open("SpinParity60Ca_20MeV.txt");
+	string name40("40Ca_");
+	string name48("48Ca_");
+	string name60("60Ca_");
+	string name40Spin("40Ca_");
+	string name48Spin("48Ca_");
+	string name60Spin("60Ca_");
+	string name40Angular("40Ca_");
+	string name48Angular("48Ca_");
+	string name60Angular("60Ca_");
+	stringstream ss;
+	ss<<parm->energia_lab;
+	string name_energy=ss.str();
+	//char* name_energy=itoa(int(ceil(parm->energia_lab)));
+	//itoa(parm->energia_lab,name_energy,10);
+	name40+=name_energy+"MeV";
+	name48+=name_energy+"MeV";
+	name60+=name_energy+"MeV";
+	name40Spin+=name_energy+"MeVSpinParity";
+	name48Spin+=name_energy+"MeVSpinParity";
+	name60Spin+=name_energy+"MeVSpinParity";
+	name40Angular+=name_energy+"MeVAngular";
+	name48Angular+=name_energy+"MeVAngular";
+	name60Angular+=name_energy+"MeVAngular";
+	const char * n40 = name40.c_str();
+	const char * n48 = name48.c_str();
+	const char * n60 = name60.c_str();
+
+	const char * n40S = name40Spin.c_str();
+	const char * n48S = name48Spin.c_str();
+	const char * n60S = name60Spin.c_str();
+
+	const char * n40A = name40Angular.c_str();
+	const char * n48A = name60Angular.c_str();
+	const char * n60A = name48Angular.c_str();
+
+	if (parm->dompot_n==0) fp7.open(n40S);
+	if (parm->dompot_n==2) fp7.open(n48S);
+	if (parm->dompot_n==4) fp7.open(n60S);
 	ofstream fp8;
 	fp8.open("Jutta_angular.txt");
 	ofstream fp9;
-	if (parm->dompot_n==0) fp9.open("40Ca_20MeV.txt");
-	if (parm->dompot_n==2) fp9.open("48Ca_20MeV.txt");
-	if (parm->dompot_n==4) fp9.open("60Ca_20MeV.txt");
+	if (parm->dompot_n==0) fp9.open(n40);
+	if (parm->dompot_n==2) fp9.open(n48);
+	if (parm->dompot_n==4) fp9.open(n60);
+	ofstream fp10;
+	if (parm->dompot_n==0) fp10.open(n40A);
+	if (parm->dompot_n==2) fp10.open(n48A);
+	if (parm->dompot_n==4) fp10.open(n60A);
 	complejo* S=new complejo[parm->lmax];
 	complejo**** rho=tensor4_cmpx(parm->rCc_puntos,parm->lmax,parm->lmax+1,parm->lmax);
 	complejo* rho_test=new complejo [parm->puntos];
@@ -537,7 +582,7 @@ void AmplitudeCapture(struct parametros* parm)
 	r_F=1000.;
 	cout<<"Radio de fusion en ICER, new imag: "<<r_F<<" fm"<<endl;
 	e_res=st_fin->energia;
-	for(energia_out=35.26.;energia_out<40.;energia_out+=100.)
+	for(energia_out=parm->enerange_min;energia_out<enerange_max;energia_out+=enerange_step)
 	  //	for (energia_trans=1.3;energia_trans<8.;energia_trans+=1000.)
 	{
 		Ecm_out=((parm->T_masa)*energia_out/(parm->n1_masa+(parm->T_masa)));
@@ -547,6 +592,7 @@ void AmplitudeCapture(struct parametros* parm)
 		cout<<endl<<endl<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
 		cout<<"Energ�a de la particula emitida: "<<energia_out<<"  "<<"Energ�a de la particula transmitida: "
 				<<energia_trans<<endl;
+		cout<<"quillo!!"<<endl;
 //		cout<<"Energ�a de la resonancia: "<<e_res<<endl;
 		fp9<<energia_out<<"  "<<energia_trans<<"  ";
 		misc1<<"& Energia proton: "<<energia_out<<"    Energia neutron: "<<energia_trans<<endl;
@@ -584,8 +630,7 @@ void AmplitudeCapture(struct parametros* parm)
   		//misc2<<rn<<"  "<<real(v_up->pot[n])<<endl;
 		}
 		}
-		for(l=0;l<parm->ltransfer;l++)
-		//		for(l=1;l<2;l++)
+		for(l=parm->lmin;l<parm->ltransfer;l++)
 		{
 		  	  misc2<<endl<<"& Proton energy: "<<energia_out<<" MeV. Neutron energy: "<<energia_trans<<" MeV"<<
 				"  L:"<<l<<endl;
@@ -815,6 +860,8 @@ void AmplitudeCapture(struct parametros* parm)
 			inc_break_lmas[l]=0.;
 		}
   		cout<<"calculando seccion eficaz diferencial"<<endl;
+		if(parm->capture_angular==1)
+		  {
 	for(n=0;n<parm->cross_puntos;n++)
 	{
 		theta=PI*double(n)/double(parm->cross_puntos);
@@ -830,11 +877,12 @@ void AmplitudeCapture(struct parametros* parm)
 			elastic_cross=ElasticBreakupAngular(Teb,parm->lmax,theta);
 			cross_total+=sigma_const*escala*rhoE*cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
 			cross_total_elasticb+=rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
-			misc4<<theta*180./PI<<"  "<<sigma_const*escala*rhoE*cross<<
+			fp10<<theta*180./PI<<"  "<<sigma_const*escala*rhoE*cross<<
 					"  "<<rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross<<"  "<<
 					sigma_const*escala*rhoE*(cross)+(rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross)<<endl;
 		}
 	}
+		  }
 //////		TalysInput(inc_break_lmenos,inc_break_lmas,energia_trans,parm,&fp5,&fp6,&fp8,parm->J_A);
 		cout<<"Secci�n eficaz NEB:  "<<cross_total<<"   Secci�n eficaz EB:  "<<cross_total_elasticb<<endl;
 	}

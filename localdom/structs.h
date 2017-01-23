@@ -139,6 +139,7 @@ int successive;
 int simultaneous;
 int adiabatico;
 int prior;
+int capture_angular;
 int zerorange;
 int relativista;
 int eikonal;
@@ -147,7 +148,9 @@ double a_Sn;
 double B_Sn;
 int remnant;
 int core_pot;
-
+double enerange_min;
+double enerange_max;
+double enerange_step;
 /**** Parametros para Knock-Out*******/
 double P_masa;
 double T_masa;
