@@ -1,11 +1,11 @@
-Lab Energy: 20 MeV. N: 20. Z: 20
+Lab Energy: 10 MeV. N: 20. Z: 20
 *********************************************
 
-RealVolumen 85.0528
+RealVolumen 86.7986
 ImaginarioVolumen  0
 RealSpinOrbita  3.703
 ImaginarioSpinOrbita	-0.206
-ImaginarioSuperficie  19.38
+ImaginarioSuperficie  20.174
 RadioRealVolumen  1.174
 RadioCoulomb  1.698
 RadioImaginarioVolumen  1.563

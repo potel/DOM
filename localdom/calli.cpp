@@ -89,15 +89,15 @@ void LeeParametros(const char *fname,struct parametros *x)
 		ReadParS(aux,"a_tipo_fun",x->a_tipo_fun);
 		ReadParS(aux,"B_tipo_fun",x->B_tipo_fun);
 		ReadParD(aux,"a_potcm",&(x->a_potcm));
-                ReadParD(aux,"enerange_min",&(x->enerange_min));
-                ReadParD(aux,"enerange_max",&(x->enerange_max));
-                ReadParD(aux,"enerange_step",&(x->enerange_step));
+                ReadParF(aux,"enerange_min",&(x->enerange_min));
+                ReadParF(aux,"enerange_max",&(x->enerange_max));
+                ReadParF(aux,"enerange_step",&(x->enerange_step));
 		ReadParS(aux,"proyectil",x->proyectil);
 		ReadParS(aux,"unidades",x->unidades);
 		ReadParD(aux,"num_st",&(x->num_st));
 		ReadParD(aux,"dompot_n",&(x->dompot_n));
 		ReadParD(aux,"dompot_p",&(x->dompot_p));
-		ReadParD(aux,"capture_angular",&(x->dompot_p));
+		ReadParD(aux,"capture_angular",&(x->capture_angular));
 		ReadParD(aux,"two_trans",&(x->two_trans));
 		ReadParD(aux,"one_trans",&(x->one_trans));
 		ReadParD(aux,"capture",&(x->capture));
@@ -380,8 +380,8 @@ void AmplitudeCapture(struct parametros* parm)
 	const char * n60S = name60Spin.c_str();
 
 	const char * n40A = name40Angular.c_str();
-	const char * n48A = name60Angular.c_str();
-	const char * n60A = name48Angular.c_str();
+	const char * n48A = name48Angular.c_str();
+	const char * n60A = name60Angular.c_str();
 
 	if (parm->dompot_n==0) fp7.open(n40S);
 	if (parm->dompot_n==2) fp7.open(n48S);
@@ -582,7 +582,7 @@ void AmplitudeCapture(struct parametros* parm)
 	r_F=1000.;
 	cout<<"Radio de fusion en ICER, new imag: "<<r_F<<" fm"<<endl;
 	e_res=st_fin->energia;
-	for(energia_out=parm->enerange_min;energia_out<enerange_max;energia_out+=enerange_step)
+	for(energia_out=parm->enerange_min;energia_out<parm->enerange_max;energia_out+=parm->enerange_step)
 	  //	for (energia_trans=1.3;energia_trans<8.;energia_trans+=1000.)
 	{
 		Ecm_out=((parm->T_masa)*energia_out/(parm->n1_masa+(parm->T_masa)));
@@ -807,7 +807,7 @@ void AmplitudeCapture(struct parametros* parm)
 						NeutronWave(phim,rho,&(funcion_regular_up[0]),&(funcion_irregular_up[0]),dim1,parm,rn,l,lp,ld,wronskiano_up);
 					for(m=0;m<=lp;m++){
 					  	phi_up[n][l][m][lp]=((l+1.)/sqrt((l+1.)*(l+1.)+l*l))*phim[m];
-					  //	phi_up[n][l][m][lp]=phim[m];
+					  	//phi_up[n][l][m][lp]=phim[m];
 					}
 					    NeutronWave(phim,rho,&(funcion_regular_down[1]),&(funcion_irregular_down[1]),dim1,parm,rn,l,lp,ld,wronskiano_down);
 					for(m=0;m<=lp;m++){
@@ -1641,7 +1641,7 @@ double AbsorcionAngular(potencial_optico* pot,complejo**** wf,complejo**** non,p
 					UT+=wf[n][l][m][lp]*armonico;
 					HM+=non[n][l][m][lp]*armonico;
 				}
-				suma+=-2.*imag(pot_int)*abs(UT+HM)*abs(UT+HM)*dim->pesos[n]*((dim->b)-(dim->a))/2.;
+				suma+=-2.*imag(pot_int)*abs(UT-HM)*abs(UT-HM)*dim->pesos[n]*((dim->b)-(dim->a))/2.;
 //				suma+=-2.*imag(pot_int)*abs(UT)*abs(UT)*dim->pesos[n]*((dim->b)-(dim->a))/2.;
 			}
 		}

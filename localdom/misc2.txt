@@ -1,2 +1,202 @@
 
-& Proton energy: 1 MeV. Neutron energy: 16.2334 MeV  L:0
+& Proton energy: 15 MeV. Neutron energy: -7.52266 MeV  L:3
+
+& Proton energy: 15.01 MeV. Neutron energy: -7.53266 MeV  L:3
+
+& Proton energy: 15.02 MeV. Neutron energy: -7.54266 MeV  L:3
+
+& Proton energy: 15.03 MeV. Neutron energy: -7.55266 MeV  L:3
+
+& Proton energy: 15.04 MeV. Neutron energy: -7.56266 MeV  L:3
+
+& Proton energy: 15.05 MeV. Neutron energy: -7.57266 MeV  L:3
+
+& Proton energy: 15.06 MeV. Neutron energy: -7.58266 MeV  L:3
+
+& Proton energy: 15.07 MeV. Neutron energy: -7.59266 MeV  L:3
+
+& Proton energy: 15.08 MeV. Neutron energy: -7.60266 MeV  L:3
+
+& Proton energy: 15.09 MeV. Neutron energy: -7.61266 MeV  L:3
+
+& Proton energy: 15.1 MeV. Neutron energy: -7.62266 MeV  L:3
+
+& Proton energy: 15.11 MeV. Neutron energy: -7.63266 MeV  L:3
+
+& Proton energy: 15.12 MeV. Neutron energy: -7.64266 MeV  L:3
+
+& Proton energy: 15.13 MeV. Neutron energy: -7.65266 MeV  L:3
+
+& Proton energy: 15.14 MeV. Neutron energy: -7.66266 MeV  L:3
+
+& Proton energy: 15.15 MeV. Neutron energy: -7.67266 MeV  L:3
+
+& Proton energy: 15.16 MeV. Neutron energy: -7.68266 MeV  L:3
+
+& Proton energy: 15.17 MeV. Neutron energy: -7.69266 MeV  L:3
+
+& Proton energy: 15.18 MeV. Neutron energy: -7.70266 MeV  L:3
+
+& Proton energy: 15.19 MeV. Neutron energy: -7.71266 MeV  L:3
+
+& Proton energy: 15.2 MeV. Neutron energy: -7.72266 MeV  L:3
+
+& Proton energy: 15.21 MeV. Neutron energy: -7.73266 MeV  L:3
+
+& Proton energy: 15.22 MeV. Neutron energy: -7.74266 MeV  L:3
+
+& Proton energy: 15.23 MeV. Neutron energy: -7.75266 MeV  L:3
+
+& Proton energy: 15.24 MeV. Neutron energy: -7.76266 MeV  L:3
+
+& Proton energy: 15.25 MeV. Neutron energy: -7.77266 MeV  L:3
+
+& Proton energy: 15.26 MeV. Neutron energy: -7.78266 MeV  L:3
+
+& Proton energy: 15.27 MeV. Neutron energy: -7.79266 MeV  L:3
+
+& Proton energy: 15.28 MeV. Neutron energy: -7.80266 MeV  L:3
+
+& Proton energy: 15.29 MeV. Neutron energy: -7.81266 MeV  L:3
+
+& Proton energy: 15.3 MeV. Neutron energy: -7.82266 MeV  L:3
+
+& Proton energy: 15.31 MeV. Neutron energy: -7.83266 MeV  L:3
+
+& Proton energy: 15.32 MeV. Neutron energy: -7.84266 MeV  L:3
+
+& Proton energy: 15.33 MeV. Neutron energy: -7.85266 MeV  L:3
+
+& Proton energy: 15.34 MeV. Neutron energy: -7.86266 MeV  L:3
+
+& Proton energy: 15.35 MeV. Neutron energy: -7.87266 MeV  L:3
+
+& Proton energy: 15.36 MeV. Neutron energy: -7.88266 MeV  L:3
+
+& Proton energy: 15.37 MeV. Neutron energy: -7.89266 MeV  L:3
+
+& Proton energy: 15.38 MeV. Neutron energy: -7.90266 MeV  L:3
+
+& Proton energy: 15.39 MeV. Neutron energy: -7.91266 MeV  L:3
+
+& Proton energy: 15.4 MeV. Neutron energy: -7.92266 MeV  L:3
+
+& Proton energy: 15.41 MeV. Neutron energy: -7.93266 MeV  L:3
+
+& Proton energy: 15.42 MeV. Neutron energy: -7.94266 MeV  L:3
+
+& Proton energy: 15.43 MeV. Neutron energy: -7.95266 MeV  L:3
+
+& Proton energy: 15.44 MeV. Neutron energy: -7.96266 MeV  L:3
+
+& Proton energy: 15.45 MeV. Neutron energy: -7.97266 MeV  L:3
+
+& Proton energy: 15.46 MeV. Neutron energy: -7.98266 MeV  L:3
+
+& Proton energy: 15.47 MeV. Neutron energy: -7.99266 MeV  L:3
+
+& Proton energy: 15.48 MeV. Neutron energy: -8.00266 MeV  L:3
+
+& Proton energy: 15.49 MeV. Neutron energy: -8.01266 MeV  L:3
+
+& Proton energy: 15.5 MeV. Neutron energy: -8.02266 MeV  L:3
+
+& Proton energy: 15.51 MeV. Neutron energy: -8.03266 MeV  L:3
+
+& Proton energy: 15.52 MeV. Neutron energy: -8.04266 MeV  L:3
+
+& Proton energy: 15.53 MeV. Neutron energy: -8.05266 MeV  L:3
+
+& Proton energy: 15.54 MeV. Neutron energy: -8.06266 MeV  L:3
+
+& Proton energy: 15.55 MeV. Neutron energy: -8.07266 MeV  L:3
+
+& Proton energy: 15.56 MeV. Neutron energy: -8.08266 MeV  L:3
+
+& Proton energy: 15.57 MeV. Neutron energy: -8.09266 MeV  L:3
+
+& Proton energy: 15.58 MeV. Neutron energy: -8.10266 MeV  L:3
+
+& Proton energy: 15.59 MeV. Neutron energy: -8.11266 MeV  L:3
+
+& Proton energy: 15.6 MeV. Neutron energy: -8.12266 MeV  L:3
+
+& Proton energy: 15.61 MeV. Neutron energy: -8.13266 MeV  L:3
+
+& Proton energy: 15.62 MeV. Neutron energy: -8.14266 MeV  L:3
+
+& Proton energy: 15.63 MeV. Neutron energy: -8.15266 MeV  L:3
+
+& Proton energy: 15.64 MeV. Neutron energy: -8.16266 MeV  L:3
+
+& Proton energy: 15.65 MeV. Neutron energy: -8.17266 MeV  L:3
+
+& Proton energy: 15.66 MeV. Neutron energy: -8.18266 MeV  L:3
+
+& Proton energy: 15.67 MeV. Neutron energy: -8.19266 MeV  L:3
+
+& Proton energy: 15.68 MeV. Neutron energy: -8.20266 MeV  L:3
+
+& Proton energy: 15.69 MeV. Neutron energy: -8.21266 MeV  L:3
+
+& Proton energy: 15.7 MeV. Neutron energy: -8.22266 MeV  L:3
+
+& Proton energy: 15.71 MeV. Neutron energy: -8.23266 MeV  L:3
+
+& Proton energy: 15.72 MeV. Neutron energy: -8.24266 MeV  L:3
+
+& Proton energy: 15.73 MeV. Neutron energy: -8.25266 MeV  L:3
+
+& Proton energy: 15.74 MeV. Neutron energy: -8.26266 MeV  L:3
+
+& Proton energy: 15.75 MeV. Neutron energy: -8.27266 MeV  L:3
+
+& Proton energy: 15.76 MeV. Neutron energy: -8.28266 MeV  L:3
+
+& Proton energy: 15.77 MeV. Neutron energy: -8.29266 MeV  L:3
+
+& Proton energy: 15.78 MeV. Neutron energy: -8.30266 MeV  L:3
+
+& Proton energy: 15.79 MeV. Neutron energy: -8.31266 MeV  L:3
+
+& Proton energy: 15.8 MeV. Neutron energy: -8.32266 MeV  L:3
+
+& Proton energy: 15.81 MeV. Neutron energy: -8.33266 MeV  L:3
+
+& Proton energy: 15.82 MeV. Neutron energy: -8.34266 MeV  L:3
+
+& Proton energy: 15.83 MeV. Neutron energy: -8.35266 MeV  L:3
+
+& Proton energy: 15.84 MeV. Neutron energy: -8.36266 MeV  L:3
+
+& Proton energy: 15.85 MeV. Neutron energy: -8.37266 MeV  L:3
+
+& Proton energy: 15.86 MeV. Neutron energy: -8.38266 MeV  L:3
+
+& Proton energy: 15.87 MeV. Neutron energy: -8.39266 MeV  L:3
+
+& Proton energy: 15.88 MeV. Neutron energy: -8.40266 MeV  L:3
+
+& Proton energy: 15.89 MeV. Neutron energy: -8.41266 MeV  L:3
+
+& Proton energy: 15.9 MeV. Neutron energy: -8.42266 MeV  L:3
+
+& Proton energy: 15.91 MeV. Neutron energy: -8.43266 MeV  L:3
+
+& Proton energy: 15.92 MeV. Neutron energy: -8.44266 MeV  L:3
+
+& Proton energy: 15.93 MeV. Neutron energy: -8.45266 MeV  L:3
+
+& Proton energy: 15.94 MeV. Neutron energy: -8.46266 MeV  L:3
+
+& Proton energy: 15.95 MeV. Neutron energy: -8.47266 MeV  L:3
+
+& Proton energy: 15.96 MeV. Neutron energy: -8.48266 MeV  L:3
+
+& Proton energy: 15.97 MeV. Neutron energy: -8.49266 MeV  L:3
+
+& Proton energy: 15.98 MeV. Neutron energy: -8.50266 MeV  L:3
+
+& Proton energy: 15.99 MeV. Neutron energy: -8.51266 MeV  L:3
+
+& Proton energy: 16 MeV. Neutron energy: -8.52266 MeV  L:3

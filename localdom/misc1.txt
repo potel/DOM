@@ -1,1 +1,202 @@
-& Energia proton: 1    Energia neutron: 16.2334
+& Energia proton: 15    Energia neutron: -7.52266
+3  0.581954  0
+& Energia proton: 15.01    Energia neutron: -7.53266
+3  0.602471  0
+& Energia proton: 15.02    Energia neutron: -7.54266
+3  0.624137  0
+& Energia proton: 15.03    Energia neutron: -7.55266
+3  0.64704  0
+& Energia proton: 15.04    Energia neutron: -7.56266
+3  0.671276  0
+& Energia proton: 15.05    Energia neutron: -7.57266
+3  0.696951  0
+& Energia proton: 15.06    Energia neutron: -7.58266
+3  0.724182  0
+& Energia proton: 15.07    Energia neutron: -7.59266
+3  0.753096  0
+& Energia proton: 15.08    Energia neutron: -7.60266
+3  0.783837  0
+& Energia proton: 15.09    Energia neutron: -7.61266
+3  0.816562  0
+& Energia proton: 15.1    Energia neutron: -7.62266
+3  0.851444  0
+& Energia proton: 15.11    Energia neutron: -7.63266
+3  0.888679  0
+& Energia proton: 15.12    Energia neutron: -7.64266
+3  0.928483  0
+& Energia proton: 15.13    Energia neutron: -7.65266
+3  0.971098  0
+& Energia proton: 15.14    Energia neutron: -7.66266
+3  1.0168  0
+& Energia proton: 15.15    Energia neutron: -7.67266
+3  1.06588  0
+& Energia proton: 15.16    Energia neutron: -7.68266
+3  1.1187  0
+& Energia proton: 15.17    Energia neutron: -7.69266
+3  1.17563  0
+& Energia proton: 15.18    Energia neutron: -7.70266
+3  1.23713  0
+& Energia proton: 15.19    Energia neutron: -7.71266
+3  1.30402  0
+& Energia proton: 15.2    Energia neutron: -7.72266
+3  1.37715  0
+& Energia proton: 15.21    Energia neutron: -7.73266
+3  1.45673  0
+& Energia proton: 15.22    Energia neutron: -7.74266
+3  1.54354  0
+& Energia proton: 15.23    Energia neutron: -7.75266
+3  1.63846  0
+& Energia proton: 15.24    Energia neutron: -7.76266
+3  1.74256  0
+& Energia proton: 15.25    Energia neutron: -7.77266
+3  1.85705  0
+& Energia proton: 15.26    Energia neutron: -7.78266
+3  1.98334  0
+& Energia proton: 15.27    Energia neutron: -7.79266
+3  2.12312  0
+& Energia proton: 15.28    Energia neutron: -7.80266
+3  2.27836  0
+& Energia proton: 15.29    Energia neutron: -7.81266
+3  2.45143  0
+& Energia proton: 15.3    Energia neutron: -7.82266
+3  2.64513  0
+& Energia proton: 15.31    Energia neutron: -7.83266
+3  2.86287  0
+& Energia proton: 15.32    Energia neutron: -7.84266
+3  3.10874  0
+& Energia proton: 15.33    Energia neutron: -7.85266
+3  3.38777  0
+& Energia proton: 15.34    Energia neutron: -7.86266
+3  3.70612  0
+& Energia proton: 15.35    Energia neutron: -7.87266
+3  4.07146  0
+& Energia proton: 15.36    Energia neutron: -7.88266
+3  4.49336  0
+& Energia proton: 15.37    Energia neutron: -7.89266
+3  4.98392  0
+& Energia proton: 15.38    Energia neutron: -7.90266
+3  5.55858  0
+& Energia proton: 15.39    Energia neutron: -7.91266
+3  6.23728  0
+& Energia proton: 15.4    Energia neutron: -7.92266
+3  7.046  0
+& Energia proton: 15.41    Energia neutron: -7.93266
+3  8.01913  0
+& Energia proton: 15.42    Energia neutron: -7.94266
+3  9.20266  0
+& Energia proton: 15.43    Energia neutron: -7.95266
+3  10.659  0
+& Energia proton: 15.44    Energia neutron: -7.96266
+3  12.4741  0
+& Energia proton: 15.45    Energia neutron: -7.97266
+3  14.7674  0
+& Energia proton: 15.46    Energia neutron: -7.98266
+3  17.7071  0
+& Energia proton: 15.47    Energia neutron: -7.99266
+3  21.5309  0
+& Energia proton: 15.48    Energia neutron: -8.00266
+3  26.5723  0
+& Energia proton: 15.49    Energia neutron: -8.01266
+3  33.2837  0
+& Energia proton: 15.5    Energia neutron: -8.02266
+3  42.2213  0
+& Energia proton: 15.51    Energia neutron: -8.03266
+3  53.8836  0
+& Energia proton: 15.52    Energia neutron: -8.04266
+3  68.1608  0
+& Energia proton: 15.53    Energia neutron: -8.05266
+3  83.1397  0
+& Energia proton: 15.54    Energia neutron: -8.06266
+3  94.0396  0
+& Energia proton: 15.55    Energia neutron: -8.07266
+3  95.2938  0
+& Energia proton: 15.56    Energia neutron: -8.08266
+3  86.1099  0
+& Energia proton: 15.57    Energia neutron: -8.09266
+3  71.4471  0
+& Energia proton: 15.58    Energia neutron: -8.10266
+3  56.6615  0
+& Energia proton: 15.59    Energia neutron: -8.11266
+3  44.2972  0
+& Energia proton: 15.6    Energia neutron: -8.12266
+3  34.7469  0
+& Energia proton: 15.61    Energia neutron: -8.13266
+3  27.5728  0
+& Energia proton: 15.62    Energia neutron: -8.14266
+3  22.2006  0
+& Energia proton: 15.63    Energia neutron: -8.15266
+3  18.1446  0
+& Energia proton: 15.64    Energia neutron: -8.16266
+3  15.0423  0
+& Energia proton: 15.65    Energia neutron: -8.17266
+3  12.6347  0
+& Energia proton: 15.66    Energia neutron: -8.18266
+3  10.7386  0
+& Energia proton: 15.67    Energia neutron: -8.19266
+3  9.22445  0
+& Energia proton: 15.68    Energia neutron: -8.20266
+3  7.99946  0
+& Energia proton: 15.69    Energia neutron: -8.21266
+3  6.99648  0
+& Energia proton: 15.7    Energia neutron: -8.22266
+3  6.16623  0
+& Energia proton: 15.71    Energia neutron: -8.23266
+3  5.47206  0
+& Energia proton: 15.72    Energia neutron: -8.24266
+3  4.88634  0
+& Energia proton: 15.73    Energia neutron: -8.25266
+3  4.388  0
+& Energia proton: 15.74    Energia neutron: -8.26266
+3  3.96074  0
+& Energia proton: 15.75    Energia neutron: -8.27266
+3  3.59188  0
+& Energia proton: 15.76    Energia neutron: -8.28266
+3  3.27136  0
+& Energia proton: 15.77    Energia neutron: -8.29266
+3  2.9912  0
+& Energia proton: 15.78    Energia neutron: -8.30266
+3  2.74871  0
+& Energia proton: 15.79    Energia neutron: -8.31266
+3  2.5371  0
+& Energia proton: 15.8    Energia neutron: -8.32266
+3  2.34864  0
+& Energia proton: 15.81    Energia neutron: -8.33266
+3  2.18012  0
+& Energia proton: 15.82    Energia neutron: -8.34266
+3  2.02884  0
+& Energia proton: 15.83    Energia neutron: -8.35266
+3  1.89254  0
+& Energia proton: 15.84    Energia neutron: -8.36266
+3  1.76934  0
+& Energia proton: 15.85    Energia neutron: -8.37266
+3  1.65762  0
+& Energia proton: 15.86    Energia neutron: -8.38266
+3  1.55601  0
+& Energia proton: 15.87    Energia neutron: -8.39266
+3  1.46333  0
+& Energia proton: 15.88    Energia neutron: -8.40266
+3  1.37858  0
+& Energia proton: 15.89    Energia neutron: -8.41266
+3  1.30088  0
+& Energia proton: 15.9    Energia neutron: -8.42266
+3  1.22948  0
+& Energia proton: 15.91    Energia neutron: -8.43266
+3  1.16372  0
+& Energia proton: 15.92    Energia neutron: -8.44266
+3  1.10302  0
+& Energia proton: 15.93    Energia neutron: -8.45266
+3  1.04689  0
+& Energia proton: 15.94    Energia neutron: -8.46266
+3  0.994879  0
+& Energia proton: 15.95    Energia neutron: -8.47266
+3  0.946594  0
+& Energia proton: 15.96    Energia neutron: -8.48266
+3  0.901693  0
+& Energia proton: 15.97    Energia neutron: -8.49266
+3  0.859868  0
+& Energia proton: 15.98    Energia neutron: -8.50266
+3  0.820846  0
+& Energia proton: 15.99    Energia neutron: -8.51266
+3  0.784385  0
+& Energia proton: 16    Energia neutron: -8.52266
+3  0.750266  0
