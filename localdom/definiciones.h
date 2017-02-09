@@ -196,6 +196,8 @@ void JacobiTransform(estado* st1,estado* st2,estado* st3,estado* st4,double** g,
 void Simultaneous(struct parametros *parm,complejo*** Clalb);
 double interpola2D_dbl(double** funcion,double* r1,double* r2,
 		double posicion1,double posicion2,int puntos1,int puntos2);
+complejo interpola2D_cmpx(complejo** funcion,double* r1,double* r2,
+		double posicion1,double posicion2,int puntos1,int puntos2);
 void ClusterPotential(double** ga,double** gB,double** vtx,complejo*** vcluster,parametros* parm,parametros_integral* dim1,
 		parametros_integral* dim2,parametros_integral* dim3,double* rr,int puntos,int II,int l,int lambdaa,int lambdaB,int K,int J,
 		potencial_optico* pot_entry,potencial_optico* pot_exit,potencial_optico* pot_core);
@@ -213,3 +215,6 @@ void HanShiShen(double E,double N,double Z);
 double TotalBreakup(complejo**** wf,complejo**** rho,parametros* parm, parametros_integral* dim,int l);
 double Alignment(int l,int m,potencial_optico* pot, double radio, double b);
 void SpinAlignment(parametros* parm);
+void NeutronWaveGF(complejo* phi,complejo**** rho,complejo** green,double* r,int puntos_r,
+		parametros_integral* dim,parametros* parm,double rBn,int l,int lp,int ld,complejo wronskiano);
+void AmplitudeCaptureCC(struct parametros* parm);

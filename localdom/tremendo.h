@@ -1,5 +1,31 @@
 #include <iostream>
 #include <cstdlib>
+//#include <gsl\gsl_multiroots.h>
+//#include <gsl/gsl_math.h>
+//#include <gsl/gsl_vector.h>
+//#include <gsl/gsl_sf.h>
+//#include <gsl/gsl_complex.h>
+//#include <gsl/gsl_complex_math.h>
+//#include <gsl/gsl_deriv.h>
+//#include <gsl/gsl_integration.h>
+//#include <gsl/gsl_sf_coupling.h>
+//#include <gsl/gsl_eigen.h>
+//#include <gsl/gsl_errno.h>
+
+#ifdef __linux__
+#define LINUX 1
+#else
+#define LINUX 0
+#endif
+#ifdef _WIN32
+#define WINDOWS 1
+#else
+#define WINDOWS 0
+#endif
+
+#include <iostream>
+#include <cstdlib>
+#ifdef __linux__
 #include <gsl/gsl_multiroots.h>
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_vector.h>
@@ -11,6 +37,23 @@
 #include <gsl/gsl_sf_coupling.h>
 #include <gsl/gsl_eigen.h>
 #include <gsl/gsl_errno.h>
+#else
+#ifdef _WIN32
+#include <gsl\gsl_multiroots.h>
+#include <gsl\gsl_math.h>
+#include <gsl\gsl_vector.h>
+#include <gsl\gsl_sf.h>
+#include <gsl\gsl_complex.h>
+#include <gsl\gsl_complex_math.h>
+#include <gsl\gsl_deriv.h>
+#include <gsl\gsl_integration.h>
+#include <gsl\gsl_sf_coupling.h>
+#include <gsl\gsl_eigen.h>
+#include <gsl\gsl_errno.h>
+#endif
+#endif
+
+
 #include <cstdio>
 #include <iostream>
 #include <complex>
