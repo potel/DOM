@@ -303,7 +303,9 @@ void Capture(struct parametros* parm)
 	EscribeEstados(parm->puntos,parm->st,parm->num_st,parm);
 	EscribePotencial(parm->puntos,parm->pot,parm->num_cm,parm);
 	EscribePotencialOptico(parm->puntos,parm->pot_opt,parm->num_opt,parm);
-	AmplitudeCapture(parm);
+//	cout<<"koning: "<<parm->koning_delaroche<<endl;
+	if(parm->koning_delaroche==2) AmplitudeCaptureCC(parm);
+	else AmplitudeCapture(parm);
 }
 void AmplitudeCapture(struct parametros* parm)
 {
@@ -551,9 +553,6 @@ void AmplitudeCapture(struct parametros* parm)
 									    "*****************************************************"<<endl;
 	if(parm->koning_delaroche==0) cout<<"*****************************************************"<<endl<<
 									    "***** Using DOM potentials *****"<<endl<<
-									    "*****************************************************"<<endl;
-	if(parm->koning_delaroche==2) cout<<"*****************************************************"<<endl<<
-									    "***** Reading Coupled Cluster Green's function and potential *****"<<endl<<
 									    "*****************************************************"<<endl;
         if(parm->koning_delaroche<0 || parm->koning_delaroche>1) {cout<<"Error!: koning_delaroche has to be either 0 or 1  "<<endl; exit(0);}
 	r_F=1000.;
@@ -1063,6 +1062,8 @@ void AmplitudeCaptureCC(struct parametros* parm)
 		for(l=parm->lmin;l<parm->ltransfer;l++)
 		{
 			cout<<"L: "<<l<<endl;
+			ReadGF("C:\\Gregory\\CCopt\\out_gf_radial_1",GreenFunction,rg,200);
+			exit(0);
 			for(lp=0;lp<parm->lmax;lp++)
 			{
 			if(parm->remnant==1 && parm->prior==1) {
@@ -2541,36 +2542,54 @@ int LeeEstados(char *s,const char key[100],estado* st,FILE* fp)
 /*****************************************************************************
 Read Green's function
  *****************************************************************************/
-int ReadGF(const char *fname,complejo** GF,int dimension)
+int ReadGF(const char *fname,complejo** GF,double* r,int dimension)
 {
 	char aux[500];
-	int n,m,l1,l2,cont;
+	int n,m,l,cont1,cont2,jint,points;
 	FILE *fp;
-	float val;
-	float ene1,ene2,j1,j2,eneold;
+	complejo val,val2;
+	float ene,j,r1,r2,RealPart,ImaginaryPart,r1old;
 	fp = fopen(fname,"r");
-	if (!fp) Error("Error al abrir matriz de coeficientes");
+	if (!fp) Error("Error opening Green's function file in ReadGF");
     n=0;
     m=0;
-    ene1=1.e5;
-    cont=0;
+    fgets(aux,500,fp);
+    sscanf(aux,"%*s %g %*s %d %*s %d %*s %d",&ene,&l,&jint,&points);
+    j=jint/2.;
+    cout<<"Energy: "<<ene<<"    L: "<<l<<"    j: "<<j<<"    points: "<<points<<endl;
+    fgets(aux,500,fp);
+	sscanf(aux,"%g %g %g %g",&r1,&r2,&RealPart,&ImaginaryPart);
+	GF[0][0]=double(RealPart)+I*double(ImaginaryPart);
+	r[0]=r2;
+	cont1=0;
+	cont2=0;
+	r1old=r[0];
 	while(fgets(aux,500,fp)!=NULL)
 	{
-		eneold=ene1;
-		sscanf(aux,"%g %d %g %g %d %g %g",&ene1,&l1,&j1,&ene2,&l2,&j2,&val);
-		j1=j1/2.;
-		j2=j2/2.;
-		if(cont>0 && ene1!=eneold) {
-			n=n+1;
-			m=0;
+		if(cont1==0) r[cont2]=r2;
+		sscanf(aux,"%g %g %g %g",&r1,&r2,&RealPart,&ImaginaryPart);
+		if(r1==r1old){
+			cont2++;
 		}
-		if(n>dimension-1 || m>dimension-1) Error("Fichero de coeficientes mayor que la dimension de la matriz!");
-		anm[n][m]=val;
-		m=m+1;
-		cont++;
+		else{
+			cont1++;
+			cont2=0;
+			r1old=r1;
+		}
+		GF[cont1][cont2]=double(RealPart)+I*double(ImaginaryPart);
+		if(cont2>dimension) Error("Green's function file too big in ReadGF");
 	}
-	cout<<"n maximo: "<<n<<endl;
-	cout<<"m maximo: "<<m-1<<endl;
+	cout<<"cont1 "<<cont1<<endl;
+	cout<<"cont2: "<<cont2<<endl;
+	cout<<"GF: "<<GF[0][0]<<"  "<<GF[199][199]<<"  "<<endl;
+	cout<<"r: "<<r[0]<<"  "<<r[199]<<"  "<<endl;
+	for(n=0;n<200;n++)
+	{
+		for(m=0;m<200;m++)
+		{
+			misc1<<r[n]<<"  "<<r[m]<<"  "<<real(GF[n][m])<<"  "<<imag(GF[n][m])<<endl;
+		}
+	}
 	fclose(fp);
 	return 1;
 }

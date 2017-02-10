@@ -218,3 +218,4 @@ void SpinAlignment(parametros* parm);
 void NeutronWaveGF(complejo* phi,complejo**** rho,complejo** green,double* r,int puntos_r,
 		parametros_integral* dim,parametros* parm,double rBn,int l,int lp,int ld,complejo wronskiano);
 void AmplitudeCaptureCC(struct parametros* parm);
+int ReadGF(const char *fname,complejo** GF,double* r,int dimension);
