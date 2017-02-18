@@ -219,3 +219,4 @@ void NeutronWaveGF(complejo* phi,complejo**** rho,complejo** green,double* r,int
 		parametros_integral* dim,parametros* parm,double rBn,int l,int lp,int ld,complejo wronskiano);
 void AmplitudeCaptureCC(struct parametros* parm);
 int ReadGF(const char *fname,complejo** GF,double* r,int dimension);
+void AddCoulomb(potencial_optico* v,double q1q2);

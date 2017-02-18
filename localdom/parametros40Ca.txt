@@ -26,6 +26,10 @@ scatt_pot 4
 prior 1
 remnant 1
 core_pot 1
+capture_angular 0
+enerange_min 1.
+enerange_max 27.
+enerange_step 0.3
 ++++++++++++++ Descripción de la reacción +++++++++++++++++++++++++++++++++++++
 
 base1  20   # tamaños de la base usada para describir los estados de partícula independiente
@@ -125,7 +129,7 @@ form_factor 0			# si=1 calcula el factor de forma no local (two_trans tiene que 
 unidades milib				# unidades de la sección eficaz: milib->milibarn, fm2->fermi^2, b->barn, microb->microbarn
 adiabatico 1        
 zerorange 0     
-koning_delaroche 0 # potencial de Koning-Delaroche
+koning_delaroche 2 # potencial de Koning-Delaroche
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 InicioPotencialesOpticos
 
