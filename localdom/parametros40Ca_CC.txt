@@ -26,9 +26,9 @@ scatt_pot 4
 prior 1
 remnant 1
 core_pot 1
-capture_angular 1
-enerange_min 10.576
-enerange_max 27.
+capture_angular 0
+enerange_min 0.576
+enerange_max 47.
 enerange_step 100.
 ++++++++++++++ Descripción de la reacción +++++++++++++++++++++++++++++++++++++
 

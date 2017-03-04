@@ -1,13 +1,13 @@
-Lab Energy: -6.97084 MeV. N: 20. Z: 20
+Lab Energy: -3.17561 MeV. N: 20. Z: 20
 *********************************************
 
 Protons: 
 
-RealVolumen 61.2754
-ImaginarioVolumen  0.00200422
-RealSpinOrbita  6.02064
+RealVolumen 59.6334
+ImaginarioVolumen  0.0558053
+RealSpinOrbita  5.92993
 ImaginarioSpinOrbita	0
-ImaginarioSuperficie  0.0924927
+ImaginarioSuperficie  2.0533
 RadioRealVolumen  1.18536
 RadioCoulomb  1.28537
 RadioImaginarioVolumen  1.18536
@@ -19,11 +19,11 @@ RadioImaginarioSuperficie  1.28819
 DifusividadImaginarioSuperficie 0.53952
 Neutrons: 
 
-RealVolumen 56.9917
-ImaginarioVolumen  0.0230662
-RealSpinOrbita  5.96391
+RealVolumen 55.4479
+ImaginarioVolumen  0.107602
+RealSpinOrbita  5.87406
 ImaginarioSpinOrbita	0
-ImaginarioSuperficie  1.10373
+ImaginarioSuperficie  3.74609
 RadioRealVolumen  1.18536
 RadioCoulomb  1.28537
 RadioImaginarioVolumen  1.18536
