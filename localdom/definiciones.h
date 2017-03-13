@@ -225,6 +225,13 @@ int ReadNLpot(const char *fname,complejo** potential,double* r,int dimension,
 void SourceNL(complejo* rho,complejo* non,distorted_wave* f,distorted_wave* g_up,
 	      distorted_wave* g_down,estado* u,complejo** v,double* r,int puntos_r,potencial_optico* optico,
 	      potencial_optico* core,int l,double rBn,parametros* parm, parametros_integral* dim1,parametros_integral* dim2);
-double AbsorcionNL(complejo** pot,complejo**** wf,complejo**** non,parametros_integral* dim,int l,int lmax
+double AbsorcionNL(complejo** pot,complejo** gf,complejo**** rho,complejo**** wf,complejo**** non,parametros_integral* dim,int l,int lmax
 		   ,double* r,int puntos_r);
 void Localize(complejo** nlf,double* r,int puntos_r,complejo* lf,parametros_integral* dim);
+double Spectral(complejo** gf,double* r,int puntos_r,parametros_integral* dim);
+double AbsorcionDirect(complejo** gf,complejo**** rho,parametros_integral* dim,int l,int lmax
+		       ,double* r,int puntos_r);
+double AbsorcionAngularNL(complejo** pot,complejo**** wf,complejo**** non,parametros_integral* dim,parametros* parm,
+			  double theta,double* r,int puntos_r);
+complejo GFgenerator(distorted_wave* fl,distorted_wave* Pl,
+		     parametros_integral* dim,parametros* parm,complejo wronskiano);
