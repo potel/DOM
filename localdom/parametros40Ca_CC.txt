@@ -26,14 +26,14 @@ scatt_pot 4
 prior 1
 remnant 1
 core_pot 1
-capture_angular 0
-enerange_min 5.
-enerange_max 20.
-enerange_min 14.
-enerange_max 16.
-#enerange_min 15.
-#enerange_max 16.5
-enerange_step 0.02
+capture_angular 1
+#enerange_min 0.1
+#enerange_max 116.
+#enerange_min 15.54
+#enerange_max 16.
+enerange_min 15.246
+enerange_max 15.2465
+enerange_step 0.01
 ++++++++++++++ Descripción de la reacción +++++++++++++++++++++++++++++++++++++
 
 base1  20   # tamaños de la base usada para describir los estados de partícula independiente
@@ -176,23 +176,48 @@ InicioPotencialesOpticos
 #****************************
 
 # optical potential at Ed=10 MeV, Brown, NPA 225 (1974)267
+#id 0
+#RealVolumen    89.2	
+#ImaginarioVolumen    19.01
+#RealSpinOrbita      0.
+#ImaginarioSpinOrbita	0.
+#ImaginarioSuperficie   0.
+#RadioRealVolumen     1.175
+#RadioCoulomb              1.175                            
+#RadioImaginarioVolumen         1.534
+#DifusividadRealVolumen           0.83
+#DifusividadImaginarioVolumen     0.470
+#RadioSpinOrbita             	0.97160242115162
+#DifusividadSpinOrbita         0.955
+#RadioImaginarioSuperficie            1.36755
+#DifusividadImaginarioSuperficie     0.811901
+#
+#**************************
+
+
+# optical potential at Ed=10 MeV, Han-Shi-Shen
 id 0
-RealVolumen    89.2	
-ImaginarioVolumen    19.01
-RealSpinOrbita      0.
-ImaginarioSpinOrbita	0.
-ImaginarioSuperficie   0.
-RadioRealVolumen     1.175
-RadioCoulomb              1.175                            
-RadioImaginarioVolumen         1.534
-DifusividadRealVolumen           0.83
-DifusividadImaginarioVolumen     0.470
-RadioSpinOrbita             	0.97160242115162
-DifusividadSpinOrbita         0.955
-RadioImaginarioSuperficie            1.36755
-DifusividadImaginarioSuperficie     0.811901
+RealVolumen 86.7986
+ImaginarioVolumen  0
+RealSpinOrbita  3.703
+ImaginarioSpinOrbita	-0.206
+ImaginarioSuperficie  20.174
+RadioRealVolumen  1.174
+RadioCoulomb  1.698
+RadioImaginarioVolumen  1.563
+DifusividadRealVolumen  0.809
+DifusividadImaginarioVolumen  0.853898
+RadioSpinOrbita    1.234
+DifusividadSpinOrbita  0.813
+RadioImaginarioSuperficie  1.328
+DifusividadImaginarioSuperficie 0.618898
 
 **************************
+
+
+
+
+
 
 id 1
 RealVolumen   160.6
