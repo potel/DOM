@@ -218,7 +218,7 @@ void SpinAlignment(parametros* parm);
 void NeutronWaveGF(complejo* phi,complejo**** rho,complejo** green,double* r,int puntos_r,
 		parametros_integral* dim,parametros* parm,double rBn,int l,int lp,int ld,complejo wronskiano);
 void AmplitudeCaptureCC(struct parametros* parm);
-int ReadGF(const char *fname,complejo** GF,double* r,int dimension, double* einitial,double efinal,int l,int dj);
+int ReadGF(const char *fname,complejo** GF,double* r,int dimension,double* einitial,double efinal,double nstep,int ll,int dj);
 void AddCoulomb(potencial_optico* v,double q1q2);
 int ReadNLpot(const char *fname,complejo** potential,double* r,int dimension,
 	      double energy,int ll,int dj);
