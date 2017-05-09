@@ -3060,18 +3060,14 @@ int ReadGF(const char *fname,complejo** GF,double* r,int dimension,
 	{
 	  cout<<"In ReadGF, Energy: "<<ene<<"    L: "<<l<<"    j: "<<j<<"    points: "<<points<<endl;
 	  //misc2<<"Energy: "<<ene<<"    L: "<<l<<"    j: "<<j<<"    points: "<<points<<endl;
-	  // for(n=0;n<200;n++)
-	  //   {
-	  //     for(m=0;m<200;m++)
-	  // 	{
-	  //  	  misc5<<r[n]<<"  "<<r[n]<<"  "<<real(GF[n][n])<<"  "<<imag(GF[n][n])<<endl;
-	  // 	}
-	  //   }    
+	  for(n=0;n<cont1;n++)
+	    {
+	      misc5<<r[n]<<"  "<<r[n]<<"  "<<real(GF[n][n])<<"  "<<imag(GF[n][n])<<endl;
+	    }    
 	  *einitial=ene;
 	  return 1;
 	}
     }
-  cout<<"quillo!"<<endl;
   return 0;
 }
 /*****************************************************************************
