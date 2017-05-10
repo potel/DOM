@@ -21,7 +21,7 @@ int DOM(int l,double j, double Ecm, double r);
 int main(int argc,char* argv[]){
 	parametros *parm=new struct parametros;
 	cout<<"Project managed with Git!!"<<" parameter file: "<<argv[1]<<endl;
-       
+        cout<<"hello world"<<endl;
 	if (!parm) Error("No se pudo reservar memoria para parametros");
 	const char* input=argv[1];
 	LeeParametros(input,parm);
