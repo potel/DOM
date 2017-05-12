@@ -84,6 +84,7 @@ void LeeParametros(const char *fname,struct parametros *x)
 		ReadParS(aux,"fl_espectro",x->fl_espectro);
 		ReadParS(aux,"fl_dw",x->fl_dw);
 		ReadParS(aux,"fl_gf",x->fl_gf);
+		ReadParS(aux,"fl_se",x->fl_se);
 		ReadParS(aux,"a_tipo_fun",x->a_tipo_fun);
 		ReadParS(aux,"B_tipo_fun",x->B_tipo_fun);
 		ReadParD(aux,"a_potcm",&(x->a_potcm));
@@ -905,6 +906,12 @@ void AmplitudeCaptureCC(struct parametros* parm)
   fp9.open("dsdE.txt");
   ofstream fp10;
   fp10.open("dsdEdO.txt");
+  ifstream fl_gf;
+  ifstream fl_se;
+  fl_gf.open(parm->fl_gf,ios::in);
+  fl_se.open(parm->fl_se,ios::in);
+  if(!fl_gf.is_open()) cout<<"Warning, Green's function file "<<parm->fl_gf<<" not open in AmplitudeCaptureCC"<<endl;
+  if(!fl_se.is_open()) cout<<"Warning,  self-energy file "<<parm->fl_se<<" not open in AmplitudeCaptureCC"<<endl;
   complejo* S=new complejo[parm->lmax];
   complejo**** rho=tensor4_cmpx(parm->rCc_puntos,parm->lmax,parm->lmax+1,parm->lmax);
   complejo* rhom=new complejo[parm->lmax+1];
@@ -1062,7 +1069,8 @@ void AmplitudeCaptureCC(struct parametros* parm)
   Ecm=parm->energia_cm-Ecm_out-2.2245;
   cout<<"Ecm starts at  "<<Ecm<<" MeV and ends at "<<Ecmmax<<" MeV"<<endl;
   cout<<endl<<endl<<endl;
-  spectral=1;
+  spectral=0;
+  flagpot=1;
   if(spectral==1)
     {
       for(;;)
@@ -1070,33 +1078,34 @@ void AmplitudeCaptureCC(struct parametros* parm)
 	  l=parm->lmin;
 	  dj=2*l+1;
 	  cout<<"Start reading GF for l="<<l<<", j="<<dj/2.<<endl;
-	  flagGF=ReadGF("/home/gregory/DOM/localdom/potential_Gregory/NFT/gf_l0_r1r2.dat",GreenFunction,rg,
-			puntos_r,&Ecm,Ecmmax,parm->enerange_step,l,dj);
-	  cout<<"Start reading SE for l="<<l<<", j="<<dj/2.<<endl;
-	  flagpot=ReadNLpot("/home/gregory/DOM/localdom/potential_Gregory/NFT/se_l0_r1r2.dat",NLpot,rg,
-			    puntos_r,Ecm,l,dj);
+	  flagGF=ReadGF(&fl_gf,GreenFunction,rg,puntos_r,&Ecm,Ecmmax,parm->enerange_step,l,dj);
+	  //exit(0);
+	  //cout<<"Start reading SE for l="<<l<<", j="<<dj/2.<<endl;
+	  //flagpot=ReadNLpot("/home/gregory/DOM/localdom/potential_Gregory/NFT/se_l0_r1r2.dat",NLpot,rg,
+	  //puntos_r,Ecm,l,dj);
 	  //cout<<energia_out<<"  "<<Ecm<<"  "<<real(GreenFunction[10][10])<<"  "<<imag(GreenFunction[10][10])<<endl;
 	  //exit(0);
 	  //Localize(NLpot,rg,puntos_r,localpot,dim1);
 	  sp=Spectral(GreenFunction,rg,puntos_r,dim1);
+	  //cout<<Ecm<<"  "<<abs(sp)<<endl;
 	  misc2<<Ecm<<"  "<<abs(sp)<<endl;
 	  if(flagGF==0 || flagpot==0)
 	    {
-	      cout<<"Exiting loop on Ecm="<<Ecm<<endl;
+	      cout<<"Exiting loop on Ecm="<<Ecm<<" with flagGF="<<flagGF<<" and flagpot="<<flagpot<<endl;
 	      break;
 	    }      
 	}
-      exit(0);
+      //exit(0);
     }
   for(;;)
     {
       l=parm->lmin;
       dj=2*l+1;
       cout<<"Start reading GF for l="<<l<<", j="<<dj/2.<<endl;
-      flagGF=ReadGF("/home/gregory/DOM/localdom/potential_Gregory/NFT/gf_l0_r1r2.dat",GreenFunction,rg,
+      flagGF=ReadGF(&fl_gf,GreenFunction,rg,
 		    puntos_r,&Ecm,Ecmmax,parm->enerange_step,l,dj);
       cout<<"Start reading SE for l="<<l<<", j="<<dj/2.<<endl;
-      flagpot=ReadNLpot("/home/gregory/DOM/localdom/potential_Gregory/NFT/se_l0_r1r2.dat",NLpot,rg,
+      flagpot=ReadNLpot(&fl_se,NLpot,rg,
       		    puntos_r,Ecm,l,dj);
       //cout<<energia_out<<"  "<<Ecm<<"  "<<real(GreenFunction[10][10])<<"  "<<imag(GreenFunction[10][10])<<endl;
       //exit(0);
@@ -1115,7 +1124,7 @@ void AmplitudeCaptureCC(struct parametros* parm)
       energia_trans=(parm->n1_masa+parm->T_masa)*Ecm/(parm->T_masa);
       if(flagGF==0 || flagpot==0)
 	{
-	  cout<<"Exiting loop on Ecm="<<Ecm<<endl;
+	  cout<<"Exiting loop on Ecm="<<Ecm<<" with flagGF="<<flagGF<<" and flagpot="<<flagpot<<endl;
 	  break;
 	}
       cout<<"Energy of detected cluster: "<<energia_out<<endl<<"Energy of absorbed cluster: "
@@ -1284,6 +1293,7 @@ void AmplitudeCaptureCC(struct parametros* parm)
 		}
 	    }
 	  cout<<"NEB cross section:  "<<cross_total<<"   EB cross section:  "<<cross_total_elasticb<<endl;
+	  exit(0);
 	}
       cout<<"Conditions: "<<(Ecm<Ecmmax)<<"  "<<(flagGF)<<endl;
     }
@@ -1611,11 +1621,14 @@ double Spectral(complejo** gf,double* r,int puntos_r,parametros_integral* dim)
   int n1;
   double R,sp;
   complejo gfint;
+  double hbarx=HC*HC/(2.*AMU);
   sp=0;
   for (n1 =0;n1<dim->num_puntos; n1++) {
     R= (dim->a)+((dim->b)-(dim->a))*((dim->puntos[n1])+1.)/2.;
     gfint=interpola2D_cmpx(gf,r,r,R,R,puntos_r,puntos_r);
-    sp+=R*R*imag(gfint)*dim->pesos[n1]*((dim->b)-(dim->a))/2.;
+    sp+=R*R*(imag(gfint)/hbarx)*dim->pesos[n1]*((dim->b)-(dim->a))/2.;
+    // misc2<<R<<" "<<n1<<" "<<int(R/0.1)<<"  "<<imag(gfint)<<" "<<imag(gf[int(R/0.1)][int(R/0.1)])<<endl;
+    // misc1<<R<<" "<<imag(gfint)<<" "<<R*R*imag(gfint)<<" "<<sp<<endl;
   }
   return sp;
 }
@@ -3006,123 +3019,132 @@ int LeeEstados(char *s,const char key[100],estado* st,FILE* fp)
 /*****************************************************************************
 Read Green's function
  *****************************************************************************/
-int ReadGF(const char *fname,complejo** GF,double* r,int dimension,
+int ReadGF(ifstream* fl_gf,complejo** GF,double* r,int dimension,
 	   double* einitial,double efinal,double nstep,int ll,int dj)
 {
   char aux[500];
-  char* flag;
+  bool flag;
+  string line;
+  streampos pos;
+  double sum,del;
   const char fin[]=" ene";
   double hbarx=HC*HC/(2.*AMU);
   int l2=4;
   int n,m,l,cont1,cont2,jint,points;
-  FILE *fp;
   complejo val,val2;
   float ene,j,r1,r2,RealPart,ImaginaryPart,r1old;
-  fp = fopen(fname,"r");
-  if (!fp) Error("Error opening Green's function file in ReadGF");
   n=0;
   m=0;
-  flag=fgets(aux,500,fp);
+  flag=getline(*fl_gf,line);
   //cout<<"compare: "<<strncmp("energy","ener",3)<<endl;
-  while(flag!=NULL)
+  while(flag)
     {
-      sscanf(aux,"%*s %g %*s %d %*s %d %*s %d",&ene,&l,&jint,&points);
+      sscanf(line.c_str(),"%*s %g %*s %d %*s %d %*s %d",&ene,&l,&jint,&points);
       j=jint/2.;
-      //cout<<"In ReadGF, Energy: "<<ene<<"    L: "<<l<<"    j: "<<j<<"    points: "<<points<<endl;
-      flag=fgets(aux,500,fp);
-      sscanf(aux,"%g %g %g %g",&r1,&r2,&RealPart,&ImaginaryPart);
+      // cout<<"In ReadGF, Energy: "<<ene<<"    L: "<<l<<"    j: "<<j<<"    points: "<<points<<endl;
+      // misc2<<"In ReadGF, Energy: "<<ene<<"    L: "<<l<<"    j: "<<j<<"    points: "<<points<<endl;
+      // misc2<<"   line: "<<line.c_str()<<endl;
+      flag=getline(*fl_gf,line);
+      sscanf(line.c_str(),"%g %g %g %g",&r1,&r2,&RealPart,&ImaginaryPart);
       GF[0][0]=double(RealPart)+I*double(ImaginaryPart);
       r[0]=r1;
       cont1=0;
       cont2=0;
       r1old=r[0];
-      flag=fgets(aux,500,fp);
-      while(strncmp(aux,fin,l2))
-	{
-	  if(cont1==0) {
-	    r[cont2]=r2;
-	  }
-	  sscanf(aux,"%g %g %g %g",&r1,&r2,&RealPart,&ImaginaryPart);
-	  //cout<<r1<<"  "<<r2<<"  "<<RealPart<<"  "<<ImaginaryPart<<endl;
-	  if(r1==r1old){
-	    cont2++;
-	  }
-	  else{
-	    cont1++;
-	    cont2=0;
-	    r1old=r1;
-	  }
+      flag=getline(*fl_gf,line);
+      // cout<<strncmp(line.c_str(),fin,l2)<<"  "<<line.c_str()<<"  "<<fin<<endl;
+      sum=0.;
+      while(strncmp(line.c_str(),fin,l2))
+  	{
+  	  if(cont1==0) {
+  	    r[cont2]=r2;
+	    del=r[cont2]-r[cont2-1];
+  	  }
+  	  sscanf(line.c_str(),"%g %g %g %g",&r1,&r2,&RealPart,&ImaginaryPart);
+	  if(r1==r2) {sum+=del*ImaginaryPart; misc5<<r1<<"  "<<r2<<"  "<<RealPart<<"  "<<ImaginaryPart<<endl;}
+  	  if(r1==r1old){
+  	    cont2++;
+  	  }
+  	  else{
+  	    cont1++;
+  	    cont2=0;
+  	    r1old=r1;
+  	  }
 	  
-	  GF[cont1][cont2]=hbarx*(double(RealPart)+I*double(ImaginaryPart));
-	  flag=fgets(aux,500,fp);
-	}
+  	  GF[cont1][cont2]=hbarx*(double(RealPart)+I*double(ImaginaryPart));
+	  pos=fl_gf->tellg();
+  	  flag=getline(*fl_gf,line);
+  	}
+      // cout<<"suma: "<<sum<<" del: "<<del<<"  "<<cont2<<endl;
+      //      cout<<strncmp(line.c_str(),fin,l2)<<"  "<<line.c_str()<<"  "<<fin<<endl;	  
       if((ene>*einitial+nstep)&&(ene<efinal)&&(ll==l))
-	{
-	  cout<<"In ReadGF, Energy: "<<ene<<"    L: "<<l<<"    j: "<<j<<"    points: "<<points<<endl;
-	  //misc2<<"Energy: "<<ene<<"    L: "<<l<<"    j: "<<j<<"    points: "<<points<<endl;
-	  // for(n=0;n<200;n++)
-	  //   {
-	  //     for(m=0;m<200;m++)
-	  // 	{
-	  //  	  misc5<<r[n]<<"  "<<r[n]<<"  "<<real(GF[n][n])<<"  "<<imag(GF[n][n])<<endl;
-	  // 	}
-	  //   }    
-	  *einitial=ene;
-	  return 1;
-	}
+   	{
+	   	  cout<<"In ReadGF, part 2, Energy: "<<ene<<"    L: "<<l<<"    j: "<<j<<"    position: "<<pos<<endl;
+	  // 	  //misc2<<"Energy: "<<ene<<"    L: "<<l<<"    j: "<<j<<"    points: "<<points<<endl;
+	  // 	  for(n=0;n<cont1;n++)
+	  // 	    {
+	  // 	      misc5<<r[n]<<"  "<<r[n]<<"  "<<real(GF[n][n])<<"  "<<imag(GF[n][n])<<endl;
+	  // 	    }    
+	   	  *einitial=ene;
+		  fl_gf->seekg(pos);
+	   	  return 1;
+   	}
     }
-  cout<<"quillo!"<<endl;
   return 0;
 }
 /*****************************************************************************
 Read non-local potential
  *****************************************************************************/
-int ReadNLpot(const char *fname,complejo** potential,double* r,int dimension,
+int ReadNLpot(ifstream* fl_se,complejo** potential,double* r,int dimension,
 	   double energy,int ll,int dj)
 {
-  char aux[500];
-  char* flag;
+  bool flag;
   const char fin[]=" ene";
   int l2=3;
+  string line;
+  streampos pos;
   int n,m,l,cont1,cont2,jint,points;
-  FILE *fp;
   complejo val,val2;
   float ene,j,r1,r2,RealPart,ImaginaryPart,r1old;
-  fp = fopen(fname,"r");
-  if (!fp) Error("Error opening potential file file in ReadNLpot");
   n=0;
   m=0;
-  flag=fgets(aux,500,fp);
-  while(flag!=NULL)
+  flag=getline(*fl_se,line);
+  //cout<<"compare: "<<strncmp("energy","ener",3)<<endl;
+  while(flag)
     {
-      sscanf(aux,"%*s %g %*s %d %*s %d %*s %d",&ene,&l,&jint,&points);
-      //cout<<"Energy: "<<ene<<"    L: "<<l<<"    j: "<<j<<"    points: "<<points<<endl;
+      sscanf(line.c_str(),"%*s %g %*s %d %*s %d %*s %d",&ene,&l,&jint,&points);
       j=jint/2.;
-      flag=fgets(aux,500,fp);
-      sscanf(aux,"%g %g %g %g",&r1,&r2,&RealPart,&ImaginaryPart);
+      // cout<<"In ReadGF, Energy: "<<ene<<"    L: "<<l<<"    j: "<<j<<"    points: "<<points<<endl;
+      // misc2<<"In ReadGF, Energy: "<<ene<<"    L: "<<l<<"    j: "<<j<<"    points: "<<points<<endl;
+      // misc2<<"   line: "<<line.c_str()<<endl;
+      flag=getline(*fl_se,line);
+      sscanf(line.c_str(),"%g %g %g %g",&r1,&r2,&RealPart,&ImaginaryPart);
       potential[0][0]=double(RealPart)+I*double(ImaginaryPart);
       r[0]=r1;
       cont1=0;
       cont2=0;
       r1old=r[0];
-      flag=fgets(aux,500,fp);	
-      while(strncmp(aux,fin,l2))
-	{
-	  if(cont1==0) {
-	    r[cont2]=r2;
-	  }
-	  sscanf(aux,"%g %g %g %g",&r1,&r2,&RealPart,&ImaginaryPart);
-	  if(r1==r1old){
-	    cont2++;
-	  }
-	  else{
-	    cont1++;
-	    cont2=0;
-	    r1old=r1;
-	  }
-	  potential[cont1][cont2]=double(RealPart)+I*double(ImaginaryPart);
+      flag=getline(*fl_se,line);
+      // cout<<strncmp(line.c_str(),fin,l2)<<"  "<<line.c_str()<<"  "<<fin<<endl;
+      while(strncmp(line.c_str(),fin,l2))
+  	{
+  	  if(cont1==0) {
+  	    r[cont2]=r2;
+  	  }
+  	  sscanf(line.c_str(),"%g %g %g %g",&r1,&r2,&RealPart,&ImaginaryPart);
+  	  //cout<<r1<<"  "<<r2<<"  "<<RealPart<<"  "<<ImaginaryPart<<endl;
+  	  if(r1==r1old){
+  	    cont2++;
+  	  }
+  	  else{
+  	    cont1++;
+  	    cont2=0;
+  	    r1old=r1;
+  	  }
+      	  potential[cont1][cont2]=double(RealPart)+I*double(ImaginaryPart);
+	  pos=fl_se->tellg();
 	  //if(cont2>dimension) Error("potential file too big in ReadNLpot");  
-	  flag=fgets(aux,500,fp);
+	  flag=getline(*fl_se,line);
 	}      
       if((ene==energy)&&(l==ll)&&(jint==dj))
 	{
@@ -3135,6 +3157,7 @@ int ReadNLpot(const char *fname,complejo** potential,double* r,int dimension,
 	  // 	  misc3<<r[n]<<"  "<<r[m]<<"  "<<real(potential[n][m])<<"  "<<imag(potential[n][m])<<endl;
 	  // 	}
 	  //   }
+	  fl_se->seekg(pos);
 	  return 1;
 	}
     }
