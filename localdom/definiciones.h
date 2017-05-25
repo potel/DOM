@@ -235,3 +235,4 @@ double AbsorcionAngularNL(complejo** pot,complejo**** wf,complejo**** non,parame
 			  double theta,double* r,int puntos_r);
 complejo GFgenerator(distorted_wave* fl,distorted_wave* Pl,
 		     parametros_integral* dim,parametros* parm,complejo wronskiano);
+void AmplitudeCaptureHole(struct parametros* parm);

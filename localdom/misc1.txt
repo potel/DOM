@@ -1,2 +1,1 @@
-& Energy of detected cluster (lab frame): 18.2917    Energy of absorbed cluster (CM frame): -1.02
-0  36.4184  0
+& Energy of detected cluster: 15    Energy of absorbed cluster: -7.52266
