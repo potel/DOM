@@ -5002,3 +5002,30 @@ void AddCoulomb(potencial_optico* v,double q1q2)
 			//misc4<<v->r[i]<<"  "<<real(potencial[i])<<"  "<<imag(potencial[i])<<endl;
 		}
 }
+complejo Non_local_wavefunction(distorted_wave* funcion,std::complex<double>** v,vector<double> r1,vector<double> r2, double q1q2, double masa,double radio_max,
+		int puntos,double radio_match,ofstream* fp)
+{       
+        Final_return cc;
+        double delta_r;
+	const   complex<double> i(0.0,1.0); 
+	if(funcion->energia<=0.) Error("Energia negativa o 0 en GeneraDW");
+	delta_r=radio_max/double(puntos);
+	if(radio_match>radio_max-4.*delta_r) Error("Radio de matching demasiado grande en GeneraDW");
+	
+	funcion->puntos=puntos;
+	funcion->radio=radio_max;
+
+        non_local_wavefunction_matrix(v,r1,r2,masa,funcion->energia,50,radio_match,funcion->l,funcion->j,q1q2,0,delta_r,radio_max,cc);
+
+        
+	
+	//funcion->wf=cc.wave_function;
+	
+	for (int i=0;i<cc.wave_function.size();i++) {
+		 funcion->r[i] =cc.wave_function[i].radius;
+                 cout<<cc.wave_function[i].radius;
+		 funcion->wf[i]=cc.wave_function[i].real+i*cc.wave_function[i].imag;
+		
+	}
+	
+}
