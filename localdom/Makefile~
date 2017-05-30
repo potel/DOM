@@ -1,7 +1,7 @@
 OBJECTS = scat.o potPara.o merson.o legendre.o waves.o minimize1D.o minimizeND.o fit.o imaginaryForm.o\
 whit.o coul.o compound.o level.o channel.o expInt.o reaction.o volume.o surface.o hartreeFock.o spinOrbit.o\
  asy.o gaussInteg.o  gauss16.o sphericalB.o fitOM.o disperse.o twoFermi.o surfaceTF.o surVolume.o  levelD.o\
-  compoundException.o standard.o surfaceSTD.o potplus.o calli.o  non_local_wavefunction_3.o
+  compoundException.o standard.o surfaceSTD.o potplus.o calli.o  non_local_wavefunction_2.o
 DEPS = test.h structs.h definiciones.h tremendo.h guass_wg.h
 CC=g++
 LIBDIR=/home/ansheng/gsl/lib

@@ -6,7 +6,10 @@
 #include <iostream>
 #include "tremendo.h"
 #include "structs.h"
+//#include "wc.h"
+//#include "guass_wg.h"
 #include "definiciones.h"
+//#include "non_local_wavefunction_2.h"
 ofstream misc1("misc1.txt");
 ofstream misc2("misc2.txt");
 ofstream misc3("misc3.txt");
@@ -18,14 +21,26 @@ ofstream misc8("misc8.txt");
 ofstream informe("informe.txt");
 using namespace std;
 int DOM(int l,double j, double Ecm, double r);
+//extern void gauleg(const double x1, const double x2, std::vector<double> &x, std::vector<double> &w);
+extern Final_return non_local_wavefunction_matrixx(double u,double E,int N,double a,int l,double j,double q1q2, double B, double Nr, double Rmax,Final_return m);
 int main(int argc,char* argv[]){
 	parametros *parm=new struct parametros;
 	cout<<"Project managed with Git!!"<<" parameter file: "<<argv[1]<<endl;
-        cout<<"hello world"<<endl;
+       
 	if (!parm) Error("No se pudo reservar memoria para parametros");
 	const char* input=argv[1];
 	LeeParametros(input,parm);
-	Capture(parm);
+//	Capture(parm);
+        std::vector<double> r (4);
+        std::vector<double> rr (4);
+        Final_return b;
+        double mu;
+        mu=1.0;
+       
+      non_local_wavefunction_matrixx(mu,5,60,14.8,1,1.5,0,0,0.1,30,b);
+  
+      //  gauleg(-1, 1, r, rr);	
+       // cout<<r[1]<<endl;
 //    if(parm->capture) {Capture(parm);}
     delete[] parm;
 }
@@ -1062,7 +1077,7 @@ void AmplitudeCaptureCC(struct parametros* parm)
   Ecm=parm->energia_cm-Ecm_out-2.2245;
   cout<<"Ecm starts at  "<<Ecm<<" MeV and ends at "<<Ecmmax<<" MeV"<<endl;
   cout<<endl<<endl<<endl;
-  spectral=1;
+  spectral=0;
   if(spectral==1)
     {
       for(;;)
@@ -3861,9 +3876,42 @@ double interpola_dbl(double* funcion,double* r,double posicion,int puntos)
 		return 0.;
 	return a * (posicion - x0) * (posicion - x0) + b * (posicion - x0) + f0;
 }
+//start to edited this function...................................
+
+complejo Non_local_wavefunction(distorted_wave* funcion, double q1q2, double masa,double radio_max,
+		int puntos,double radio_match,ofstream* fp)
+{       
+        Final_return cc;
+        double delta_r;
+	const   complex<double> i(0.0,1.0); 
+	if(funcion->energia<=0.) Error("Energia negativa o 0 en GeneraDW");
+	delta_r=radio_max/double(puntos);
+	if(radio_match>radio_max-4.*delta_r) Error("Radio de matching demasiado grande en GeneraDW");
+	
+	funcion->puntos=puntos;
+	funcion->radio=radio_max;
+     //   non_local_wavefunction_matrixx(double u,double E,int N,double a,int l,double j, double q1q2, double B, double Nr, double Rmax,Final_return m)
+        non_local_wavefunction_matrixx(masa,funcion->energia,50,radio_match,funcion->l,funcion->j,q1q2,0,delta_r,radio_max,cc);
+
+
+	
+	//funcion->wf=cc.wave_function;
+	
+	for (int i=0;i<cc.wave_function.size();i++) {
+		 funcion->r[i] =cc.wave_function[i].radius;
+                 cout<<cc.wave_function[i].radius;
+		 funcion->wf[i]=cc.wave_function[i].real+i*cc.wave_function[i].imag;
+		
+	}
+	
+}
+
+
 complejo GeneraDWspin(distorted_wave* funcion,potencial_optico *v, double q1q2, double masa,double radio_max,
 		int puntos,double radio_match,ofstream* fp)
-{
+{       
+       
+       
 	int i, i_1, i_2,status1,status2;
 	double hbarx, dd, radio_1, radio_2, q, x, y, ex1, ex2, etac,delta_r,spinorbit;
 	complejo delta, derivada_log, fu1, fu2, factor;
@@ -3879,6 +3927,7 @@ complejo GeneraDWspin(distorted_wave* funcion,potencial_optico *v, double q1q2, 
 	etac=q1q2*masa*E2HC*AMU/(HC*q);
 	funcion->puntos=puntos;
 	funcion->radio=radio_max;
+       
 //	cout<<"pot down"<<v_down->pot[3]<<endl;
 	spinorbit =(funcion->j)*((funcion->j)+1.)-funcion->l*(funcion->l+1.)-(funcion->spin)*((funcion->spin)+1.); //T�rmino de spin-�rbita
 	/* actualizacion del potencial con los t�rminos de Coulomb, centr�fugo y de spin-�rbita*/
