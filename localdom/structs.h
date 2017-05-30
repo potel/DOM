@@ -58,7 +58,7 @@ char file[100];
 };
 
 struct distorted_wave {
-int id;
+int id; 
 int puntos;
 double radio;
 int l;
@@ -206,7 +206,6 @@ char fl_espectro[100];
 char fl_log[100];
 char fl_dw[100];
 char fl_gf[100];
-char fl_se[100];  
 char file_dens[100];
 char unidades[10];
 int debug;
@@ -344,8 +343,37 @@ struct tablas{
 
 
 
+class MyClass 
+
+{
+
+      public:
+      double radius;   
+      double real;  
+      double imag;
+   
+   
+     void setName (double radius1, double real1, double imag1); // member functions set
+     void setValue(double radius, double real, double imag) 
+      {
+            this->radius=radius;
+            this->real = real;
+            this->imag = imag;
+      }
+       
+     void display()
+     {
+     cout << radius<<","<<real<<","<<imag<<" ";}
+ 
+     };
 
 
 
 
 
+
+struct Final_return
+{
+  complex<double>** Green_function;
+  std::vector<MyClass> wave_function;
+};

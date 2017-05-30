@@ -1,1 +1,0 @@
-& Energy of detected cluster: 15    Energy of absorbed cluster: -7.52266

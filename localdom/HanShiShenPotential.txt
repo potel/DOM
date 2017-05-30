@@ -1,17 +1,17 @@
-Lab Energy: 10 MeV. N: 20. Z: 20
+Lab Energy: 21.4 MeV. N: 6. Z: 4
 *********************************************
 
-RealVolumen 86.7986
-ImaginarioVolumen  0
+RealVolumen 73.6092
+ImaginarioVolumen  3.29194
 RealSpinOrbita  3.703
 ImaginarioSpinOrbita	-0.206
-ImaginarioSuperficie  20.174
+ImaginarioSuperficie  10.5892
 RadioRealVolumen  1.174
 RadioCoulomb  1.698
 RadioImaginarioVolumen  1.563
 DifusividadRealVolumen  0.809
-DifusividadImaginarioVolumen  0.853898
+DifusividadImaginarioVolumen  0.79695
 RadioSpinOrbita    1.234
 DifusividadSpinOrbita  0.813
 RadioImaginarioSuperficie  1.328
-DifusividadImaginarioSuperficie 0.618898
+DifusividadImaginarioSuperficie 0.56195
