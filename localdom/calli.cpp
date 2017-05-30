@@ -22,7 +22,7 @@ ofstream informe("informe.txt");
 using namespace std;
 int DOM(int l,double j, double Ecm, double r);
 
-extern Final_return non_local_wavefunction_matrix(std::complex<double>** function,vector<double> r1,vector<double> r2,double u,double E,int N,double a,int l,double j,double q1q2, double B, double Nr, double Rmax,Final_return m);
+
 int main(int argc,char* argv[]){
 	parametros *parm=new struct parametros;
 	cout<<"Project managed with Git!!"<<" parameter file: "<<argv[1]<<endl;

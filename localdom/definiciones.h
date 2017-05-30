@@ -33,6 +33,7 @@ void ReadParS(char *s,const char key[20], char *par);
 int LeePotencialesOpticos(char *s,const char key[100],potencial_optico* pot,FILE* fp);
 int LeePotencialesCampoMedio(char *s,const char key[100],potencial* pot,FILE* fp);
 void GeneraDensidad(struct parametros* parm);
+extern Final_return non_local_wavefunction_matrix(std::complex<double>** function,vector<double> r1,vector<double> r2,double u,double E,int N,double a,int l,double j,double q1q2, double B, double Nr, double Rmax,Final_return m);
 void PotencialEfectivo(struct parametros* parm,double* dnsty,double* poteff);
 int LeeEstados(char *s,const char key[100],estado* st,FILE* fp);
 void TwoTrans(struct parametros* parm);
