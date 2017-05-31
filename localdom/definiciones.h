@@ -1,3 +1,4 @@
+//#include "structs.h"
 void GeneraEstadoLigado(potencial v,estado* st);
 void Error(const char *text);
 void EscribePotencial(int puntos,potencial* pot,int numero_potenciales,struct parametros *parm);
@@ -236,3 +237,4 @@ double AbsorcionAngularNL(complejo** pot,complejo**** wf,complejo**** non,parame
 complejo GFgenerator(distorted_wave* fl,distorted_wave* Pl,
 		     parametros_integral* dim,parametros* parm,complejo wronskiano);
 void AmplitudeCaptureHole(struct parametros* parm);
+Final_return non_local_wavefunction_matrix(std::complex<double>** function,vector<double> r1,vector<double> r2,double u,double E,int N,double a,int l,double j,double q1q2, double B, double Nr, double Rmax,Final_return m);

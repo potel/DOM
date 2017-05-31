@@ -341,6 +341,34 @@ struct integrando_onept{
 struct tablas{
 	double armonico_esferico[MAX_L][MAX_L][MAX_PTS];
 };
+class MyClass 
+{
+
+      public:
+      double radius;   
+      double real;  
+      double imag;
+   
+   
+     void setName (double radius1, double real1, double imag1); // member functions set
+     void setValue(double radius, double real, double imag) 
+      {
+            this->radius=radius;
+            this->real = real;
+            this->imag = imag;
+      }
+       
+     void display()
+     {
+     cout << radius<<","<<real<<","<<imag<<" ";}
+ 
+     };
+
+struct Final_return
+{
+  complex<double>** Green_function;
+  std::vector<MyClass> wave_function;
+};
 
 
 
