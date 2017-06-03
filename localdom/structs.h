@@ -370,7 +370,16 @@ struct Final_return
   std::vector<MyClass> wave_function;
 };
 
-
+struct lagrange
+{
+  vector_dbl x;   // Lagrange points
+  vector_dbl w;   // Lagrange weights
+  vector_dbl r;   // radial grid (length pts), from 0 to a
+  int N;          // size of Lagrange basis
+  mat basis;     // Lagrange basis functions (pts x N)
+  double a;   // size of box
+};
+  
 
 
 

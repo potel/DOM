@@ -69,6 +69,8 @@
 #include <string.h>
 #include <iomanip>
 typedef complex<double> complejo;
+typedef vector<double> vector_dbl;
+typedef vector<double> vector_cmpx;
 #define MAX_PTS 6000
 #define MAX_POTS 10
 #define MAX_ST 100

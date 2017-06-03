@@ -237,4 +237,15 @@ double AbsorcionAngularNL(complejo** pot,complejo**** wf,complejo**** non,parame
 complejo GFgenerator(distorted_wave* fl,distorted_wave* Pl,
 		     parametros_integral* dim,parametros* parm,complejo wronskiano);
 void AmplitudeCaptureHole(struct parametros* parm);
-Final_return non_local_wavefunction_matrix(std::complex<double>** function,vector<double> r1,vector<double> r2,double u,double E,int N,double a,int l,double j,double q1q2, double B, double Nr, double Rmax,Final_return m);
+Final_return non_local_wavefunction_matrix(std::complex<double>** function,vector<double> r1,vector<double> r2,
+					   double u,double E,int N,double a,int l,double j,double q1q2, double B, double Nr, double Rmax,Final_return m);
+void ElasticBreakupNL(complejo*** T,complejo**** rho,double En,complejo** v,
+		      parametros_integral* dim,parametros* parm,int l,int lp,double kn,double* r1,double* r2,int points,lagrange* lag);
+complejo Non_local_wavefunction(distorted_wave* funcion,std::complex<double>** v,vector<double> r1,vector<double> r2, double q1q2, double masa,double radio_max,
+				int puntos,double radio_match,ofstream* fp);
+void LagrangeBasis(lagrange* lag);
+complejo NLwavefunction(distorted_wave* funcion,complejo** v,vector_dbl r1,vector_dbl r2, double q1q2, double masa,double radio_max,
+			int puntos,double radio_match,ofstream* fp,lagrange* lag);
+complejo interpola2D_cmpxVec(complejo** funcion,vector_dbl r1,vector_dbl r2,
+			     double posicion1,double posicion2);
+
