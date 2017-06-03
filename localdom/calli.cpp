@@ -5216,7 +5216,6 @@ complejo NLwavefunction(distorted_wave* dw,complejo** v,vector_dbl r1,vector_dbl
     }
   int stop_s=clock();
   cout<<"Time in NLwavefunction: "<<(stop_s-start_s)/double(CLOCKS_PER_SEC)<<" s"<<endl;
-  //exit(0);
   return phase_shift;
 }
 
@@ -5244,14 +5243,11 @@ void LagrangeBasis(lagrange* lag)
     lag->x[lag->N-1-i]=(z+1.0)/2.0;
     lag->w[i]=2./((1.0-z*z)*pp*pp);
     lag->w[lag->N-1-i]=lag->w[i];
-    //cout<<" i: "<<lag->x[i]<<"  "<<lag->w[i]<<endl;
   }
   for(m=0;m<lag->r.size();m++)
     {
-      //cout<<"quillo! Lag3"<<"  "<<m<<endl;      
       for(i=1;i<=lag->N;i++)
 	{
-	  // cout<<"quillo!"<<"  "<<i<<"  "<<lag->x[i-1]<<"  "<<lag->a<<"  "<<lag->r[m]<<endl; 
 	  if (lag->r[m]==lag->a*lag->x[i-1])
 	    {
 	      lag->basis(m,i-1)= pow(-1.,lag->N+i)*sqrt(lag->a*lag->x[i-1]*(1.-lag->x[i-1]));
