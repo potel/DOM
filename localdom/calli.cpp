@@ -5188,7 +5188,7 @@ complejo NLwavefunction(distorted_wave* dw,complejo** v,vector_dbl r1,vector_dbl
   phase_shift=-I*log(S)/2.;
   cout<<"Phase shift: "<<phase_shift<<endl;
   c=I*hbarx*(Hmp-S*Hpp)*Gmatrix*basis_a/2.;  // c coefficients (see eq. (3.13))
-  abs(c).print(misc4);
+  //abs(c).print(misc4);
   for(i=0;i<lag->basis.n_rows;i++)
     {
       dw->wf[i]=0.;
