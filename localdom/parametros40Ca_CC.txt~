@@ -1,7 +1,7 @@
 num_st 2	# numero de estados. En una reacción, tiene que ser igual a a_numst+B_numst
-lmin 1      # momento angular mínimo. En una reacción tiene que ser 0.
-lmax 15 # momento angular máximo. En una reacción, número de ondas parciales.
-ltransfer 2 #momento angular transferido maximo. Usado para la captura neutronica.
+lmin 3      # momento angular mínimo. En una reacción tiene que ser 0.
+lmax 10 # momento angular máximo. En una reacción, número de ondas parciales.
+ltransfer 4 #momento angular transferido maximo. Usado para la captura neutronica.
 emin -1000.    # energía mínima. 
 emax 0. 	   # energía máxima.
 puntos 3000    # número de puntos en los que se definen las funciones.
@@ -26,10 +26,12 @@ scatt_pot 4
 prior 1
 remnant 1
 core_pot 1
-capture_angular 1
-enerange_min 10.576
-enerange_max 27.
-enerange_step 100.
+capture_angular 0
+enerange_min 0.
+enerange_max 7.4
+#enerange_min 5.
+#enerange_max 5.5
+enerange_step 0.01
 ++++++++++++++ Descripción de la reacción +++++++++++++++++++++++++++++++++++++
 
 base1  20   # tamaños de la base usada para describir los estados de partícula independiente
@@ -94,11 +96,11 @@ B_Sn      -8.1 # energía de extracción de un neutrón para el núcleo B-1 (deb
 +++++++++++++++++++ Parametros numericos +++++++++++++++++++++++++++++++++++
 
 r_Ccmin 0.     # valor mínimo de r_Cc
-r_Ccmax  10.    # valor máximo de r_Cc
+r_Ccmax  15.    # valor máximo de r_Cc
 r_A2min   0.    # valor mínimo de r_A2
-r_A2max   10.    # valor máximo de r_A2
-rCc_puntos  60    # número de puntos de integración gaussiana para r_Cc
-rA2_puntos   60	  # número de puntos de integración gaussiana para r_A2
+r_A2max   15.    # valor máximo de r_A2
+rCc_puntos  15    # número de puntos de integración gaussiana para r_Cc
+rA2_puntos   15	  # número de puntos de integración gaussiana para r_A2
 theta_puntos  10    # número de puntos de integrción gaussiana para theta
 cross_puntos  200 # número de puntos en los que se evalúa la sección eficaz
 matching_radio 20.  #radio de matching para implementar las condiciones de contorno
@@ -171,24 +173,49 @@ InicioPotencialesOpticos
 #
 #****************************
 
-# optical potential at Ed=10 MeV
+# optical potential at Ed=10 MeV, Brown, NPA 225 (1974)267
+#id 0
+#RealVolumen    89.2	
+#ImaginarioVolumen    19.01
+#RealSpinOrbita      0.
+#ImaginarioSpinOrbita	0.
+#ImaginarioSuperficie   0.
+#RadioRealVolumen     1.175
+#RadioCoulomb              1.175                            
+#RadioImaginarioVolumen         1.534
+#DifusividadRealVolumen           0.83
+#DifusividadImaginarioVolumen     0.470
+#RadioSpinOrbita             	0.97160242115162
+#DifusividadSpinOrbita         0.955
+#RadioImaginarioSuperficie            1.36755
+#DifusividadImaginarioSuperficie     0.811901
+#
+#**************************
+
+
+# optical potential at Ed=10 MeV, Han-Shi-Shen
 id 0
-RealVolumen 86.0683
+RealVolumen 86.7986
 ImaginarioVolumen  0
-RealSpinOrbita  0.
-ImaginarioSpinOrbita	0.
-ImaginarioSuperficie  15.0409
+RealSpinOrbita  3.703
+ImaginarioSpinOrbita	-0.206
+ImaginarioSuperficie  20.174
 RadioRealVolumen  1.174
-RadioCoulomb  1.698	
+RadioCoulomb  1.698
 RadioImaginarioVolumen  1.563
 DifusividadRealVolumen  0.809
-DifusividadImaginarioVolumen  0.903879
+DifusividadImaginarioVolumen  0.853898
 RadioSpinOrbita    1.234
 DifusividadSpinOrbita  0.813
 RadioImaginarioSuperficie  1.328
-DifusividadImaginarioSuperficie 0.669
+DifusividadImaginarioSuperficie 0.618898
 
 **************************
+
+
+
+
+
 
 id 1
 RealVolumen   160.6
@@ -367,7 +394,8 @@ fl_cross_non	cross_non.txt #fichero con la contribución no ortogonal  la secci�
 fl_cross_tot	cross.txt #fichero con la sección eficaz total
 fl_amplitudes    amplitudes.txt #fichero con las amplitudes para cada onda parcial
 fl_dw			dw.txt   #fichero con las ondas distorsionadas
-fl_gf			gf.txt   #fichero con las ondas distorsionadas de la función de Green
+fl_gf		/home/gregory/DOM/localdom/potential_Gregory/BIG_gf_reg_mesh_f7_cont   # Green's function 
+fl_se		/home/gregory/DOM/localdom/potential_Gregory/BIG_optical_pot_f7_cont		 # Non local self-energy matrix
 
 
 
