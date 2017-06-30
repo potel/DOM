@@ -26,6 +26,7 @@ complejo GeneraGreenFunction(distorted_wave* funcion_regular,distorted_wave* fun
 		double masa, double radio_max,int puntos,double radio_match,double spin);
 void SChica(integrando_schica *integrando,int P,int la,int lc,complejo* schica_mas,complejo* schica_menos);
 complejo interpola_cmpx(complejo* funcion,double* r,double posicion,int puntos);
+complejo interpola_cmpx(cx_vec funcion,vec r,double posicion);
 double interpola_dbl(double* funcion,double* r,double posicion,int puntos);
 double AcoplamientoAngular(int l1,int l2,int l3,int l4,int K,double coseno1,double coseno2,double coseno3);
 void SGrande(integrando_sgrande *integrando,int K,int P,int la,int lb,int lc,complejo* sgrande_mas,complejo* sgrande_menos);
@@ -199,6 +200,8 @@ double interpola2D_dbl(double** funcion,double* r1,double* r2,
 		double posicion1,double posicion2,int puntos1,int puntos2);
 complejo interpola2D_cmpx(complejo** funcion,double* r1,double* r2,
 		double posicion1,double posicion2,int puntos1,int puntos2);
+complejo interpola2D_cmpx(cx_mat funcion,vec r1,vec r2,
+			  double posicion1,double posicion2);
 void ClusterPotential(double** ga,double** gB,double** vtx,complejo*** vcluster,parametros* parm,parametros_integral* dim1,
 		parametros_integral* dim2,parametros_integral* dim3,double* rr,int puntos,int II,int l,int lambdaa,int lambdaB,int K,int J,
 		potencial_optico* pot_entry,potencial_optico* pot_exit,potencial_optico* pot_core);
@@ -222,14 +225,15 @@ void AmplitudeCaptureCC(struct parametros* parm);
 int ReadGF(ifstream* fl_gf,complejo** GF,double* r,int dimension,
 	   double* einitial,double efinal,double nstep,int ll,int dj);
 void AddCoulomb(potencial_optico* v,double q1q2);
-int ReadNLpot(ifstream* fl_se,complejo** potential,double* r,int dimension,
+int ReadNLpot(ifstream* fl_se,ifstream* fl_vloc,nlpotential* potential,double* r,int dimension,
 	      double energy,int ll,int dj);
 void SourceNL(complejo* rho,complejo* non,distorted_wave* f,distorted_wave* g_up,
-	      distorted_wave* g_down,estado* u,complejo** v,double* r,int puntos_r,potencial_optico* optico,
+	      distorted_wave* g_down,estado* u,nlpotential* v,double* r,int puntos_r,potencial_optico* optico,
 	      potencial_optico* core,int l,double rBn,parametros* parm, parametros_integral* dim1,parametros_integral* dim2);
-double AbsorcionNL(complejo** pot,complejo** gf,complejo**** rho,complejo**** wf,complejo**** non,parametros_integral* dim,int l,int lmax
+double AbsorcionNL(nlpotential* pot,complejo** gf,complejo**** rho,complejo**** wf,complejo**** non,parametros_integral* dim,int l,int lmax
 		   ,double* r,int puntos_r);
 void Localize(complejo** nlf,double* r,int puntos_r,complejo* lf,parametros_integral* dim);
+void Localize(nlpotential* nlf,complejo* lf,parametros_integral* dim);
 double Spectral(complejo** gf,double* r,int puntos_r,parametros_integral* dim);
 double AbsorcionDirect(complejo** gf,complejo**** rho,parametros_integral* dim,int l,int lmax
 		       ,double* r,int puntos_r);
@@ -240,13 +244,14 @@ complejo GFgenerator(distorted_wave* fl,distorted_wave* Pl,
 void AmplitudeCaptureHole(struct parametros* parm);
 Final_return non_local_wavefunction_matrix(std::complex<double>** function,vector<double> r1,vector<double> r2,
 					   double u,double E,int N,double a,int l,double j,double q1q2, double B, double Nr, double Rmax,Final_return m);
-void ElasticBreakupNL(complejo*** T,complejo**** rho,double En,complejo** v,
+void ElasticBreakupNL(complejo*** T,complejo**** rho,double En,nlpotential* v,
 		      parametros_integral* dim,parametros* parm,int l,int lp,double kn,double* r1,double* r2,int points,lagrange* lag);
 complejo Non_local_wavefunction(distorted_wave* funcion,std::complex<double>** v,vector<double> r1,vector<double> r2, double q1q2, double masa,double radio_max,
 				int puntos,double radio_match,ofstream* fp);
 void LagrangeBasis(lagrange* lag);
-complejo NLwavefunction(distorted_wave* funcion,complejo** v,vector_dbl r1,vector_dbl r2, double q1q2, double masa,double radio_max,
+complejo NLwavefunction(distorted_wave* funcion,nlpotential* v,vector_dbl r1,vector_dbl r2, double q1q2, double masa,double radio_max,
 			int puntos,double radio_match,ofstream* fp,lagrange* lag);
 complejo interpola2D_cmpxVec(complejo** funcion,vector_dbl r1,vector_dbl r2,
 			     double posicion1,double posicion2);
-
+int FetchGF(ifstream* fl_gf,char* fin);
+void SmoothPotential(nlpotential* v,double cutoff);
