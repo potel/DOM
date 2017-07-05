@@ -254,4 +254,4 @@ complejo NLwavefunction(distorted_wave* funcion,nlpotential* v,vector_dbl r1,vec
 complejo interpola2D_cmpxVec(complejo** funcion,vector_dbl r1,vector_dbl r2,
 			     double posicion1,double posicion2);
 int FetchGF(ifstream* fl_gf,char* fin);
-void SmoothPotential(nlpotential* v,double cutoff);
+int SmoothPotential(nlpotential* v,double cutoff,const string kind);

@@ -1093,13 +1093,16 @@ void AmplitudeCaptureCC(struct parametros* parm)
     }
   r_F=1000.;
   e_res=st_fin->energia;
-  puntos_r=150;
+  puntos_r=153;
   energia_out=parm->enerange_max;
   Ecm_out=(parm->T_masa)*energia_out/(parm->n1_masa+(parm->T_masa));
   Ecmmax=parm->energia_cm-(((parm->T_masa)*parm->enerange_min/(parm->n1_masa+(parm->T_masa))))-2.2245;
   Ecm=parm->energia_cm-Ecm_out-2.2245;
   cout<<"Ecm starts at  "<<Ecm<<" MeV and ends at "<<Ecmmax<<" MeV"<<endl;
   cout<<endl<<endl<<endl;
+  int flagsmooth=0;
+  const string kind="gauss";
+  double cutoff=7.;
   spectral=0;
   flagpot=1;
   char fin[20];
@@ -1142,11 +1145,17 @@ void AmplitudeCaptureCC(struct parametros* parm)
       flagGF=ReadGF(&fl_gf,GreenFunction,rg,puntos_r,&Ecm,Ecmmax,parm->enerange_step,l,dj);
       cout<<"Start reading SE for l="<<l<<", j="<<dj/2.<<endl;
       flagpot=ReadNLpot(&fl_se,&fl_vloc,potNL,rg,puntos_r,Ecm,l,dj);
-      SmoothPotential(potNL,31.);
+      flagsmooth=SmoothPotential(potNL,cutoff,kind);
+      if(flagsmooth==1)
+	cout<<"Potential smoothened with "<<kind<<" method, cutoff="<<cutoff<<" fm"<<endl;
+      else
+	cout<<"Warning: potential hasn't been smoothened"<<endl;
+      //exit(0);
       //Localize(potNL,localpot,dim1);
+      //cout<<potNL->r(10)<<"---> r"<<endl;
       //exit(0);
       sp=Spectral(GreenFunction,rg,puntos_r,dim1);
-      //misc2<<Ecm<<"  "<<abs(sp)<<endl;
+      misc2<<Ecm<<"  "<<abs(sp)<<endl;
       Ecm_out=parm->energia_cm-Ecm-2.2245;
       energia_out=(parm->n1_masa+(parm->T_masa))*Ecm_out/(parm->T_masa);
       energia_trans=(parm->n1_masa+parm->T_masa)*Ecm/(parm->T_masa);
@@ -1252,7 +1261,7 @@ void AmplitudeCaptureCC(struct parametros* parm)
 		      rho[n][l][m][lp]+=(redfac*rhofac*ClebsGordan(lp,-m,ld,0,l,-m)*rhom[0]);
 		      if(parm->prior==1) non[n][l][m][lp]+=(rhofac*ClebsGordan(lp,-m,ld,0,l,-m)*nonm[0]*rn);
 		    }
-		    misc2<<rn<<"  "<<real(rho[n][l][0][lp])<<"  "<<imag(rho[n][l][0][lp])<<endl;
+		    //misc2<<rn<<"  "<<real(rho[n][l][0][lp])<<"  "<<imag(rho[n][l][0][lp])<<endl;
 		  }
 		  //exit(0);
 		}
@@ -2130,6 +2139,7 @@ void Localize(nlpotential* nlf,complejo* lf,parametros_integral* dim)
   complejo nlfint;
   double hbarx=HC*HC/(2.*AMU);
   puntos_r=nlf->r.size();
+  //cout<<nlf->nlpot(10,23)<<"---> pot"<<endl;
   for (n1 =0;n1<puntos_r; n1++) {
     lf[n1]=0.;
     R=nlf->r(n1);
@@ -2137,6 +2147,7 @@ void Localize(nlpotential* nlf,complejo* lf,parametros_integral* dim)
       Rp= (dim->a)+((dim->b)-(dim->a))*((dim->puntos[n2])+1.)/2.;
       nlfint=interpola2D_cmpx(nlf->nlpot,nlf->r,nlf->r,R,Rp);
       lf[n1]+=Rp*Rp*nlfint*dim->pesos[n2]*((dim->b)-(dim->a))/2.;
+      //misc4<<R<<"  "<<Rp<<"  "<<nlfint<<endl;
     }
     misc1<<R<<"  "<<real(lf[n1])<<"  "<<imag(lf[n1])<<endl;
     misc2<<R<<"  "<<real(nlf->nlpot(n1,n1))<<"  "<<imag(nlf->nlpot(n1,n1))<<endl;
@@ -2532,6 +2543,8 @@ complejo interpola2D_cmpx(cx_mat funcion,vec r1,vec r2,
 	f12=funcion(indice1,indice2+1);
 	f21=funcion(indice1+1,indice2);
 	f22=funcion(indice1+1,indice2+1);
+	//misc5<<r1(1)<<"  "<<r1(2)<<"  "<<r1(3)<<"  "<<f22<<"  "<<delta_r1<<"  "<<delta_r2<<endl;
+	//exit(0);
 	return (f11*(r1(indice1+1)-posicion1)*(r2(indice2+1)-posicion2)+f21*(posicion1-r1(indice1))*(r2(indice2+1)-posicion2)
 		+f12*(r1(indice1+1)-posicion1)*(posicion2-r2(indice2))+f22*(posicion1-r1(indice1))
 		*(posicion2-r2(indice2)))/(delta_r1*delta_r2);
@@ -3777,6 +3790,7 @@ int ReadNLpot(ifstream* fl_se,ifstream* fl_vloc,nlpotential* potential,double* r
   cout<<"in ReadNLpot"<<endl;
   if(((potential->type=="loc")||(potential->type=="locnloc")))
     {
+      cout<<"quillo!"<<endl;
       cont3=0;
       flag=getline(*fl_vloc,line);
       while(flag)
@@ -3798,10 +3812,13 @@ int ReadNLpot(ifstream* fl_se,ifstream* fl_vloc,nlpotential* potential,double* r
 	{
 	  sscanf(line.c_str(),"%s %g %*s %d %*s %d %*s %d",fin,&ene,&l,&jint,&points);
 	  j=jint/2.;
+	  //cout<<"line 0: "<<line<<"   energy: "<<ene<<endl;
 	  flag=getline(*fl_se,line);
 	  sscanf(line.c_str(),"%g %g %g %g",&r1,&r2,&RealPart,&ImaginaryPart);
+	  //cout<<"line: "<<line<<endl;
 	  potential->nlpot(0,0)=double(RealPart)+I*double(ImaginaryPart);
 	  r[0]=r1;
+	  potential->r(0)=r1;
 	  cont1=0;
 	  cont2=0;
 	  r1old=r[0];
@@ -3809,6 +3826,7 @@ int ReadNLpot(ifstream* fl_se,ifstream* fl_vloc,nlpotential* potential,double* r
 	  while(line.compare(0,4,finstr,0,4))
 	    {
 	      sscanf(line.c_str(),"%g %g %g %g",&r1,&r2,&RealPart,&ImaginaryPart);
+	      //cout<<"line2: "<<line<<endl;
 	      if(r1==r1old){
 		cont2++;
 	      }
@@ -3820,12 +3838,14 @@ int ReadNLpot(ifstream* fl_se,ifstream* fl_vloc,nlpotential* potential,double* r
 
 	      if(cont1==0) {
 		r[cont2]=r2;
+		potential->r(cont2)=r2;
 	      }
 	      potential->nlpot(cont1,cont2)=double(RealPart)+I*double(ImaginaryPart);
+	      //misc4<<cont2<<"  "<<potential->r(cont2)<<endl;
 	      pos=fl_se->tellg();
 	      flag=getline(*fl_se,line);
-	      //misc4<<potential->r(cont1)<<"  "<<potential->r(cont2)<<"  "<<real(potential->nlpot(cont1,cont2))
-	      //   <<"  "<<real(potential->nlpot(cont2,cont1))<<endl;
+	      //exit(0);
+	      
 	    }
 	  //exit(0);
 	  if((ene==energy)&&(l==ll))
@@ -5390,25 +5410,55 @@ void LagrangeBasis(lagrange* lag)
     }
 
 }
-void SmoothPotential(nlpotential* v,double cutoff)
+int SmoothPotential(nlpotential* v,double cutoff,const string kind)
 {
   int points=v->nlpot.n_rows;
+  cout<<"puntos en Smooth: "<<points<<endl;
   int i,j;
   double beta=1.;
   double test;
-  for(i=0;i<points;i++)
+  if(kind=="brutal")
     {
-      for(j=0;j<points;j++)
+      for(i=0;i<points;i++)
 	{
-	  if ((v->r(i)>cutoff)||(v->r(j)>cutoff))
+	  for(j=0;j<points;j++)
 	    {
-	      v->nlpot(i,j)=0.;
+	      if ((v->r(i)>cutoff)||(v->r(j)>cutoff))
+		{
+		  v->nlpot(i,j)=0.;
+		}
+	      //test=0.;
+	      //if(abs(v->r(i)-v->r(j))<0.5) test=abs(v->nlpot(i,j));
+	      misc5<<abs(v->nlpot(i,j))<<"  ";
+	      //misc5<<test<<"  ";
 	    }
-	  test=0.;
-	  if(abs(v->r(i)-v->r(j))<0.5) test=abs(v->nlpot(i,j));
-	  misc2<<abs(v->nlpot(i,j))<<"  ";
-	  //misc2<<test<<"  ";
+	  misc5<<endl;
 	}
-      misc2<<endl;
+      return 1;
+	}
+  if(kind=="gauss")
+    {
+      for(i=0;i<points;i++)
+	{
+	  for(j=0;j<points;j++)
+	    {
+	      if ((v->r(i)>cutoff))
+		{
+		  v->nlpot(i,j)=v->nlpot(i,j)*exp(-abs(v->r(i)-cutoff)/beta);
+		}
+	      if ((v->r(j)>cutoff))
+		{
+		  v->nlpot(i,j)=v->nlpot(i,j)*exp(-abs(v->r(j)-cutoff)/beta);
+		}
+	      //test=0.;
+	      //if(abs(v->r(i)-v->r(j))<0.5) test=abs(v->nlpot(i,j));
+	      misc5<<abs(v->nlpot(i,j))<<"  ";
+	      //misc5<<test<<"  ";
+	    }
+	  misc5<<endl;
+	}
+      return 1;
     }
+  return 0;
+  //exit(0);
 }
