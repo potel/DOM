@@ -239,6 +239,8 @@ double AbsorcionDirect(complejo** gf,complejo**** rho,parametros_integral* dim,i
 		       ,double* r,int puntos_r);
 double AbsorcionAngularNL(complejo** pot,complejo**** wf,complejo**** non,parametros_integral* dim,parametros* parm,
 			  double theta,double* r,int puntos_r);
+double AbsorcionAngularNL(nlpotential* pot,complejo**** wf,complejo**** non,parametros_integral* dim,parametros* parm,
+                          double theta,double* r,int puntos_r);
 complejo GFgenerator(distorted_wave* fl,distorted_wave* Pl,
 		     parametros_integral* dim,parametros* parm,complejo wronskiano);
 void AmplitudeCaptureHole(struct parametros* parm);
@@ -255,3 +257,4 @@ complejo interpola2D_cmpxVec(complejo** funcion,vector_dbl r1,vector_dbl r2,
 			     double posicion1,double posicion2);
 int FetchGF(ifstream* fl_gf,char* fin);
 int SmoothPotential(nlpotential* v,double cutoff,const string kind);
+void GF2Pot(cx_mat gf,vec r, double energy,nlpotential* v,lagrange* lag,int l,double mass,double eta);

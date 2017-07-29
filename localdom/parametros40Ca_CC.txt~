@@ -397,6 +397,6 @@ fl_amplitudes    amplitudes.txt #fichero con las amplitudes para cada onda parci
 fl_dw			dw.txt   #fichero con las ondas distorsionadas
 fl_gf		/home/gregory/DOM/localdom/potential_Gregory/f7/BIG_gf_reg_mesh   # Green's function 
 fl_se		/home/gregory/DOM/localdom/potential_Gregory/f7/BIG_optical_pot		 # Non local self-energy matrix
-
+fl_vloc		/home/gregory/DOM/localdom/potential_Gregory/NFT/v_l0.dat		 # Local potential
 
 

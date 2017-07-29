@@ -90,5 +90,14 @@ typedef vector<double> vector_cmpx;
 #define C 2.99792458e23 // velocidad de la luz en fm/s
 #define NEULER 5000
 complejo const I(0., 1.);
+extern ofstream misc1;
+extern ofstream misc2;
+extern ofstream misc3;
+extern ofstream misc4;
+extern ofstream misc5;
+extern ofstream misc6;
+extern ofstream misc7;
+extern ofstream misc8;
+extern ofstream informe;
 
 
