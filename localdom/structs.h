@@ -401,19 +401,23 @@ class lagrange
   int N;          // size of Lagrange basis
   mat basis;     // Lagrange basis functions (pts x N)
   double a;   // size of box;
-  lagrange();
+  lagrange() {};
   lagrange (int pts,int Nl, double box){
     N=Nl;
     a=box;
     int i;
+    double rn;
+    double step=box/double(pts);
     for(i=0;i<N;i++)
       {
         x.push_back(0.);
         w.push_back(0.);
       }
+    rn=step;
     for(i=0;i<pts;i++)
       {
-        r.push_back(0.);
+        r.push_back(rn);
+        rn+=step;
       }
     basis.zeros(pts,N);
   }

@@ -221,26 +221,42 @@ double Alignment(int l,int m,potencial_optico* pot, double radio, double b);
 void SpinAlignment(parametros* parm);
 void NeutronWaveGF(complejo* phi,complejo**** rho,complejo** green,double* r,int puntos_r,
 		parametros_integral* dim,parametros* parm,double rBn,int l,int lp,int ld,complejo wronskiano);
+void NeutronWaveGF(complejo* phi,complejo**** rho,cx_mat green,vec r,int puntos_r,
+                   parametros_integral* dim,parametros* parm,double rBn,int l,int lp,int ld,complejo wronskiano);
 void AmplitudeCaptureCC(struct parametros* parm);
 int ReadGF(ifstream* fl_gf,complejo** GF,double* r,int dimension,
+	   double* einitial,double efinal,double nstep,int ll,int dj);
+int ReadGF(ifstream* fl_gf,cx_mat & GF,vec & r,int dimension,
 	   double* einitial,double efinal,double nstep,int ll,int dj);
 void AddCoulomb(potencial_optico* v,double q1q2);
 int ReadNLpot(ifstream* fl_se,ifstream* fl_vloc,nlpotential* potential,double* r,int dimension,
 	      double energy,int ll,int dj);
+int ReadNLpot(ifstream* fl_se,ifstream* fl_vloc,nlpotential* potential,vec r,int dimension,
+              double energy,int ll,int dj);
 void SourceNL(complejo* rho,complejo* non,distorted_wave* f,distorted_wave* g_up,
 	      distorted_wave* g_down,estado* u,nlpotential* v,double* r,int puntos_r,potencial_optico* optico,
 	      potencial_optico* core,int l,double rBn,parametros* parm, parametros_integral* dim1,parametros_integral* dim2);
+void SourceNL(complejo* rho,complejo* non,distorted_wave* f,distorted_wave* g_up,
+	      distorted_wave* g_down,estado* u,nlpotential* v,vec r,int puntos_r,potencial_optico* optico,
+              potencial_optico* core,int l,double rBn,parametros* parm, parametros_integral* dim1,parametros_integral* dim2);
 double AbsorcionNL(nlpotential* pot,complejo** gf,complejo**** rho,complejo**** wf,complejo**** non,parametros_integral* dim,int l,int lmax
 		   ,double* r,int puntos_r);
+double AbsorcionNL(nlpotential* pot,cx_mat gf,complejo**** rho,complejo**** wf,complejo**** non,parametros_integral* dim,int l,int lmax
+                   ,vec r,int puntos_r);
 void Localize(complejo** nlf,double* r,int puntos_r,complejo* lf,parametros_integral* dim);
 void Localize(nlpotential* nlf,complejo* lf,parametros_integral* dim);
 double Spectral(complejo** gf,double* r,int puntos_r,parametros_integral* dim);
+double Spectral(cx_mat gf,vec r,int puntos_r,parametros_integral* dim);
 double AbsorcionDirect(complejo** gf,complejo**** rho,parametros_integral* dim,int l,int lmax
 		       ,double* r,int puntos_r);
 double AbsorcionAngularNL(complejo** pot,complejo**** wf,complejo**** non,parametros_integral* dim,parametros* parm,
 			  double theta,double* r,int puntos_r);
 double AbsorcionAngularNL(nlpotential* pot,complejo**** wf,complejo**** non,parametros_integral* dim,parametros* parm,
                           double theta,double* r,int puntos_r);
+double AbsorcionAngularNL(nlpotential* pot,complejo**** wf,complejo**** non,parametros_integral* dim,parametros* parm,
+                          double theta,vec r,int puntos_r);
+
+
 complejo GFgenerator(distorted_wave* fl,distorted_wave* Pl,
 		     parametros_integral* dim,parametros* parm,complejo wronskiano);
 void AmplitudeCaptureHole(struct parametros* parm);
@@ -248,6 +264,9 @@ Final_return non_local_wavefunction_matrix(std::complex<double>** function,vecto
 					   double u,double E,int N,double a,int l,double j,double q1q2, double B, double Nr, double Rmax,Final_return m);
 void ElasticBreakupNL(complejo*** T,complejo**** rho,double En,nlpotential* v,
 		      parametros_integral* dim,parametros* parm,int l,int lp,double kn,double* r1,double* r2,int points,lagrange* lag);
+void ElasticBreakupNL(complejo*** T,complejo**** rho,double En,nlpotential* v,
+                      parametros_integral* dim,parametros* parm,int l,int lp,double kn,vec r1,vec r2,int points,lagrange* lag);
+
 complejo Non_local_wavefunction(distorted_wave* funcion,std::complex<double>** v,vector<double> r1,vector<double> r2, double q1q2, double masa,double radio_max,
 				int puntos,double radio_match,ofstream* fp);
 void LagrangeBasis(lagrange* lag);
@@ -256,5 +275,8 @@ complejo NLwavefunction(distorted_wave* funcion,nlpotential* v,vector_dbl r1,vec
 complejo interpola2D_cmpxVec(complejo** funcion,vector_dbl r1,vector_dbl r2,
 			     double posicion1,double posicion2);
 int FetchGF(ifstream* fl_gf,char* fin);
+int FetchGF(ifstream* fl_gf,char* fin,double* rmax);
 int SmoothPotential(nlpotential* v,double cutoff,const string kind);
-void GF2Pot(cx_mat gf,vec r, double energy,nlpotential* v,lagrange* lag,int l,double mass,double eta);
+void GF2Pot(cx_mat &gf,vec &r, double energy,nlpotential* v,lagrange* lag,int l,double mass,double eta);
+void GFgenerator(nlpotential* v,cx_mat &gf,double masa,ofstream* fp,lagrange* lag,double energy,double eta,int l);
+double interpola(vec funcion,vec r,double posicion);

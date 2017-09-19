@@ -1,7 +1,7 @@
 num_st 2	# numero de estados. En una reacción, tiene que ser igual a a_numst+B_numst
-lmin 3      # momento angular mínimo. En una reacción tiene que ser 0.
+lmin 2      # momento angular mínimo. En una reacción tiene que ser 0.
 lmax 10 # momento angular máximo. En una reacción, número de ondas parciales.
-ltransfer 4 #momento angular transferido maximo. Usado para la captura neutronica.
+ltransfer 3 #momento angular transferido maximo. Usado para la captura neutronica.
 emin -1000.    # energía mínima. 
 emax 0. 	   # energía máxima.
 puntos 3000    # número de puntos en los que se definen las funciones.
@@ -99,8 +99,8 @@ r_Ccmin 0.     # valor mínimo de r_Cc
 r_Ccmax  15.    # valor máximo de r_Cc
 r_A2min   0.    # valor mínimo de r_A2
 r_A2max   15.    # valor máximo de r_A2
-rCc_puntos  25  # número de puntos de integración gaussiana para r_Cc
-rA2_puntos   25	  # número de puntos de integración gaussiana para r_A2
+rCc_puntos  15  # número de puntos de integración gaussiana para r_Cc
+rA2_puntos   15	  # número de puntos de integración gaussiana para r_A2
 theta_puntos  10    # número de puntos de integrción gaussiana para theta
 cross_puntos  200 # número de puntos en los que se evalúa la sección eficaz
 matching_radio 20.  #radio de matching para implementar las condiciones de contorno
@@ -395,8 +395,8 @@ fl_cross_non	cross_non.txt #fichero con la contribución no ortogonal  la secci�
 fl_cross_tot	cross.txt #fichero con la sección eficaz total
 fl_amplitudes    amplitudes.txt #fichero con las amplitudes para cada onda parcial
 fl_dw			dw.txt   #fichero con las ondas distorsionadas
-fl_gf		/home/gregory/DOM/localdom/potential_Gregory/f7/BIG_gf_reg_mesh   # Green's function 
-fl_se		/home/gregory/DOM/localdom/potential_Gregory/f7/BIG_optical_pot		 # Non local self-energy matrix
+fl_gf		/home/gregory/DOM/localdom/potential_Gregory/d5/BIG_gf_reg_mesh   # Green's function 
+fl_se		/home/gregory/DOM/localdom/potential_Gregory/d5/BIG_optical_pot		 # Non local self-energy matrix
 fl_vloc		/home/gregory/DOM/localdom/potential_Gregory/NFT/v_l0.dat		 # Local potential
 
 
