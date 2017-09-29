@@ -29,7 +29,6 @@ int main(int argc,char* argv[]){
   const char* input=argv[1];
   LeeParametros(input,parm);
   Capture(parm);
-  //    if(parm->capture) {Capture(parm);}
   delete[] parm;
 }
 void LeeParametros(const char *fname,struct parametros *x)
@@ -67,8 +66,9 @@ void LeeParametros(const char *fname,struct parametros *x)
   numst=0;
   while(fgets(aux,500,fp)!=NULL)
     {
-      if (!potopt) potopt=LeePotencialesOpticos(aux,"InicioPotencialesOpticos",x->pot_opt,fp);
-      if (!potcm) potcm=LeePotencialesCampoMedio(aux,"InicioCampoMedio",x->pot,fp);
+      
+      if (!potopt) potopt=LeePotentialesOpticos(aux,"InicioPotencialesOpticos",x->pot_opt,fp);
+      if (!potcm) potcm=LeePotentialesCampoMedio(aux,"InicioCampoMedio",x->pot,fp);
       if (!numst && (x->two_trans || x->knockout || x->one_trans || x->capture)) numst=LeeEstados(aux,"InicioEstados",x->st,fp);
       ReadParS(aux,"flcoef",x->flcoef);
       ReadParS(aux,"fl_log",x->fl_log);
@@ -213,8 +213,8 @@ void LeeParametros(const char *fname,struct parametros *x)
   //	cout<<"x->a_estados: "<<x->a_estados[0]<<endl;
   //	exit(0);
   if((x->a_numst+x->B_numst)>(x->num_st)) Error("El numero de estados total debe ser la suma de los estados de ambos n�cleos");
-  if(potopt!=x->num_opt) Error("El numero de potenciales opticos leidos no coincide con el especificado");
-  if(potcm!=x->num_cm) Error("El numero de potenciales de campo medio leidos no coincide con el especificado");
+  if(potopt!=x->num_opt) Error("El numero de potentiales opticos leidos no coincide con el especificado");
+  if(potcm!=x->num_cm) Error("El numero de potentiales de campo medio leidos no coincide con el especificado");
   if(numst!=x->num_st && x->two_trans && !(!strcmp(x->a_tipo_fun,"li")) && !(!strcmp(x->B_tipo_fun,"li")))
     Error("El numero de estados leidos no coincide con el especificado");
   if(x->prior==-1 && x->two_trans==1) Error("La representacion (post-prior) no ha sido definida");
@@ -233,17 +233,25 @@ void Capture(struct parametros* parm)
 	InicializaOneTrans(parm);
 	double* D0=new double[1];
 	double* rms=new double[1];
-    complejo* potencial_p=new complejo[parm->puntos];
-    complejo* potencial_n=new complejo[parm->puntos];
-    potencial_optico* pot_p;
-    potencial_optico* pot_n;
-    cout<<"Generando potenciales de campo medio"<<endl;
+    complejo* potential_p=new complejo[parm->puntos];
+    complejo* potential_n=new complejo[parm->puntos];
+    potential_optico* pot_p;
+    potential_optico* pot_n;
+    // optical pot1(parm->puntos,parm->radio);
+    // pot1.Set(&parm->pot_opt[0],2,40);
+    // pot1.Set();
+    // for(n=0;n<pot1.r.size();n++)
+    //   {
+    //     misc1<<pot1.r(n)<<"  "<<real(pot1.pot(n))<<"  "<<imag(pot1.pot(n))<<endl;
+    //   }
+    // exit(0);
+    cout<<"Generando potentiales de campo medio"<<endl;
     
-    //KoningDelaroche(parm->energia_lab,parm->T_N,parm->T_carga,0.1,potencial_p,potencial_n,0,0.,pot_p,pot_n);
+    //KoningDelaroche(parm->energia_lab,parm->T_N,parm->T_carga,0.1,potential_p,potential_n,0,0.,pot_p,pot_n);
 	HanShiShen(parm->energia_lab,parm->T_N,parm->T_carga);
 	for(n=0;n<parm->num_cm;n++)
 	{
-		GeneraPotencialCM(parm,&(parm->pot[n]));
+		GeneraPotentialCM(parm,&(parm->pot[n]));
 		if(parm->a_potcm==parm->pot[n].id) indx_pot_a=n;
 		if(parm->B_potcm==parm->pot[n].id) indx_pot_B=n;
 	}
@@ -257,12 +265,12 @@ void Capture(struct parametros* parm)
 	}
 	A_P=parm->P_N+parm->P_carga;
 	A_T=parm->T_N+parm->T_carga;
-	cout<<"Generando potenciales opticos"<<endl;
-	GeneraPotencialOptico(parm,&(parm->pot_opt[indx_ingreso]),A_T,A_P);
-	GeneraPotencialOptico(parm,&(parm->pot_opt[indx_salida]),parm->m_B,parm->m_b);
-	GeneraPotencialOptico(parm,&(parm->pot_opt[indx_intermedio]),parm->m_a-1.,parm->m_A);
-	GeneraPotencialOptico(parm,&(parm->pot_opt[indx_core]),parm->m_a-1.,parm->m_A);
-	GeneraPotencialOptico(parm,&(parm->pot_opt[indx_transfer]),1.,parm->m_A);
+	cout<<"Generando potentiales opticos"<<endl;
+	GeneraPotentialOptico(parm,&(parm->pot_opt[indx_ingreso]),A_T,A_P);
+	GeneraPotentialOptico(parm,&(parm->pot_opt[indx_salida]),parm->m_B,parm->m_b);
+	GeneraPotentialOptico(parm,&(parm->pot_opt[indx_intermedio]),parm->m_a-1.,parm->m_A);
+	GeneraPotentialOptico(parm,&(parm->pot_opt[indx_core]),parm->m_a-1.,parm->m_A);
+	GeneraPotentialOptico(parm,&(parm->pot_opt[indx_transfer]),1.,parm->m_A);
 
 
 	cout<<"Masa del nucleo compuesto: "<<parm->res_masa<<endl;
@@ -311,8 +319,8 @@ void Capture(struct parametros* parm)
 	}
 	cout<<"Profundidad pozo: "<<parm->pot[indx_pot_B].V<<endl;
 	EscribeEstados(parm->puntos,parm->st,parm->num_st,parm);
-	EscribePotencial(parm->puntos,parm->pot,parm->num_cm,parm);
-	EscribePotencialOptico(parm->puntos,parm->pot_opt,parm->num_opt,parm);
+	EscribePotential(parm->puntos,parm->pot,parm->num_cm,parm);
+	EscribePotentialOptico(parm->puntos,parm->pot_opt,parm->num_opt,parm);
 	//	cout<<"koning: "<<parm->koning_delaroche<<endl;
 	if(parm->koning_delaroche==2) AmplitudeCaptureCC(parm);
     if(parm->koning_delaroche==3) AmplitudeCaptureHole(parm);
@@ -340,13 +348,13 @@ void AmplitudeCapture(struct parametros* parm)
   distorted_wave* funcion_irregular_up=new distorted_wave[2];
   distorted_wave* funcion_regular_down=new distorted_wave[2];
   distorted_wave* funcion_irregular_down=new distorted_wave[2];
-  potencial_optico *optico=new potencial_optico;
-  potencial_optico *core=new potencial_optico;
-  potencial_optico* v_up=new potencial_optico[1];
-  potencial_optico* v_down=new potencial_optico[1];
-  potencial_optico* vp_up=new potencial_optico[1];
-  potencial_optico* vp_down=new potencial_optico[1];
-  potencial_optico* pot_dumb=new potencial_optico;
+  potential_optico *optico=new potential_optico;
+  potential_optico *core=new potential_optico;
+  potential_optico* v_up=new potential_optico[1];
+  potential_optico* v_down=new potential_optico[1];
+  potential_optico* vp_up=new potential_optico[1];
+  potential_optico* vp_down=new potential_optico[1];
+  potential_optico* pot_dumb=new potential_optico;
   estado* st=new estado;
   estado* st_fin=new estado;
   ofstream fp1("dw_out1trans.txt");
@@ -477,7 +485,7 @@ void AmplitudeCapture(struct parametros* parm)
   cout<<"Masa reducida de la particula emitida: "<<parm->m_b<<endl;
   km=(parm->m_A+1.)/parm->m_A;
 
-  /*Selecciona los potenciales opticos en los distintos canales*/
+  /*Selecciona los potentiales opticos en los distintos canales*/
   for (n=0;n<parm->num_opt;n++)
     {
       if(parm->optico_ingreso==parm->pot_opt[n].id) indx_ingreso=n;
@@ -487,8 +495,8 @@ void AmplitudeCapture(struct parametros* parm)
       //if(parm->pot_transfer==parm->pot_opt[n].id) v_up=&(parm->pot_opt[n]);
       //	if(parm->scatt_pot==parm->pot_opt[n].id) v_down=&(parm->pot_opt[n]);
     }
-  //GeneraPotencialOptico(parm,v_up,1.,parm->m_A);
-  //GeneraPotencialOptico(parm,v_down,1.,parm->m_A);
+  //GeneraPotentialOptico(parm,v_up,1.,parm->m_A);
+  //GeneraPotentialOptico(parm,v_down,1.,parm->m_A);
   v_up->puntos=parm->puntos;
   v_down->puntos=parm->puntos;
   vp_up->puntos=parm->puntos;
@@ -564,7 +572,7 @@ void AmplitudeCapture(struct parametros* parm)
     }
 
   if(parm->koning_delaroche==1) cout<<"*****************************************************"<<endl<<
-                                  "***** Potencial neutron-blanco Koning-Delaroche *****"<<endl<<
+                                  "***** Potential neutron-blanco Koning-Delaroche *****"<<endl<<
                                   "*****************************************************"<<endl;
   if(parm->koning_delaroche==0) cout<<"*****************************************************"<<endl<<
                                   "***** Using DOM potentials *****"<<endl<<
@@ -889,13 +897,13 @@ void AmplitudeCaptureCC(struct parametros* parm)
   distorted_wave* fl=new distorted_wave;
   distorted_wave* gl_up=new distorted_wave;
   distorted_wave* gl_down=new distorted_wave;
-  potencial_optico *optico=new potencial_optico;
-  potencial_optico *core=new potencial_optico;
-  potencial_optico* v_up=new potencial_optico[1];
-  potencial_optico* v_down=new potencial_optico[1];
-  potencial_optico* vp_up=new potencial_optico[1];
-  potencial_optico* vp_down=new potencial_optico[1];
-  potencial_optico* pot_dumb=new potencial_optico;
+  potential_optico *optico=new potential_optico;
+  potential_optico *core=new potential_optico;
+  potential_optico* v_up=new potential_optico[1];
+  potential_optico* v_down=new potential_optico[1];
+  potential_optico* vp_up=new potential_optico[1];
+  potential_optico* vp_down=new potential_optico[1];
+  potential_optico* pot_dumb=new potential_optico;
   estado* st=new estado;
   estado* st_fin=new estado;
   ofstream fp1("dw_out1trans.txt");
@@ -1016,7 +1024,7 @@ void AmplitudeCaptureCC(struct parametros* parm)
   cout<<"Mass of detected cluster: "<<parm->m_b<<endl;
   km=(parm->m_A+1.)/parm->m_A;
 
-  /*Selecciona los potenciales opticos en los distintos canales*/
+  /*Selecciona los potentiales opticos en los distintos canales*/
   for (n=0;n<parm->num_opt;n++)
     {
       if(parm->optico_ingreso==parm->pot_opt[n].id) indx_ingreso=n;
@@ -1026,8 +1034,8 @@ void AmplitudeCaptureCC(struct parametros* parm)
       //if(parm->pot_transfer==parm->pot_opt[n].id) v_up=&(parm->pot_opt[n]);
       //	if(parm->scatt_pot==parm->pot_opt[n].id) v_down=&(parm->pot_opt[n]);
     }
-  //GeneraPotencialOptico(parm,v_up,1.,parm->m_A);
-  //GeneraPotencialOptico(parm,v_down,1.,parm->m_A);
+  //GeneraPotentialOptico(parm,v_up,1.,parm->m_A);
+  //GeneraPotentialOptico(parm,v_down,1.,parm->m_A);
   v_up->puntos=parm->puntos;
   v_down->puntos=parm->puntos;
   vp_up->puntos=parm->puntos;
@@ -1125,7 +1133,7 @@ void AmplitudeCaptureCC(struct parametros* parm)
   gf.zeros(puntos_r,puntos_r);
   cout<<"points: "<<puntos_r<<endl;
   //exit(0);
-  potNL=new nlpotential(puntos_r);
+  potNL=new nlpotential(puntos_r,parm->radio);
   potNL->type=parm->locality;
   vp_up=&(parm->pot_opt[indx_salida]);
   vp_down=&(parm->pot_opt[indx_salida]);
@@ -1151,8 +1159,8 @@ void AmplitudeCaptureCC(struct parametros* parm)
           //Localize(NLpot,rg,puntos_r,localpot,dim1);
           sp=Spectral(GreenFunction,rg,puntos_r,dim1);
           //exit(0);
-          cout<<Ecm<<"  "<<abs(sp)<<endl;
-          misc2<<Ecm<<"  "<<abs(sp)<<endl;
+          cout<<Ecm<<"  "<<abs(sp)/PI<<endl;
+          misc2<<Ecm<<"  "<<abs(sp)/PI<<endl;
           //exit(0);
           if(flagGF==0 || flagpot==0)
             {
@@ -1312,9 +1320,9 @@ void AmplitudeCaptureCC(struct parametros* parm)
                   phi_up[n][l][m][lp]=phim[m];
                 }
                 // misc4<<rn<<"  "<<real(phi_up[n][l][0][lp])*rn<<"  "<<imag(phi_up[n][l][0][lp])<<"  "<<abs(phi_up[n][l][0][lp])*
-                //      abs(phi_up[n][l][0][lp])<<endl;
+                  //      abs(phi_up[n][l][0][lp])<<endl;
               }
-              // exit(0);
+              //exit(0);
             }
           inc_break[l]=0.;
           elastic_break[l]=0.;
@@ -1392,7 +1400,7 @@ void AmplitudeCaptureCC(struct parametros* parm)
 
 
 
-void Source(complejo* rho,distorted_wave* f,distorted_wave* g,estado* u,potencial* v,int l,
+void Source(complejo* rho,distorted_wave* f,distorted_wave* g,estado* u,potential* v,int l,
 		double rBn,parametros* parm, parametros_integral* dim1,parametros_integral* dim2)
 {
 	int n1,n2,n3,m,lp,ld;
@@ -1439,7 +1447,7 @@ void Source(complejo* rho,distorted_wave* f,distorted_wave* g,estado* u,potencia
 	}
 	delete[] suma;
 }
-void Source2(complejo* rho,distorted_wave* f,distorted_wave* g,estado* u,potencial* v,int l,
+void Source2(complejo* rho,distorted_wave* f,distorted_wave* g,estado* u,potential* v,int l,
 		double rBn,parametros* parm, parametros_integral* dim1,parametros_integral* dim2)
 {
 	int n1,n2,n3,m,lp,ld;
@@ -1486,7 +1494,7 @@ void Source2(complejo* rho,distorted_wave* f,distorted_wave* g,estado* u,potenci
 	}
 	delete[] suma;
 }
-void SourcePrior(complejo* rho,complejo* non,distorted_wave* f,distorted_wave* g,estado* u,potencial* v,int l,
+void SourcePrior(complejo* rho,complejo* non,distorted_wave* f,distorted_wave* g,estado* u,potential* v,int l,
 		double rBn,parametros* parm, parametros_integral* dim1,parametros_integral* dim2)
 {
 	int n1,n2,n3,m,lp,ld;
@@ -1545,8 +1553,8 @@ void SourcePrior(complejo* rho,complejo* non,distorted_wave* f,distorted_wave* g
 	delete[] sumanon;
 }
 void SourcePrior2(complejo* rho,complejo* non,distorted_wave* f,distorted_wave* g_up,
-		  distorted_wave* g_down,estado* u,potencial_optico* v,potencial_optico* optico,
-	 potencial_optico* core,int l,double rBn,parametros* parm, parametros_integral* dim1,parametros_integral* dim2)
+		  distorted_wave* g_down,estado* u,potential_optico* v,potential_optico* optico,
+	 potential_optico* core,int l,double rBn,parametros* parm, parametros_integral* dim1,parametros_integral* dim2)
 {
   int n1,n2,m,lp,ld;
   double rAp,theta,rd,rdx,rdz,rpnx,rpnz,rpn,seno,coseno,coseno_d,
@@ -1601,8 +1609,8 @@ void SourcePrior2(complejo* rho,complejo* non,distorted_wave* f,distorted_wave* 
   non[0]=sumanon*((dim1->b)-(dim1->a))*((dim2->b)-(dim2->a))/4.;
 }
 void SourceNL(complejo* rho,complejo* non,distorted_wave* f,distorted_wave* g_up,
-	      distorted_wave* g_down,estado* u,nlpotential* v,double* r,int puntos_r,potencial_optico* optico,
-	 potencial_optico* core,int l,double rBn,parametros* parm, parametros_integral* dim1,parametros_integral* dim2)
+	      distorted_wave* g_down,estado* u,nlpotential* v,double* r,int puntos_r,potential_optico* optico,
+	 potential_optico* core,int l,double rBn,parametros* parm, parametros_integral* dim1,parametros_integral* dim2)
 {
   int n1,n2,n3,m,lp,ld;
   double rAp,theta,rd,rdx,rdz,rpnx,rpnz,rpn,seno,coseno,coseno_d,
@@ -1676,8 +1684,8 @@ void SourceNL(complejo* rho,complejo* non,distorted_wave* f,distorted_wave* g_up
 
 
 void SourceNL(complejo* rho,complejo* non,distorted_wave* f,distorted_wave* g_up,
-	      distorted_wave* g_down,estado* u,nlpotential* v,vec r,int puntos_r,potencial_optico* optico,
-	 potencial_optico* core,int l,double rBn,parametros* parm, parametros_integral* dim1,parametros_integral* dim2)
+	      distorted_wave* g_down,estado* u,nlpotential* v,vec r,int puntos_r,potential_optico* optico,
+	 potential_optico* core,int l,double rBn,parametros* parm, parametros_integral* dim1,parametros_integral* dim2)
 {
   int n1,n2,n3,m,lp,ld;
   double rAp,theta,rd,rdx,rdz,rpnx,rpnz,rpn,seno,coseno,coseno_d,
@@ -1822,7 +1830,7 @@ double Spectral(complejo** gf,double* r,int puntos_r,parametros_integral* dim)
     gfint=interpola2D_cmpx(gf,r,r,R,R,puntos_r,puntos_r);
     sp+=R*R*(imag(gfint)/hbarx)*dim->pesos[n1]*((dim->b)-(dim->a))/2.;
     // misc2<<R<<" "<<n1<<" "<<int(R/0.1)<<"  "<<imag(gfint)<<" "<<imag(gf[int(R/0.1)][int(R/0.1)])<<endl;
-    misc4<<R<<" "<<imag(gfint)<<" "<<real(gfint)<<" "<<abs(gfint)<<endl;
+    misc4<<R<<" "<<-imag(gfint)*R*R<<" "<<real(gfint)*R*R<<" "<<abs(gfint)*R*R<<endl;
   }
   return sp;
 }
@@ -1843,7 +1851,7 @@ double Spectral(cx_mat gf,vec r,int puntos_r,parametros_integral* dim)
   }
   return sp;
 }
-void TestIntegral(distorted_wave* f,distorted_wave* g,estado* u,potencial* v,int l,int m,int K,int M,
+void TestIntegral(distorted_wave* f,distorted_wave* g,estado* u,potential* v,int l,int m,int K,int M,
 		double rBn,parametros* parm, parametros_integral* dim1,parametros_integral* dim2)
 {
   int n1,n2,n3,n4,n5,lp,ld;
@@ -1938,8 +1946,8 @@ void SourceZR(complejo* rho,distorted_wave* f,distorted_wave* g,int l,double rBn
 //				ClebsGordan(lp,0,ld,0,l,0)<<"  "<<abs(fl)<<"  "<<abs(gl)<<"  "<<abs(alpha*rBn*alpha*rBn)<<endl;
 	}
 }
-void SourceIntegrand(distorted_wave* f,distorted_wave* g,estado* u,potencial_optico* v,potencial_optico* optico,
-		 potencial_optico* core,int l,double rBn,parametros* parm)
+void SourceIntegrand(distorted_wave* f,distorted_wave* g,estado* u,potential_optico* v,potential_optico* optico,
+		 potential_optico* core,int l,double rBn,parametros* parm)
 {
 	int n1,n2,m,lp,ld;
 	double rAp,theta,rd,rdx,rdz,rpnx,rpnz,rpn,seno,coseno,coseno_d,
@@ -2344,7 +2352,7 @@ complejo NeutronWaveResonant(complejo* phi,complejo**** rho, estado* st,double E
 	}
 	delete[] suma;
 }
-void ElasticBreakup(complejo*** T,complejo**** rho,double En,potencial_optico* v_up,potencial_optico* v_down,
+void ElasticBreakup(complejo*** T,complejo**** rho,double En,potential_optico* v_up,potential_optico* v_down,
 		parametros_integral* dim,parametros* parm,int l,int lp,double kn)
 {
   int n,m;
@@ -2531,7 +2539,7 @@ complejo NeutronWaveResonantTest(complejo* phi,complejo* rho, estado* st,double 
 	}
 	phi[0]=(suma*((dim->b)-(dim->a))*0.5)*stp*lorentz;
 }
-double Absorcion(potencial_optico* pot,complejo**** wf,parametros_integral* dim,int l,int lmax)
+double Absorcion(potential_optico* pot,complejo**** wf,parametros_integral* dim,int l,int lmax)
 {
 	int n,m,lp;
 	double R;
@@ -2553,7 +2561,7 @@ double Absorcion(potencial_optico* pot,complejo**** wf,parametros_integral* dim,
 	}
 	return sumam;
 }
-double Absorcion2(potencial_optico* pot,estado* wf)
+double Absorcion2(potential_optico* pot,estado* wf)
 {
 	int n,m,lp;
 	double R;
@@ -2576,7 +2584,7 @@ double Absorcion2(potencial_optico* pot,estado* wf)
 	return suma;
 }
 double AbsorcionPrior(double* direct,double* non_orth,double* cross,
-		potencial_optico* pot,complejo**** wf,complejo**** non,parametros_integral* dim,int l,int lmax,double r_F)
+		potential_optico* pot,complejo**** wf,complejo**** non,parametros_integral* dim,int l,int lmax,double r_F)
 {
 	int n,m,lp;
 	double R,suma,sumaUT,sumaHM;
@@ -2809,7 +2817,7 @@ double ElasticBreakupCross(complejo*** Teb,int l,int lmax)
 	return suma;
 }
 double AbsorcionPriorTest(double* direct,double* non_orth,double* cross,double* r,int puntos,
-		potencial_optico* pot,complejo* wf,complejo* non,parametros_integral* dim)
+		potential_optico* pot,complejo* wf,complejo* non,parametros_integral* dim)
 {
 	int n,m,lp;
 	double R,suma;
@@ -2831,7 +2839,7 @@ double AbsorcionPriorTest(double* direct,double* non_orth,double* cross,double* 
 	}
 	return direct[0]+non_orth[0]-cross[0];
 }
-double AbsorcionAngular(potencial_optico* pot,complejo**** wf,complejo**** non,parametros_integral* dim,parametros* parm,
+double AbsorcionAngular(potential_optico* pot,complejo**** wf,complejo**** non,parametros_integral* dim,parametros* parm,
 		double theta, double* direct, double* non_orth, double* cross, double* cross_j)
 {
 	int n,m,lp,l;
@@ -3042,7 +3050,7 @@ double AbsorcionAngularNL(nlpotential* pot,complejo**** wf,complejo**** non,para
   return abs(suma);
 } 
 
-// double AbsorcionAngularDirect(potencial_optico* pot,complejo** gf,complejo**** rho,parametros_integral* dim,parametros* parm,
+// double AbsorcionAngularDirect(potential_optico* pot,complejo** gf,complejo**** rho,parametros_integral* dim,parametros* parm,
 // 		double theta)
 // {
 // 	int n,m,lp,l;
@@ -3217,7 +3225,7 @@ complejo SphericalHarmonic(int l, int m, double costheta, double phi)
 	if (m<0) valor=pow(-1.,m)*gsl_sf_legendre_sphPlm(l,-m,costheta)*exp(I*double(m)*phi);
 	return valor;
 }
-complejo GeneraGreenFunctionLigada(distorted_wave *regular,distorted_wave *irregular,potencial_optico *potencial,
+complejo GeneraGreenFunctionLigada(distorted_wave *regular,distorted_wave *irregular,potential_optico *potential,
 		double radio_max,int puntos,double q1q2,double masa,double spin) {
 	int ND,i,wronsk_point;
 	complejo *sx=new complejo[puntos],*vs=new complejo[puntos];
@@ -3245,13 +3253,13 @@ complejo GeneraGreenFunctionLigada(distorted_wave *regular,distorted_wave *irreg
 	for (i=0;i<puntos;i++) {
 		regular->r[i]=delta_r*(i+1);
 		irregular->r[i]=delta_r*(i+1);
-		if(regular->r[i]>potencial->radio_coul) v[i]=potencial->pot[i]+E_CUADRADO*q1q2/regular->r[i];
-		if(potencial->r[i]<=potencial->radio_coul) v[i]=potencial->pot[i]
-		               +E_CUADRADO*q1q2*(3.-(regular->r[i]/potencial->radio_coul)*
-		            		   (regular->r[i]/potencial->radio_coul))/(2.*potencial->radio_coul);
-		vs[i]=-2.*(potencial->Vso)*exp((regular->r[i]-potencial->radioso)/potencial->aso)/
-				(regular->r[i]*potencial->aso*(1.+exp((regular->r[i]-potencial->radioso)
-						/potencial->aso))*(1.+exp((regular->r[i]-potencial->radioso)/potencial->aso)));
+		if(regular->r[i]>potential->radio_coul) v[i]=potential->pot[i]+E_CUADRADO*q1q2/regular->r[i];
+		if(potential->r[i]<=potential->radio_coul) v[i]=potential->pot[i]
+		               +E_CUADRADO*q1q2*(3.-(regular->r[i]/potential->radio_coul)*
+		            		   (regular->r[i]/potential->radio_coul))/(2.*potential->radio_coul);
+		vs[i]=-2.*(potential->Vso)*exp((regular->r[i]-potential->radioso)/potential->aso)/
+				(regular->r[i]*potential->aso*(1.+exp((regular->r[i]-potential->radioso)
+						/potential->aso))*(1.+exp((regular->r[i]-potential->radioso)/potential->aso)));
 		vv[i]=v[i]+ls*vs[i]+(centr)/(regular->r[i]*regular->r[i]);
 //		misc1<<regular->r[i]<<"  "<<real(vv[i])<<"  "<<imag(vv[i])<<endl;
 	}
@@ -3498,7 +3506,7 @@ void ReadParMultF(char *s,const char key[20],int num, double *par)
 	fflush(stderr);
 }
 
-int LeePotencialesOpticos(char *s,const char key[100],potencial_optico* pot,FILE* fp)
+int LeePotentialesOpticos(char *s,const char key[100],potential_optico* pot,FILE* fp)
 {
 	int l,r,i,l2,l3;
 	const char fin[]="FinPotencialesOpticos";
@@ -3538,9 +3546,9 @@ int LeePotencialesOpticos(char *s,const char key[100],potencial_optico* pot,FILE
 }
 
 /*****************************************************************************
-Lee los potenciales de campo medio del fichero de par�metros
+Lee los potentiales de campo medio del fichero de par�metros
  *****************************************************************************/
-int LeePotencialesCampoMedio(char *s,const char key[100],potencial* pot,FILE* fp)
+int LeePotentialesCampoMedio(char *s,const char key[100],potential* pot,FILE* fp)
 {
 	int l,r,i,l2,l3;
 	const char fin[]="FinCampoMedio";
@@ -3567,14 +3575,14 @@ int LeePotencialesCampoMedio(char *s,const char key[100],potencial* pot,FILE* fp
 			ReadParS(aux,"potfile",pot[i].file);
 			if(!strncmp(aux,flag,3)) i++;
 		}
-		cout<<"Leidos "<<i<<" potenciales de campo medio"<<endl;
+		cout<<"Leidos "<<i<<" potentiales de campo medio"<<endl;
 		fflush(stdout);
 		return i;
 	}
 	return 0;
 }
 /*****************************************************************************
-Lee los potenciales de campo medio del fichero de par�metros
+Lee los potentiales de campo medio del fichero de par�metros
  *****************************************************************************/
 int LeeEstados(char *s,const char key[100],estado* st,FILE* fp)
 {
@@ -3851,7 +3859,7 @@ int ReadNLpot(ifstream* fl_se,ifstream* fl_vloc,nlpotential* potential,double* r
   float ene,j,r1,r2,RealPart,ImaginaryPart,r1old;
   n=0;
   m=0;
-  cout<<"quillo! in ReadNLpot"<<endl;
+  //cout<<"quillo! in ReadNLpot"<<endl;
   if(((potential->type=="loc")||(potential->type=="locnloc")))
     {
       //cout<<"quillo! 1"<<endl;
@@ -4011,8 +4019,8 @@ int ReadNLpot(ifstream* fl_se,ifstream* fl_vloc,nlpotential* potential,vec r,int
 
 
 
-void KoningDelaroche(double E,double N,double Z,double r,complejo* potencial_p,complejo* potencial_n,
-		int l,double j,potencial_optico* pot_p,potencial_optico* pot_n)
+void KoningDelaroche(double E,double N,double Z,double r,complejo* potential_p,complejo* potential_n,
+		int l,double j,potential_optico* pot_p,potential_optico* pot_n)
 {
 	double A=N+Z;
 	double v1p,v2p,v3p,v4p,wp1,wp2,dp1,dp2,dp3,vpso1,vpso2,wpso1,wpso2,rC,Vc,
@@ -4060,13 +4068,13 @@ void KoningDelaroche(double E,double N,double Z,double r,complejo* potencial_p,c
 	radio_coul=rC*pow(A,0.33333333333333);
 //	cout<<"Vv: "<<Vv<<endl;
 	if(j==0.)
-		*potencial_p=-Vv/(1.+exp((r-radioV)/aV))-I*Wv/(1.+exp((r-radioW)/aV))
+		*potential_p=-Vv/(1.+exp((r-radioV)/aV))-I*Wv/(1.+exp((r-radioW)/aV))
 		-4.*I*Wd*exp((r-radioWd)/awd)/((1.+exp((r-radioWd)/awd))*(1.+exp((r-radioWd)/awd)));
 	else
-		*potencial_p=-Vv/(1.+exp((r-radioV)/aV))-I*Wv/(1.+exp((r-radioW)/aV))
+		*potential_p=-Vv/(1.+exp((r-radioV)/aV))-I*Wv/(1.+exp((r-radioW)/aV))
 		-4.*I*Wd*exp((r-radioWd)/awd)/((1.+exp((r-radioWd)/awd))*(1.+exp((r-radioWd)/awd)))
 		-2.*(ls*Vso)*exp((r-radioSO)/aSO)/(r*aSO*(1.+exp((r-radioSO)/aSO))*(1.+exp((r-radioSO)/aSO)));
-//   misc2<<r<<"  "<<real(*potencial_p)<<"  "<<imag(*potencial_p)<<endl;
+//   misc2<<r<<"  "<<real(*potential_p)<<"  "<<imag(*potential_p)<<endl;
 //	cout<<" rV: "<<rV<<" aV: "<<aV<<" v1p: "<<v1p<<" v2p: "<<v2p<<" v3p: "<<v3p<<" Epf: "<<Epf<<" Vv: "<<Vv<<endl;
 
 	pot_p->V=Vv;
@@ -4159,15 +4167,15 @@ void KoningDelaroche(double E,double N,double Z,double r,complejo* potencial_p,c
 
 //	cout<<" rV: "<<rV<<" aV: "<<aV<<" v1p: "<<v1p<<" v2p: "<<v2p<<" v3p: "<<v3p<<" Epf: "<<Epf<<endl;
 	if(j==0.)
-	*potencial_n=-Vv/(1.+exp((r-radioV)/aV))-I*Wv/(1.+exp((r-radioW)/aV))
+	*potential_n=-Vv/(1.+exp((r-radioV)/aV))-I*Wv/(1.+exp((r-radioW)/aV))
 			-4.*I*Wd*exp((r-radioWd)/awd)/((1.+exp((r-radioWd)/awd))*(1.+exp((r-radioWd)/awd)));
 	else
-	*potencial_n=-Vv/(1.+exp((r-radioV)/aV))-I*Wv/(1.+exp((r-radioW)/aV))
+	*potential_n=-Vv/(1.+exp((r-radioV)/aV))-I*Wv/(1.+exp((r-radioW)/aV))
 			-4.*I*Wd*exp((r-radioWd)/awd)/((1.+exp((r-radioWd)/awd))*(1.+exp((r-radioWd)/awd)))
 			-2.*(ls*Vso)*exp((r-radioSO)/aSO)/(r*aSO*(1.+exp((r-radioSO)/aSO))*(1.+exp((r-radioSO)/aSO)));
 
-//	misc3<<r<<"  "<<real(*potencial_n)<<"  "<<imag(*potencial_n)<<endl;
-//	cout<<"Potencial Koning-Delaroche. Radio reducido: "<<rV<<",   radio: "<<radioV<<",   difusividad: "<<aV<<endl;
+//	misc3<<r<<"  "<<real(*potential_n)<<"  "<<imag(*potential_n)<<endl;
+//	cout<<"Potential Koning-Delaroche. Radio reducido: "<<rV<<",   radio: "<<radioV<<",   difusividad: "<<aV<<endl;
 //	cout<<"Radio spin-orbita: "<<radioSO<<",   profundidad spin orbita: "<<Vso<<",   difusividad spin orbita: "<<aSO<<endl;
 
 	pot_n->V=Vv;
@@ -4204,7 +4212,7 @@ void KoningDelaroche(double E,double N,double Z,double r,complejo* potencial_p,c
 			"DifusividadImaginarioSuperficie "    <<awd<<endl;
 //	misc1<<E<<"  "<<Vv<<"  "<<Wd<<"  "<<Wv<<"  "<<Vso<<"  "<<rV<<"  "<<aV<<"  "<<rwd<<"  "<<awd<<endl;
 //cout<<" radio: "<<Vv/(1.+exp((r-radioV)/aV))<<"   "<<Vv<<"   "<<r<<"   "<<radioV<<"   "<<1.+exp((r-radioV)/aV)<<endl;
-//	*potencial_n=-2.*(ls*Vso)*exp((r-radioSO)/aSO)/(r*aSO*(1.+exp((r-radioSO)/aSO))*(1.+exp((r-radioSO)/aSO)));
+//	*potential_n=-2.*(ls*Vso)*exp((r-radioSO)/aSO)/(r*aSO*(1.+exp((r-radioSO)/aSO))*(1.+exp((r-radioSO)/aSO)));
 
 	/////////////////////////////// Calculo derivada absorcion de superficie  //////////////////////////
 //	delta_E=0.001;
@@ -4213,8 +4221,8 @@ void KoningDelaroche(double E,double N,double Z,double r,complejo* potencial_p,c
 //	derivada=(Wdd-Vv)/delta_E;
 //	misc1<<E-delta_E<<"  "<<Wd<<"  "<<derivada<<"  "<<Wdd<<"  "<<Vv<<endl;
 }
-void CH89(double E,double N,double Z,double r,complejo* potencial_p,complejo* potencial_n,
-		int l,double j,potencial_optico* pot_p,potencial_optico* pot_n)
+void CH89(double E,double N,double Z,double r,complejo* potential_p,complejo* potential_n,
+		int l,double j,potential_optico* pot_p,potential_optico* pot_n)
 {
 	double A=N+Z;
 	double V0,Vt,Ve,r0,r00,a0,rc,rc0,Vso,rso,rso0,aso,Wv0,Wve0,Wvew,Ws0,
@@ -4283,10 +4291,10 @@ void CH89(double E,double N,double Z,double r,complejo* potencial_p,complejo* po
 	////////////////////////////////////////////////
 
 	if(j==0.)
-		*potencial_n=-Vrn/(1.+exp((r-R0)/a0))-I*Wvn/(1.+exp((r-Rw)/aW))
+		*potential_n=-Vrn/(1.+exp((r-R0)/a0))-I*Wvn/(1.+exp((r-Rw)/aW))
 		-4.*I*Wsn*exp((r-Rw)/aW)/((1.+exp((r-Rw)/aW))*(1.+exp((r-Rw)/aW)));
 	else
-		*potencial_n=-Vrn/(1.+exp((r-R0)/a0))-I*Wvn/(1.+exp((r-Rw)/aW))
+		*potential_n=-Vrn/(1.+exp((r-R0)/a0))-I*Wvn/(1.+exp((r-Rw)/aW))
 		-4.*I*Wsn*exp((r-Rw)/aW)/((1.+exp((r-Rw)/aW))*(1.+exp((r-Rw)/aW)))
 		-2.*(ls*Vso)*exp((r-Rso)/aso)/(r*aso*(1.+exp((r-Rso)/aso))*(1.+exp((r-Rso)/aso)));
 
@@ -4327,10 +4335,10 @@ void CH89(double E,double N,double Z,double r,complejo* potencial_p,complejo* po
 
 
 	if(j==0.)
-		*potencial_p=-Vrp/(1.+exp((r-R0)/a0))-I*Wvp/(1.+exp((r-Rw)/aW))
+		*potential_p=-Vrp/(1.+exp((r-R0)/a0))-I*Wvp/(1.+exp((r-Rw)/aW))
 		-4.*I*Wvp*exp((r-Rw)/aW)/((1.+exp((r-Rw)/aW))*(1.+exp((r-Rw)/aW)));
 	else
-		*potencial_n=-Vrn/(1.+exp((r-R0)/a0))-I*Wvp/(1.+exp((r-Rw)/aW))
+		*potential_n=-Vrn/(1.+exp((r-R0)/a0))-I*Wvp/(1.+exp((r-Rw)/aW))
 		-4.*I*Wsp*exp((r-Rw)/aW)/((1.+exp((r-Rw)/aW))*(1.+exp((r-Rw)/aW)))
 		-2.*(ls*Vso)*exp((r-Rso)/aso)/(r*aso*(1.+exp((r-Rso)/aso))*(1.+exp((r-Rso)/aso)));
 	fp<<"Protons: "<<endl<<endl;
@@ -4351,7 +4359,7 @@ void CH89(double E,double N,double Z,double r,complejo* potencial_p,complejo* po
 }
 ///////////////////////////////////////////////////////////////////////
 //                                                                   //
-//       Potencial optico de Han, Shi and Shen                        //
+//       Potential optico de Han, Shi and Shen                        //
 //                                                                   //
 //////////////////////////////////////////////////////////////////////
 void HanShiShen(double E,double N,double Z)
@@ -4407,7 +4415,7 @@ void HanShiShen(double E,double N,double Z)
 			"RadioImaginarioSuperficie  "          <<rD<<endl<<
 			"DifusividadImaginarioSuperficie "    <<aD<<endl;
 }
-void GeneraPotencialOptico(struct parametros *parm,struct potencial_optico *potencial,double m1,double m2)
+void GeneraPotentialOptico(struct parametros *parm,struct potential_optico *potential,double m1,double m2)
 {
 	int n;
 	double delta_r;
@@ -4415,57 +4423,57 @@ void GeneraPotencialOptico(struct parametros *parm,struct potencial_optico *pote
 	if(m1<1. || m2<1.) Error("Masa menor de 1");
 	if(m1>3. && m2>3.)
 	{
-		potencial->radioV=potencial->r0V*(pow(m1,0.33333333333333)+pow(m2,0.33333333333333));
-		potencial->radioW=potencial->r0W*(pow(m1,0.33333333333333)+pow(m2,0.33333333333333));
-		potencial->radioso=potencial->rso*(pow(m1,0.33333333333333)+pow(m2,0.33333333333333));
-		potencial->radioWd=potencial->rWd*(pow(m1,0.33333333333333)+pow(m2,0.33333333333333));
-		potencial->radio_coul=potencial->r0C*(pow(m1,0.33333333333333)+pow(m2,0.33333333333333));
+		potential->radioV=potential->r0V*(pow(m1,0.33333333333333)+pow(m2,0.33333333333333));
+		potential->radioW=potential->r0W*(pow(m1,0.33333333333333)+pow(m2,0.33333333333333));
+		potential->radioso=potential->rso*(pow(m1,0.33333333333333)+pow(m2,0.33333333333333));
+		potential->radioWd=potential->rWd*(pow(m1,0.33333333333333)+pow(m2,0.33333333333333));
+		potential->radio_coul=potential->r0C*(pow(m1,0.33333333333333)+pow(m2,0.33333333333333));
 	}
 	if(m1>3. && m2<=3.)
 	{
-		potencial->radioV=potencial->r0V*pow(m1,0.33333333333333);
-		potencial->radioW=potencial->r0W*pow(m1,0.33333333333333);
-		potencial->radioso=potencial->rso*pow(m1,0.33333333333333);
-		potencial->radioWd=potencial->rWd*pow(m1,0.33333333333333);
-		potencial->radio_coul=potencial->r0C*pow(m1,0.33333333333333);
+		potential->radioV=potential->r0V*pow(m1,0.33333333333333);
+		potential->radioW=potential->r0W*pow(m1,0.33333333333333);
+		potential->radioso=potential->rso*pow(m1,0.33333333333333);
+		potential->radioWd=potential->rWd*pow(m1,0.33333333333333);
+		potential->radio_coul=potential->r0C*pow(m1,0.33333333333333);
 	}
 	if(m1<=3. && m2>3.)
 	{
-		potencial->radioV=potencial->r0V*pow(m2,0.33333333333333);
-		potencial->radioW=potencial->r0W*pow(m2,0.33333333333333);
-		potencial->radioso=potencial->rso*pow(m2,0.33333333333333);
-		potencial->radioWd=potencial->rWd*pow(m2,0.33333333333333);
-		potencial->radio_coul=potencial->r0C*pow(m2,0.33333333333333);
+		potential->radioV=potential->r0V*pow(m2,0.33333333333333);
+		potential->radioW=potential->r0W*pow(m2,0.33333333333333);
+		potential->radioso=potential->rso*pow(m2,0.33333333333333);
+		potential->radioWd=potential->rWd*pow(m2,0.33333333333333);
+		potential->radio_coul=potential->r0C*pow(m2,0.33333333333333);
 	}
 	for(n=0;n<parm->puntos;n++)
 	{
-		potencial->r[n]=delta_r*(n+1.);
-		potencial->pot[n]=-potencial->V/(1.+exp((potencial->r[n]-potencial->radioV)/potencial->aV))-I*potencial->W/
-				(1.+exp((potencial->r[n]-potencial->radioW)/potencial->aW))-4.*I*potencial->Wd*
-				exp((potencial->r[n]-potencial->radioWd)/potencial->aWd)/((1.+exp((potencial->r[n]-potencial->radioWd)/potencial->aWd))
-						*(1.+exp((potencial->r[n]-potencial->radioWd)/potencial->aWd)));
+		potential->r[n]=delta_r*(n+1.);
+		potential->pot[n]=-potential->V/(1.+exp((potential->r[n]-potential->radioV)/potential->aV))-I*potential->W/
+				(1.+exp((potential->r[n]-potential->radioW)/potential->aW))-4.*I*potential->Wd*
+				exp((potential->r[n]-potential->radioWd)/potential->aWd)/((1.+exp((potential->r[n]-potential->radioWd)/potential->aWd))
+						*(1.+exp((potential->r[n]-potential->radioWd)/potential->aWd)));
 	}
-	potencial->puntos=parm->puntos;
+	potential->puntos=parm->puntos;
 }
-void GeneraPotencialCM(struct parametros *parm,struct potencial *potencial)
+void GeneraPotentialCM(struct parametros *parm,struct potential *potential)
 {
 	int i;
 	double delta_r;
 	delta_r=parm->radio/double(parm->puntos);
-	potencial->puntos=parm->puntos;
-	if(!strcmp(potencial->tipo,"ws"))
+	potential->puntos=parm->puntos;
+	if(!strcmp(potential->tipo,"ws"))
 	{
-		for (i=0;i<potencial->puntos;i++) {
-			potencial->r[i]=delta_r*(i+1);
-			potencial->pot[i]=-(potencial->V)/(1.+exp((potencial->r[i]-potencial->RV)/potencial->aV));
+		for (i=0;i<potential->puntos;i++) {
+			potential->r[i]=delta_r*(i+1);
+			potential->pot[i]=-(potential->V)/(1.+exp((potential->r[i]-potential->RV)/potential->aV));
 		}
 	}
-	if(!strcmp(potencial->tipo,"tang"))
+	if(!strcmp(potential->tipo,"tang"))
 	{
-		for (i=0;i<potencial->puntos;i++) {
-			potencial->r[i]=delta_r*(i+1);
-			if(potencial->r[i]>potencial->rhc) potencial->pot[i]=-potencial->V*exp(-potencial->k*(potencial->r[i]-potencial->rhc));
-			if (potencial->r[i]<=potencial->rhc) potencial->pot[i]=potencial->V;
+		for (i=0;i<potential->puntos;i++) {
+			potential->r[i]=delta_r*(i+1);
+			if(potential->r[i]>potential->rhc) potential->pot[i]=-potential->V*exp(-potential->k*(potential->r[i]-potential->rhc));
+			if (potential->r[i]<=potential->rhc) potential->pot[i]=potential->V;
 		}
 	}
 }
@@ -4512,16 +4520,16 @@ void EscribeEstados(int puntos,estado* st,int numero_estados,struct parametros *
 	fpst.close();
 }
 /*****************************************************************************
-Escribe el potencial
+Escribe el potential
  *****************************************************************************/
-void EscribePotencial(int puntos,potencial* pot,int numero_potenciales,struct parametros *parm)
+void EscribePotential(int puntos,potential* pot,int numero_potentiales,struct parametros *parm)
 {
 	ofstream fp(parm->fl_potcm);
 	int n,i;
-	cout<<"potenciales... "<<numero_potenciales<<endl;
+	cout<<"potentiales... "<<numero_potentiales<<endl;
 	for(i=0;i<puntos;i++){
 		fp<<pot[0].r[i]<<"  ";
-		for(n=0;n<numero_potenciales;n++){
+		for(n=0;n<numero_potentiales;n++){
 			fp<<pot[n].pot[i]<<"  ";
 		}
 		fp<<endl;
@@ -4767,13 +4775,13 @@ double interpola_dbl(double* funcion,double* r,double posicion,int puntos)
 		return 0.;
 	return a * (posicion - x0) * (posicion - x0) + b * (posicion - x0) + f0;
 }
-complejo GeneraDWspin(distorted_wave* funcion,potencial_optico *v, double q1q2, double masa,double radio_max,
+complejo GeneraDWspin(distorted_wave* funcion,potential_optico *v, double q1q2, double masa,double radio_max,
 		int puntos,double radio_match,ofstream* fp)
 {
 	int i, i_1, i_2,status1,status2;
 	double hbarx, dd, radio_1, radio_2, q, x, y, ex1, ex2, etac,delta_r,spinorbit;
 	complejo delta, derivada_log, fu1, fu2, factor;
-	complejo *potencial=new complejo[puntos];
+	complejo *potential=new complejo[puntos];
 	gsl_complex deltagsl;
 	gsl_sf_result F1, G1, F2, G2, Fp, Gp;
 	if(funcion[0].energia<=0.) Error("Energia negativa o 0 en GeneraDW");
@@ -4787,27 +4795,27 @@ complejo GeneraDWspin(distorted_wave* funcion,potencial_optico *v, double q1q2, 
 	funcion->radio=radio_max;
 //	cout<<"pot down"<<v_down->pot[3]<<endl;
 	spinorbit =(funcion->j)*((funcion->j)+1.)-funcion->l*(funcion->l+1.)-(funcion->spin)*((funcion->spin)+1.); //T�rmino de spin-�rbita
-	/* actualizacion del potencial con los t�rminos de Coulomb, centr�fugo y de spin-�rbita*/
+	/* actualizacion del potential con los t�rminos de Coulomb, centr�fugo y de spin-�rbita*/
 	for (i=0;i<puntos-1;i++) {
-      if(v->r[i]>=v->radio_coul) potencial[i]=v->pot[i]+E_CUADRADO*q1q2/v->r[i]+
+      if(v->r[i]>=v->radio_coul) potential[i]=v->pot[i]+E_CUADRADO*q1q2/v->r[i]+
                                    (funcion[0].l*(funcion[0].l+1.))*hbarx /(v->r[i]*v->r[i])
                                    -2.*spinorbit*v->Vso*exp((v->r[i]-v->radioso)/v->aso)
                                    /((v->aso*v->r[i])*(1.+exp((v->r[i]-v->radioso)/v->aso))*(1.+exp((v->r[i]-v->radioso)/v->aso)));
-      if(v->r[i]<v->radio_coul) potencial[i]=v->pot[i]+E_CUADRADO*q1q2*(3.-(v->r[i]/v->radio_coul)*
+      if(v->r[i]<v->radio_coul) potential[i]=v->pot[i]+E_CUADRADO*q1q2*(3.-(v->r[i]/v->radio_coul)*
                                                                         (v->r[i]/v->radio_coul))/(2.*v->radio_coul)+
                                   (funcion[0].l*(funcion[0].l+1.))*hbarx /(v->r[i]*v->r[i])
                                   -2.*spinorbit*v->Vso*exp((v->r[i]-v->radioso)/v->aso)
                                   /((v->aso*v->r[i])*(1.+exp((v->r[i]-v->radioso)/v->aso))*(1.+exp((v->r[i]-v->radioso)/v->aso)));
-      // misc5<<v->r[i]<<"  "<<real(v->pot[i])<<"  "<<real(potencial[i])<<endl;
+      // misc5<<v->r[i]<<"  "<<real(v->pot[i])<<"  "<<real(potential[i])<<endl;
 	}
     //exit(0);
 	funcion->wf[0]=1.e-10;
-	funcion->wf[1]=(2.*(1.-0.416666667*dd*(-potencial[0]+funcion->energia))*funcion->wf[0])/
-			(1.+0.083333333*dd*(-potencial[1]+funcion->energia));
+	funcion->wf[1]=(2.*(1.-0.416666667*dd*(-potential[0]+funcion->energia))*funcion->wf[0])/
+			(1.+0.083333333*dd*(-potential[1]+funcion->energia));
 	for (i=1;i<puntos-1;i++) {
-		funcion->wf[i+1]=(2.*(1.-0.416666667*dd*(-potencial[i]+funcion->energia))
-				*funcion->wf[i]-(1.+0.083333333*dd*(-potencial[i-1]+ funcion->energia))*funcion->wf[i-1])
-				/(1.+0.083333333*dd*(-potencial[i+1]+funcion->energia));
+		funcion->wf[i+1]=(2.*(1.-0.416666667*dd*(-potential[i]+funcion->energia))
+				*funcion->wf[i]-(1.+0.083333333*dd*(-potential[i-1]+ funcion->energia))*funcion->wf[i-1])
+				/(1.+0.083333333*dd*(-potential[i+1]+funcion->energia));
 	}
 	// Calculo del desfase
 	radio_1=radio_match;
@@ -4837,14 +4845,14 @@ complejo GeneraDWspin(distorted_wave* funcion,potencial_optico *v, double q1q2, 
 		*fp<<funcion->r[i]<<"  "<<real(funcion->wf[i])<<"  "<<imag(funcion->wf[i])<<"  "<<abs(funcion->wf[i])<<endl;
 	}
     //exit(0);
-	delete[] potencial;
+	delete[] potential;
 	return delta;
 }
 
 /*****************************************************************************
 Funci�n de Green
  *****************************************************************************/
-complejo GeneraGreenFunction(distorted_wave* funcion_regular,distorted_wave* funcion_irregular,potencial_optico *v, double q1q2,
+complejo GeneraGreenFunction(distorted_wave* funcion_regular,distorted_wave* funcion_irregular,potential_optico *v, double q1q2,
 		double masa, double radio_max,int puntos,double radio_match,double spin)
  {
 	int i, i_1, i_2;
@@ -4852,7 +4860,7 @@ complejo GeneraGreenFunction(distorted_wave* funcion_regular,distorted_wave* fun
 	complejo delta,derivada_log,fu1,fu2,factor_regular;
 	gsl_complex deltagsl;
 	gsl_sf_result F1,G1,F2,G2,Fp,Gp;
-	complejo *potencial=new complejo[puntos];
+	complejo *potential=new complejo[puntos];
 	if (funcion_regular[0].energia < 0.) Error( "Niveles intermedios energ�ticamente prohibidos!");
 	delta_r=radio_max/double(puntos);
 	if(radio_match>radio_max-4.*delta_r) Error("Radio de matching demasiado grande en GeneraGreenFunction");
@@ -4876,29 +4884,29 @@ complejo GeneraGreenFunction(distorted_wave* funcion_regular,distorted_wave* fun
 	funcion_irregular[1].j=funcion_irregular[0].l-spin;
 	if(funcion_irregular[1].l==0) funcion_irregular[1].j=spin;
 	// ********************************************** C�lculo para j=l+1/2 ***********************************************************
-	/* actualizacion del potencial con los t�rminos de Coulomb, centr�fugo y de spin-�rbita*/
+	/* actualizacion del potential con los t�rminos de Coulomb, centr�fugo y de spin-�rbita*/
 	spinorbit =(funcion_regular[0].j*(funcion_regular[0].j+1.)-funcion_regular[0].l*(funcion_regular[0].l+1.)-spin*(spin+1.));
 	for (i=0;i<puntos-1;i++) {
-		if(v->r[i]>v->radio_coul) potencial[i]=v->pot[i]+E_CUADRADO*q1q2/v->r[i]+
+		if(v->r[i]>v->radio_coul) potential[i]=v->pot[i]+E_CUADRADO*q1q2/v->r[i]+
 				(funcion_regular[0].l*(funcion_regular[0].l+1.))*hbarx /(v->r[i]*v->r[i])
 				-2.*spinorbit*v->Vso*exp((v->r[i]-v->radioso)/v->aso)
 		/((v->aso*v->r[i])*(1.+exp((v->r[i]-v->radioso)/v->aso))*(1.+exp((v->r[i]-v->radioso)/v->aso)));
-		if(v->r[i]<=v->radio_coul) potencial[i]=v->pot[i]+E_CUADRADO*q1q2*(3.-(v->r[i]/v->radio_coul)* (v->r[i]/v->radio_coul))/(2.*v->radio_coul)+
+		if(v->r[i]<=v->radio_coul) potential[i]=v->pot[i]+E_CUADRADO*q1q2*(3.-(v->r[i]/v->radio_coul)* (v->r[i]/v->radio_coul))/(2.*v->radio_coul)+
 				(funcion_regular[0].l*(funcion_regular[0].l+1.))*hbarx /(v->r[i]*v->r[i])
 				-2.*spinorbit*v->Vso*exp((v->r[i]-v->radioso)/v->aso)
 		/((v->aso*v->r[i])*(1.+exp((v->r[i]-v->radioso)/v->aso))*(1.+exp((v->r[i]-v->radioso)/v->aso)));
 //		misc1<<delta_r*(i+1.)<<"   "<<v->pot[i]<<"   "<<E_CUADRADO*q1q2/v->r[i]<<"   "<<2.*spinorbit*v->Vso*exp((v->r[i]-v->radioso)/v->aso)
 //		/((v->aso*v->r[i])*(1.+exp((v->r[i]-v->radioso)/v->aso))*(1.+exp((v->r[i]-v->radioso)/v->aso)))<<endl;
-//		misc1<<v->r[i]<<"   "<<real(potencial[i])<<"   "<<imag(potencial[i])<<endl;
+//		misc1<<v->r[i]<<"   "<<real(potential[i])<<"   "<<imag(potential[i])<<endl;
 	}
 	// ********************************************* Solucion regular j=l+1/2 **********************************************************
 	funcion_regular[0].wf[0]=1.e-10;
-	funcion_regular[0].wf[1]=(2.*(1.-0.416666667*dd*(-potencial[0]+funcion_regular[0].energia))*funcion_regular[0].wf[0])
-			/(1.+0.083333333*dd*(-potencial[1]+funcion_regular[0].energia));
+	funcion_regular[0].wf[1]=(2.*(1.-0.416666667*dd*(-potential[0]+funcion_regular[0].energia))*funcion_regular[0].wf[0])
+			/(1.+0.083333333*dd*(-potential[1]+funcion_regular[0].energia));
 	for (i=1;i<puntos-1;i++) {
-		funcion_regular[0].wf[i+1]=(2.*(1.-0.416666667*dd*(-potencial[i]+funcion_regular[0].energia))
-				*funcion_regular[0].wf[i]-(1.+0.083333333*dd*(-potencial[i-1]+funcion_regular[0].energia))*funcion_regular[0].wf[i-1])
-				/(1.+0.083333333*dd*(-potencial[i+1]+funcion_regular[0].energia));
+		funcion_regular[0].wf[i+1]=(2.*(1.-0.416666667*dd*(-potential[i]+funcion_regular[0].energia))
+				*funcion_regular[0].wf[i]-(1.+0.083333333*dd*(-potential[i-1]+funcion_regular[0].energia))*funcion_regular[0].wf[i-1])
+				/(1.+0.083333333*dd*(-potential[i+1]+funcion_regular[0].energia));
 	}
 
 	radio_1=radio_match;
@@ -4927,9 +4935,9 @@ complejo GeneraGreenFunction(distorted_wave* funcion_regular,distorted_wave* fun
 	funcion_irregular[0].wf[puntos-1]=I*F1.val+G1.val;
 	funcion_irregular[0].wf[puntos-2]=I*F2.val+G2.val;
 	for (i=puntos-2;i>0;i--) {
-		funcion_irregular[0].wf[i-1]= (2.*(1.-0.416666667*dd*(-potencial[i]+funcion_irregular[0].energia))
-				*funcion_irregular[0].wf[i]-(1.+0.083333333*dd*(-potencial[i+1]+funcion_irregular[0].energia))
-				*funcion_irregular[0].wf[i+1])/(1.+0.083333333*dd*(-potencial[i-1]+funcion_irregular[0].energia));
+		funcion_irregular[0].wf[i-1]= (2.*(1.-0.416666667*dd*(-potential[i]+funcion_irregular[0].energia))
+				*funcion_irregular[0].wf[i]-(1.+0.083333333*dd*(-potential[i+1]+funcion_irregular[0].energia))
+				*funcion_irregular[0].wf[i+1])/(1.+0.083333333*dd*(-potential[i-1]+funcion_irregular[0].energia));
 	}
 	gsl_sf_coulomb_wave_FG_e(etac,q*radio_1,funcion_irregular[0].l,0,&F1,&Fp,&G1,&Gp,&ex1,&ex2);
 	factor_regular=exp(I*(delta))*(cos(delta)*F1.val+sin(delta)*G1.val)/fu1;
@@ -4947,29 +4955,29 @@ complejo GeneraGreenFunction(distorted_wave* funcion_regular,distorted_wave* fun
 
 
 	// ********************************************** C�lculo para j=l-1/2 ***********************************************************
-	/* actualizacion del potencial con los t�rminos de Coulomb, centr�fugo y de spin-�rbita*/
+	/* actualizacion del potential con los t�rminos de Coulomb, centr�fugo y de spin-�rbita*/
 	spinorbit =(funcion_regular[1].j*(funcion_regular[1].j+1.)-funcion_regular[1].l*(funcion_regular[1].l+1.)-spin*(spin+1.));
 	if (funcion_regular[1].l==0) spinorbit=0.;
 	for (i=0;i<puntos-1;i++) {
-		if(v->r[i]>v->radio_coul) potencial[i]=v->pot[i]+E_CUADRADO*q1q2/v->r[i]+
+		if(v->r[i]>v->radio_coul) potential[i]=v->pot[i]+E_CUADRADO*q1q2/v->r[i]+
 				(funcion_regular[0].l*(funcion_regular[0].l+1.))*hbarx /(v->r[i]*v->r[i])
 				-2.*spinorbit*v->Vso*exp((v->r[i]-v->radioso)/v->aso)
 		/((v->aso*v->r[i])*(1.+exp((v->r[i]-v->radioso)/v->aso))*(1.+exp((v->r[i]-v->radioso)/v->aso)));
-		if(v->r[i]<=v->radio_coul) potencial[i]=v->pot[i]+E_CUADRADO*q1q2*(3.-(v->r[i]/v->radio_coul)* (v->r[i]/v->radio_coul))/(2.*v->radio_coul)+
+		if(v->r[i]<=v->radio_coul) potential[i]=v->pot[i]+E_CUADRADO*q1q2*(3.-(v->r[i]/v->radio_coul)* (v->r[i]/v->radio_coul))/(2.*v->radio_coul)+
 				(funcion_regular[0].l*(funcion_regular[0].l+1.))*hbarx /(v->r[i]*v->r[i])
 				-2.*spinorbit*v->Vso*exp((v->r[i]-v->radioso)/v->aso)
 		/((v->aso*v->r[i])*(1.+exp((v->r[i]-v->radioso)/v->aso))*(1.+exp((v->r[i]-v->radioso)/v->aso)));
-//		misc2<<v->r[i]<<"  "<<real(potencial[i])<<"  "<<imag(potencial[i])<<endl;
+//		misc2<<v->r[i]<<"  "<<real(potential[i])<<"  "<<imag(potential[i])<<endl;
 
 	}
 	// ********************************************* Solucion regular j=l-1/2 **********************************************************
 	funcion_regular[1].wf[0]=1.e-10;
-	funcion_regular[1].wf[1]=(2.*(1.-0.416666667*dd*(-potencial[0]+funcion_regular[1].energia))*funcion_regular[1].wf[0])
-			/(1.+0.083333333*dd*(-potencial[1]+funcion_regular[1].energia));
+	funcion_regular[1].wf[1]=(2.*(1.-0.416666667*dd*(-potential[0]+funcion_regular[1].energia))*funcion_regular[1].wf[0])
+			/(1.+0.083333333*dd*(-potential[1]+funcion_regular[1].energia));
 	for (i=1;i<puntos-1;i++) {
-		funcion_regular[1].wf[i+1]=(2.*(1.-0.416666667*dd*(-potencial[i]+funcion_regular[1].energia))
-				*funcion_regular[1].wf[i]-(1.+0.083333333*dd*(-potencial[i-1]+funcion_regular[1].energia))*funcion_regular[1].wf[i-1])
-				/(1.+0.083333333*dd*(-potencial[i+1]+funcion_regular[1].energia));
+		funcion_regular[1].wf[i+1]=(2.*(1.-0.416666667*dd*(-potential[i]+funcion_regular[1].energia))
+				*funcion_regular[1].wf[i]-(1.+0.083333333*dd*(-potential[i-1]+funcion_regular[1].energia))*funcion_regular[1].wf[i-1])
+				/(1.+0.083333333*dd*(-potential[i+1]+funcion_regular[1].energia));
 	}
 
 	radio_1=radio_match;
@@ -4999,9 +5007,9 @@ complejo GeneraGreenFunction(distorted_wave* funcion_regular,distorted_wave* fun
 	funcion_irregular[1].wf[puntos-1]=I*F1.val+G1.val;
 	funcion_irregular[1].wf[puntos-2]=I*F2.val+G2.val;
 	for (i=puntos-2;i>0;i--) {
-		funcion_irregular[1].wf[i-1]= (2.*(1.-0.416666667*dd*(-potencial[i]+funcion_irregular[1].energia))
-				*funcion_irregular[1].wf[i]-(1.+0.083333333*dd*(-potencial[i+1]+funcion_irregular[1].energia))
-				*funcion_irregular[1].wf[i+1])/(1.+0.083333333*dd*(-potencial[i-1]+funcion_irregular[1].energia));
+		funcion_irregular[1].wf[i-1]= (2.*(1.-0.416666667*dd*(-potential[i]+funcion_irregular[1].energia))
+				*funcion_irregular[1].wf[i]-(1.+0.083333333*dd*(-potential[i+1]+funcion_irregular[1].energia))
+				*funcion_irregular[1].wf[i+1])/(1.+0.083333333*dd*(-potential[i-1]+funcion_irregular[1].energia));
 	}
 	gsl_sf_coulomb_wave_FG_e(etac,q*radio_1,funcion_irregular[1].l,0,&F1,&Fp,&G1,&Gp,&ex1,&ex2);
 	factor_regular=exp(I*(delta))*(cos(delta)*F1.val+sin(delta)*G1.val)/fu1;
@@ -5011,10 +5019,10 @@ complejo GeneraGreenFunction(distorted_wave* funcion_regular,distorted_wave* fun
 		gsl_sf_coulomb_wave_FG_e(etac,q*funcion_regular[1].r[i],funcion_irregular[1].l,0,&F1,&Fp,&G1,&Gp,&ex1,&ex2);
 		funcion_regular[1].wf[i]= factor_regular*funcion_regular[1].wf[i];
 	}
-	delete[] potencial;
+	delete[] potential;
 	return delta;
 }
-void GeneraEstadosPI(potencial* pot,estado* st,double radio,int puntos,double cargas,parametros* parm,int ajuste,double masa
+void GeneraEstadosPI(potential* pot,estado* st,double radio,int puntos,double cargas,parametros* parm,int ajuste,double masa
 		,double* D0,double* rms)
 {
 	double energia,etrial,vmax,vmin;
@@ -5034,7 +5042,7 @@ void GeneraEstadosPI(potencial* pot,estado* st,double radio,int puntos,double ca
 //				cout<<etrial<<"  "<<energia<<endl;
 				pot->V=-(vmax+vmin)/2.;
 //				cout<<pot->V<<endl;
-				GeneraPotencialCM(parm,pot);
+				GeneraPotentialCM(parm,pot);
 //				cout<<"quillo1"<<endl;
 				GeneraEstado(st,pot,radio,puntos,cargas,masa,D0,rms);
 				etrial=st->energia;
@@ -5060,17 +5068,17 @@ void GeneraEstadosPI(potencial* pot,estado* st,double radio,int puntos,double ca
 /////////////////////////////////////////////////////////////////////////
 //                                                                     //
 //     Genera los estados de part�cula independiente de un nucleo dado //
-//        y el     correspondiente potencial de campo medio            //
+//        y el     correspondiente potential de campo medio            //
 //                                                                     //
 /////////////////////////////////////////////////////////////////////////
-void GeneraEstadosContinuo(potencial_optico* pot_optico,estado* st,double radio,int puntos,double cargas,parametros* parm,double masa)
+void GeneraEstadosContinuo(potential_optico* pot_optico,estado* st,double radio,int puntos,double cargas,parametros* parm,double masa)
 {
 	double energia,hbarx,q;
 	int i;
 	complejo estado_inicial;
 	distorted_wave* dw=new distorted_wave;
 	ofstream fp1("aux.txt");
-	GeneraPotencialOptico(parm,pot_optico,parm->m_A,parm->m_b);
+	GeneraPotentialOptico(parm,pot_optico,parm->m_A,parm->m_b);
 	hbarx=HC*HC/(2.*AMU*masa);
 	q=sqrt(st->energia/hbarx);
 	dw->energia=st->energia;
@@ -5092,8 +5100,8 @@ void GeneraEstadosContinuo(potencial_optico* pot_optico,estado* st,double radio,
 	}
 	else File2State(st,parm);
 }
-void GeneraRemnant(potencial_optico *pot,potencial_optico *core,potencial_optico *in_pot,
-		potencial_optico *in_core,double q1q2_pot,double q1q2_core,int l_pot,int l_core,double masa_pot,int masa_core)
+void GeneraRemnant(potential_optico *pot,potential_optico *core,potential_optico *in_pot,
+		potential_optico *in_core,double q1q2_pot,double q1q2_core,int l_pot,int l_core,double masa_pot,int masa_core)
 {
 	int i;
 	double hbarx_pot,hbarx_core;
@@ -5282,7 +5290,7 @@ void File2State(estado *st,parametros *parm)
 	delete[] wf;
 	delete[] wf_r;
 }
-void GeneraEstado(estado *st,potencial *potencial, double radio_max,int puntos,double q1q2,double masa, double* D0
+void GeneraEstado(estado *st,potential *potential, double radio_max,int puntos,double q1q2,double masa, double* D0
 		,double* rms) {
 	int ND,i;
 	double *vv=new double[puntos],*sx=new double[puntos],*vs=new double[puntos],*v=new double[puntos];
@@ -5297,40 +5305,40 @@ void GeneraEstado(estado *st,potencial *potencial, double radio_max,int puntos,d
 	ls=(st->j*(st->j+1.)-st->l*(st->l+1.)-0.75);
 	st->puntos=puntos;
 	// a�ade los t�rminos Coulomb y spin-�rbita *********************************************************************
-	if(!strcmp(potencial->tipo,"ws"))
+	if(!strcmp(potential->tipo,"ws"))
 	{
 		for (i=0;i<puntos;i++) {
 			st->r[i]=delta_r*(i+1);
-			if(st->r[i]>potencial->RV) v[i]=potencial->pot[i]+E_CUADRADO*q1q2/st->r[i];
-			if(potencial->r[i]<=potencial->RV) v[i]=potencial->pot[i]
-								+E_CUADRADO*q1q2*(3.-(st->r[i]/potencial->RV)* (st->r[i]/potencial->RV))/(2.*potencial->RV);
-			vs[i]=-2.*(potencial->VSO)*exp((st->r[i]-potencial->RSO)/potencial->aSO)/
-					(st->r[i]*potencial->aSO*(1.+exp((st->r[i]-potencial->RSO)
-							/potencial->aSO))*(1.+exp((st->r[i]-potencial->RSO)/potencial->aSO)));
-			potencial->pot[i]=v[i];
+			if(st->r[i]>potential->RV) v[i]=potential->pot[i]+E_CUADRADO*q1q2/st->r[i];
+			if(potential->r[i]<=potential->RV) v[i]=potential->pot[i]
+								+E_CUADRADO*q1q2*(3.-(st->r[i]/potential->RV)* (st->r[i]/potential->RV))/(2.*potential->RV);
+			vs[i]=-2.*(potential->VSO)*exp((st->r[i]-potential->RSO)/potential->aSO)/
+					(st->r[i]*potential->aSO*(1.+exp((st->r[i]-potential->RSO)
+							/potential->aSO))*(1.+exp((st->r[i]-potential->RSO)/potential->aSO)));
+			potential->pot[i]=v[i];
 //			misc3<<st->r[i]<<"  "<<v[i]<<"  "<<ls*vs[i]<<"  "<<(centr)/(st->r[i]*st->r[i])<<endl;
 		}
 	}
-	if(!strcmp(potencial->tipo,"tang"))
+	if(!strcmp(potential->tipo,"tang"))
 	{
-		if(delta_r>potencial->rhc/2.) Error("Paso de intagraci�n demasiado grande para el potencial Tang-Herndon");
+		if(delta_r>potential->rhc/2.) Error("Paso de intagraci�n demasiado grande para el potential Tang-Herndon");
 		for (i=0;i<puntos;i++) {
 			st->r[i]=delta_r*(i+1);
-			if(st->r[i]>potencial->rhc) v[i]=-potencial->V*exp(-potencial->k*(st->r[i]-potencial->rhc));
-			if (st->r[i]<=potencial->rhc) v[i]=0.;
+			if(st->r[i]>potential->rhc) v[i]=-potential->V*exp(-potential->k*(st->r[i]-potential->rhc));
+			if (st->r[i]<=potential->rhc) v[i]=0.;
 		}
 	}
 	while (fabs(-Emin+Emax)>Wlim) {
 		Etrial=(Emin+ Emax)/2.0;
 		st->wf[0]=pow(delta_r,(st->l+1));
 		st->wf[1]=pow(2.0*delta_r,(st->l+1));
-		if(!strcmp(potencial->tipo,"tang")) {st->wf[0]=0.;st->wf[1]=0.;}
+		if(!strcmp(potential->tipo,"tang")) {st->wf[0]=0.;st->wf[1]=0.;}
 		ND=0;
 		for (i=1;i<puntos-1;i++) {
 			vv[i]=v[i]+ls*vs[i]+(centr)/(st->r[i]*st->r[i]);
 			sx[i]=dd*(vv[i]-Etrial);
 			st->wf[i+1]=(2.0+sx[i])*st->wf[i]-st->wf[i-1];
-			if(!strcmp(potencial->tipo,"tang")  && st->r[i]<=potencial->rhc) {st->wf[i]=0.;st->wf[i+1]=1.e-4;}
+			if(!strcmp(potential->tipo,"tang")  && st->r[i]<=potential->rhc) {st->wf[i]=0.;st->wf[i+1]=1.e-4;}
 			if (real(st->wf[i+1]*st->wf[i])<0.) ND=ND+1;
 		}
 		if (ND>st->nodos) Emax=Etrial;
@@ -5341,13 +5349,13 @@ void GeneraEstado(estado *st,potencial *potencial, double radio_max,int puntos,d
 	for (i=0;i<puntos;i++) {
 		st->wf[i]=st->wf[i]/st->r[i];
 		if (i>0)
-			if((abs(st->wf[i])>abs(st->wf[i-1]))&&(abs(st->r[i])>4.*(potencial->RV))&&(st->energia<0.))
+			if((abs(st->wf[i])>abs(st->wf[i-1]))&&(abs(st->r[i])>4.*(potential->RV))&&(st->energia<0.))
 				st->wf[i]=st->wf[i-1];
 	}
 	st->radio=radio_max;
 	//  Normalizacion
 	Normaliza(st,st,radio_max,puntos,'s');
-	*D0=3.54490770181103*VertexD0(st,potencial,radio_max,puntos,rms);
+	*D0=3.54490770181103*VertexD0(st,potential,radio_max,puntos,rms);
 //	cout<<*D0<<"  "<<*rms<<endl;
 	delete[] vv;
 	delete[] v;
@@ -5385,15 +5393,15 @@ double deltac(int l,double etac)
   return dumb;
 }
 /*****************************************************************************
-Escribe el potencial optico
+Escribe el potential optico
  *****************************************************************************/
-void EscribePotencialOptico(int puntos,potencial_optico* pot,int numero_potenciales,struct parametros *parm)
+void EscribePotentialOptico(int puntos,potential_optico* pot,int numero_potentiales,struct parametros *parm)
 {
-	ofstream fp("potenciales_opticos.txt");
+	ofstream fp("potentiales_opticos.txt");
 	int n,i;
 	for(i=0;i<puntos;i++){
 		fp<<pot[0].r[i]<<"  ";
-		for(n=0;n<numero_potenciales;n++){
+		for(n=0;n<numero_potentiales;n++){
 			fp<<real(pot[n].pot[i])<<"  "<<imag(pot[n].pot[i])<<"  ";
 		}
 		fp<<endl;
@@ -5403,7 +5411,7 @@ void EscribePotencialOptico(int puntos,potencial_optico* pot,int numero_potencia
 /*****************************************************************************
 Calcula el parametro D0 de zero range
  *****************************************************************************/
-double VertexD0(estado* st,potencial* pot, double radio, int pts, double* rms) {
+double VertexD0(estado* st,potential* pot, double radio, int pts, double* rms) {
 	int regla_r, nr, indice;
 	double ar, br, norma, r,radio_medio,potint;
 	parametros_integral *dim=new parametros_integral;
@@ -5428,7 +5436,7 @@ double VertexD0(estado* st,potencial* pot, double radio, int pts, double* rms) {
 	delete[] dim;
 	return norma;
 }
-void AddCoulomb(potencial_optico* v,double q1q2)
+void AddCoulomb(potential_optico* v,double q1q2)
 {
 	int i;
     //cout<<"In AddCoulomb "<<E_CUADRADO<<"  "<<q1q2<<"  "<<v->radio_coul<<endl;
@@ -5847,3 +5855,278 @@ void GF2Pot(cx_mat &gf,vec &r, double energy,nlpotential* v,lagrange* lag,int l,
   //gf.print(misc3);
   //exit(0);
 }
+void optical::AddCoulomb(double q1q2){
+  int i;
+  for (i=0;i<r.size();i++) {
+    if(r(i)>=radcoul) Coulomb(i)=E_CUADRADO*q1q2/r(i);
+    if(r(i)<radcoul) Coulomb(i)=E_CUADRADO*q1q2*(3.-(r(i)/radcoul)* (r(i)/radcoul))/(2.*radcoul);
+  }
+  pot=pot+Coulomb;
+}
+void optical::AddSpinOrbit(int l,double j,double s){
+  int i;
+  double spinorbit;
+  spinorbit =j*(j+1.)-l*(l+1.)-s*(s+1.);
+  for (i=0;i<r.size();i++) {
+    SpinOrbit(i)=-2.*spinorbit*(Vso+I*Wso)*exp((r(i)-radso)/aso)
+      /((aso*r(i))*(1.+exp((r(i)-radso)/aso))*(1.+exp((r(i)-radso)/aso)));
+  }
+  pot=pot+SpinOrbit;
+}
+void MeanField::AddCoulomb(double q1q2){
+  int i;
+  for (i=0;i<r.size();i++) {
+    if(r(i)>=RV) Coulomb(i)=E_CUADRADO*q1q2/r(i);
+    if(r(i)<RV) Coulomb(i)=E_CUADRADO*q1q2*(3.-(r(i)/RV)* (r(i)/RV))/(2.*RV);
+  }
+  pot=pot+Coulomb;
+}
+void MeanField::AddSpinOrbit(int l,double j,double s){
+  int i;
+  double spinorbit;
+  spinorbit =j*(j+1.)-l*(l+1.)-s*(s+1.);
+  for (i=0;i<r.size();i++) {
+    SpinOrbit(i)=-2.*spinorbit*(VSO)*exp((r(i)-RSO)/aSO)
+      /((aSO*r(i))*(1.+exp((r(i)-RSO)/aSO))*(1.+exp((r(i)-RSO)/aSO)));
+  }
+  pot=pot+SpinOrbit;
+}
+void state::GenScatt(double radiusi, double mass, double q1q2, nlpotential* potentiali, lagrange* lag)
+{
+  if(energy<0) {cout<<"GenScatt called with energy<0"<<endl; exit(0);}
+  if(l<0) {cout<<"State not properly initialized in GenScatt "<<endl; exit(0);}
+  spec=1.;
+  radius=radiusi;
+  potential=potentiali;
+  double delta_r,hbarx,central,part3,part4,ri,rj,q,etac,
+    exp_F,exp_G,delta_a,energy,points;
+  complejo pot,Rmatrix,Hp,Hm,Hmp,Hpp,S,phase_shift,factor,vloc;
+  int i,j;
+  int start_s=clock();
+  gsl_sf_result F,G,Fp,Gp;
+  hbarx=HC*HC/(2.*AMU*mass);
+  q=sqrt(energy/hbarx);
+  etac=q1q2*mass*E2HC*AMU/(HC*q);
+  cx_mat TLmatrix=zeros<cx_mat>(lag->N,lag->N);
+  cx_mat Vmatrix=zeros<cx_mat>(lag->N,lag->N);
+  cx_mat Gmatrix=zeros<cx_mat>(lag->N,lag->N);
+  vec basis_a(lag->N);
+  cx_vec c;
+  points=r.size();
+  delta_r=radius/double(points);
+  basis_a=lag->basis.row(lag->basis.n_rows-1).t(); // vector of length N with the value of each Lagrange function at a
+  // Initialization of Coulomb functions at a
+  gsl_sf_coulomb_wave_FG_e(etac,q*lag->a,l,0,&F,&Fp,&G,&Gp,&exp_F,&exp_G);
+  Hp=(G.val+I*F.val);
+  Hm=(G.val-I*F.val);
+  Hpp=q*(Gp.val+I*Fp.val);
+  Hmp=q*(Gp.val-I*Fp.val);
+  // Kinetic energy, Bloch term and energy eigenvalue
+  
+  for(i=0;i<lag->N;i++)
+    {
+      TLmatrix(i,i)=hbarx*((4.*lag->N*lag->N+4.*lag->N+3.0)*lag->x[i]*(1.-lag->x[i])-6.*lag->x[i]+1.)/
+        (3.*lag->a*lag->a*(lag->x[i]*lag->x[i])*((1.-lag->x[i])*(1.-lag->x[i])))-energy;
+      for(j=i+1;j<lag->N;j++)
+        {
+          part3=pow(-1.,i+j)/(lag->a*lag->a*sqrt(lag->x[i]*lag->x[j]*(1.-lag->x[i])*(1.-lag->x[j])));
+          part4=(lag->N*lag->N*1.+lag->N*1.0+1.0+(lag->x[i]+lag->x[j]-2.*lag->x[i]*lag->x[j])/
+                 ((lag->x[i]-lag->x[j])*(lag->x[i]-lag->x[j]))-1./(1.-lag->x[i])-1./(1.-lag->x[j]));
+          TLmatrix(i,j)=hbarx*part3*part4;
+          TLmatrix(j,i)=TLmatrix(i,j);
+        }
+    }
+
+  // Potential (multiplied by rj*rj), including central potential and energy
+  for(i=0;i<lag->N;i++)
+    {
+      ri=lag->a*lag->x[i];
+      vloc=interpola_cmpx(potential->pot,potential->r,ri);
+      Vmatrix(i,i)=vloc+hbarx*l*(l+1.)/(ri*ri);  // central potential and energy
+      for(j=0;j<lag->N;j++)
+        {
+          rj=lag->a*lag->x[j];
+          pot=interpola2D_cmpx(potential->nlpot,potential->r,potential->r,ri,rj);
+          Vmatrix(i,j)+=ri*rj*lag->a*sqrt(lag->w[i]*lag->w[j]/4.)*pot;
+        }
+    }
+  Gmatrix=inv(TLmatrix+Vmatrix);
+  Rmatrix=hbarx*dot(basis_a.t(),Gmatrix*basis_a)/lag->a;
+  S=(Hm-lag->a*Rmatrix*Hmp)/(Hp-lag->a*Rmatrix*Hpp);
+  phase_shift=-I*log(S)/2.;
+  c=I*hbarx*(Hmp-S*Hpp)*Gmatrix*basis_a/2.;  // c coefficients (see eq. (3.13))
+  for(i=0;i<lag->basis.n_rows;i++)
+    {
+      wf(i)=0.;
+      ri=(i+1.)*delta_r;
+      r(i)=ri;
+      for(j=0;j<lag->N;j++)
+        {
+          wf(i)+=c(j)*lag->basis(i,j);
+        }
+    }
+  for(i=lag->basis.n_rows;i<points;i++)
+    {
+      wf(i)=0.;
+      ri=(i+1.)*delta_r;
+      r(i)=ri;
+      gsl_sf_coulomb_wave_FG_e(etac,q*ri,l,0,&F,&Fp,&G,&Gp,&exp_F,&exp_G);
+      wf(i)=exp(I*(phase_shift))*(cos(phase_shift)*F.val+sin(phase_shift)*G.val);
+    }
+  gsl_sf_coulomb_wave_FG_e(etac,q*lag->a,l,0,&F,&Fp,&G,&Gp,&exp_F,&exp_G);
+  factor=exp(I*(phase_shift))*(cos(phase_shift)*F.val+sin(phase_shift)*G.val)/wf(lag->basis.n_rows);
+  for(i=0;i<points;i++)
+    {
+      wf(i)=factor*wf(i);
+    }
+}
+
+void state::GenBound(double radiusi, double mass, double q1q2, double energyi, MeanField* potentiali)
+{
+  double enerrun,etrial,vmax,vmin;
+  if(energyi>0) {cout<<"GenBound called with energy>0"<<endl; exit(0);}
+  if((l<0)||(j<0)||(s<0)) {cout<<"State not properly initialized in GenBound "<<endl; exit(0);}
+
+  enerrun=energyi;
+  radius=radiusi;
+  etrial=MAX_ENERGIA;
+  vmax=MAX_ENERGIA;
+  vmin=-MAX_ENERGIA;
+  potentiali->V=MAX_ENERGIA;
+  cout<<"level energy: "<<energyi<<"   l: "<<l
+      <<"   nodes: "<<nodes<<"   j: "<<j<<endl;
+  while(fabs(etrial-enerrun)>EPSILON)
+    {
+      potentiali->V=-(vmax+vmin)/2.;
+      potentiali->Set();
+      potentiali->AddCoulomb(q1q2);
+      potentiali->AddSpinOrbit(l,j,s);
+      state::GenBound(radius,mass,q1q2,potentiali);
+      etrial=energy;
+      if(etrial>enerrun) vmax=-potentiali->V;
+      if(etrial<=enerrun) vmin=-potentiali->V;
+    }
+  potential=potentiali;
+}
+
+void state::GenBound(double radiusi, double mass, double q1q2, MeanField* potentiali)
+{
+	int ND,i;
+    int points=r.size();
+    complejo vv,sx;
+	double hbarx,dd,Wlim,centr,Etrial,Emax,Emin,ls,delta_r,radio;
+    if(energy>0) {cout<<"GenBound called with energy>0"<<endl; exit(0);}
+    if((l<0)||(j<0)||(s<0)) {cout<<"State not properly initialized in GenBound "<<endl; exit(0);}
+    potential=potentiali;
+    radius=radiusi;
+	delta_r=radius/double(points);
+	Emin=MIN_ENERGIA;
+	Emax=MAX_ENERGIA;
+	hbarx=HC*HC/(2.*AMU*mass);
+	dd=delta_r*delta_r/hbarx;
+	Wlim=1.e-13;
+	centr=(l*(l+1.))*hbarx;
+	while (fabs(-Emin+Emax)>Wlim) {
+		Etrial=(Emin+ Emax)/2.0;
+		wf(0)=pow(delta_r,(l+1));
+		wf(1)=pow(2.0*delta_r,(l+1));
+		ND=0;
+		for (i=1;i<points-1;i++) {
+          vv=potential->pot(i)+(centr)/(r(i)*r(i));
+			sx=dd*(vv-Etrial);
+			wf(i+1)=(2.0+sx)*wf(i)-(i-1.);
+			if (real(wf(i+1)*wf(i))<0.) ND=ND+1;
+		}
+		if (ND>nodes) Emax=Etrial;
+		if (ND<=nodes) Emin=Etrial;
+	}
+	energy=Etrial;
+    wf=wf/r;
+	//  Normalizacion
+    state::Normalize(60);
+	//*D0=3.54490770181103*VertexD0(st,potential,radio_max,puntos,rms);
+}
+void state::Normalize(int regla_r) {
+	int  nr;
+	double norma, rr;
+    int points=r.size();
+	double step=radius/double(points);
+	double* wr = new double[regla_r];
+	double* absr = new double[regla_r];
+    complejo wfint;
+	complejo sum = 0.;
+	GaussLegendre(absr, wr, regla_r);
+	for (nr = 0; nr < regla_r; nr++) {
+		rr =radius*(absr[nr]+1.)/2.;
+        wfint=interpola_cmpx(wf,r,rr);
+        sum+=wfint*wfint*rr*rr*wr[nr];
+	}
+	norma=abs(sum)*radius/2.;
+    wf=wf/norma;
+	delete[] wr;
+	delete[] absr;
+}
+
+void MeanField::Set(){
+    int n;
+	double delta_r;
+    if((aV<0)||(aSO<0)||(RV<0)) {cout<<"Potential not properly initialized in Set "<<endl; exit(0);}
+	type="loc";
+    delta_r=radius/double(r.size());
+	for(n=0;n<r.size();n++)
+	{
+      Nuclear(n)=-V/(1.+exp((r(n)-RV)/aV));
+	}
+    pot=Nuclear;
+  }
+void optical::Set(){
+  int n;
+  double delta_r;
+  if((radV<0)||(radW<0)||(radso<0)) {cout<<"Potential not properly initialized in Set "<<endl; exit(0);}
+  type="loc";
+  delta_r=radius/double(r.size());
+  for(n=0;n<r.size();n++)
+	{
+      Nuclear(n)=-V/(1.+exp((r(n)-radV)/aV))-I*W/
+        (1.+exp((r(n)-radW)/aW))-4.*I*Wd*
+        exp((r(n)-radWd)/aWd)/((1.+exp((r(n)-radWd)/aWd))
+                               *(1.+exp((r(n)-radWd)/aWd)));
+	}
+  pot=Nuclear;
+}
+void optical::Set(potential_optico* pot,double m1,double m2)
+  {
+    V=pot->V;
+    W=pot->W;
+    Vso=pot->Vso;
+    Wso=pot->Wso;
+    Wd=pot->Wd;
+    aV=pot->aV;
+    aW=pot->aW;
+    aso=pot->aso;
+    aWd=pot->aWd;
+    if(m1>3. && m2>3.)
+      {
+		radV=pot->r0V*(pow(m1,0.33333333333333)+pow(m2,0.33333333333333));
+		radW=pot->r0W*(pow(m1,0.33333333333333)+pow(m2,0.33333333333333));
+		radso=pot->rso*(pow(m1,0.33333333333333)+pow(m2,0.33333333333333));
+		radWd=pot->rWd*(pow(m1,0.33333333333333)+pow(m2,0.33333333333333));
+		radcoul=pot->r0C*(pow(m1,0.33333333333333)+pow(m2,0.33333333333333));
+      }
+	if(m1>3. && m2<=3.)
+      {
+		radV=pot->r0V*pow(m1,0.33333333333333);
+		radW=pot->r0W*pow(m1,0.33333333333333);
+		radso=pot->rso*pow(m1,0.33333333333333);
+		radWd=pot->rWd*pow(m1,0.33333333333333);
+		radcoul=pot->r0C*pow(m1,0.33333333333333);
+      }
+	if(m1<=3. && m2>3.)
+      {
+		radV=pot->r0V*pow(m2,0.33333333333333);
+		radW=pot->r0W*pow(m2,0.33333333333333);
+		radso=pot->rso*pow(m2,0.33333333333333);
+		radWd=pot->rWd*pow(m2,0.33333333333333);
+		radcoul=pot->r0C*pow(m2,0.33333333333333);
+      }
+  }

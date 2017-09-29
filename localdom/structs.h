@@ -1,5 +1,5 @@
-
-struct potencial {
+class potential {
+ public:
   int id;
   char tipo[5];
   int puntos;
@@ -16,27 +16,7 @@ struct potencial {
   double rhc;
   char file[100];
 };
-
-
-class nlpotential {
- public:
-  int id;
-  string type; // type either 'loc', 'nloc', 'locnloc'
-  vec r;
-  cx_vec pot;
-  cx_mat nlpot;  
-  char file[100];
-  nlpotential (int points){
-    r.zeros(points);
-    pot.zeros(points);
-    nlpot.zeros(points,points);
-    type="locnloc";
-  }
-};
-
-
-
-struct potencial_optico {
+struct potential_optico {
 int id;
 int puntos;
 double radio;
@@ -76,6 +56,281 @@ double energia;
 double spec;
 char file[100];
 };
+
+class lagrange
+{
+ public:
+  vector_dbl x;   // Lagrange points
+  vector_dbl w;   // Lagrange weights
+  vector_dbl r;   // radial grid (length pts), from 0 to a
+  int N;          // size of Lagrange basis
+  mat basis;     // Lagrange basis functions (pts x N)
+  double a;   // size of box;
+  lagrange() {};
+  lagrange (int pts,int Nl, double box){
+    N=Nl;
+    a=box;
+    int i;
+    double rn;
+    double step=box/double(pts);
+    for(i=0;i<N;i++)
+      {
+        x.push_back(0.);
+        w.push_back(0.);
+      }
+    rn=step;
+    for(i=0;i<pts;i++)
+      {
+        r.push_back(rn);
+        rn+=step;
+      }
+    basis.zeros(pts,N);
+  }
+  lagrange (int Nl, double box,double step){
+    double rn;
+    int i;
+    N=Nl;
+    a=box;
+    for(i=0;i<N;i++)
+      {
+        x.push_back(0.);
+        w.push_back(0.);
+      }
+    rn=step;
+    while(rn<=a)
+      {
+        r.push_back(rn);
+        rn+=step;
+      }
+    basis.zeros(r.size(),N);  
+  }
+};
+
+class nlpotential {
+ public:
+  int id;
+  double radius;
+  string type; // type either 'loc', 'nloc', 'locnloc'
+  vec r;
+  cx_vec pot;
+  cx_mat nlpot;  
+  string file;
+  nlpotential (int points,double radiusi){
+    double delta_r;
+    int n;
+    r.zeros(points);
+    pot.zeros(points);
+    nlpot.zeros(points,points);
+    radius=radiusi;
+    delta_r=radius/double(points);
+    for(n=0;n<points;n++)
+      {
+        r(n)=delta_r*(n+1.);
+      }
+    type="locnloc";
+  }
+  
+  
+};
+
+
+class MeanField : public nlpotential{
+ public:
+  string ws[5];
+  double V;
+  double VSO;
+  double aV;
+  double aSO;
+  double RV;
+  double RSO;
+  double k;
+  double rhc;
+  vec Coulomb;
+  cx_vec SpinOrbit; 
+  cx_vec Nuclear;
+ MeanField(int points,double radiusi):nlpotential(points,radiusi){
+    type="loc";
+    Coulomb.zeros(points);
+    SpinOrbit.zeros(points);
+    Nuclear.zeros(points);
+    V=0.;
+    VSO=0.;
+    aV=-1.;
+    aSO=-1.;
+    RV=-1.;
+    RSO=-1.;
+    k=1.;
+    rhc=1.;
+  }
+  MeanField(int points,double radiusi,double Vi,
+          double VSOi,double RVi,double RSOi,double aVi,
+            double aSOi):nlpotential(points,radiusi){
+    int n;
+	double delta_r;
+    Coulomb.zeros(points);
+    SpinOrbit.zeros(points);
+    Nuclear.zeros(points);   
+	type="loc";
+    V=Vi;
+    VSO=VSOi;
+    aV=aVi;
+    aSO=aSOi;
+    RV=RVi;
+    RSO=RSOi;
+    k=1.;
+    rhc=1.;
+    delta_r=radiusi/double(points);
+	for(n=0;n<points;n++)
+	{
+      r(n)=delta_r*(n+1.);
+      Nuclear(n)=-V/(1.+exp((r(n)-RV)/aV));
+	}
+    pot=Nuclear;
+  }
+  void AddCoulomb(double q1q2);
+  void AddSpinOrbit(int l,double j,double s);
+  void Set();
+  void Set(potential* pot){
+    id=pot->id;
+    V=pot->V;
+    VSO=pot->VSO;
+    aV=pot->aV;
+    aSO=pot->aSO;
+    RV=pot->RV;
+    RSO=pot->RSO;
+    k=pot->k;
+    rhc=pot->rhc;
+  }
+};
+
+class optical : public nlpotential {
+ public:
+  double V;
+  double W;
+  double Vso;
+  double Wso;
+  double Wd;
+  double radV;
+  double radW;
+  double radso;
+  double radWd;
+  double radcoul;
+  double aV;
+  double aW;
+  double aso;
+  double aWd;
+  vec Coulomb;
+  cx_vec SpinOrbit; 
+  cx_vec Nuclear;
+ optical(int points,double radiusi):nlpotential(points,radiusi){
+    cout<<"in optical"<<endl;
+    type="loc";
+    Coulomb.zeros(points);
+    SpinOrbit.zeros(points);
+    Nuclear.zeros(points);
+    V=0.;
+    W=0.;
+    Vso=0.;
+    Wso=0.;
+    Wd=0.;
+    radV=-1.;
+    radW=-1.;
+    radso=-1.;
+    radWd=-1.;
+    radcoul=-1.;
+    aV=-1.;
+    aW=-1.;
+    aso=-1.;
+    aWd=-1.;
+  }
+  optical(int points,double radiusi,double Vi,double Wi,
+          double Vsoi,double Wsoi,double Wdi,double radVi,double radWi,
+          double radsoi,double radWdi,double radcouli,double aVi,
+          double aWi,double asoi,double aWdi):nlpotential(points,radiusi){
+    int n;
+	double delta_r;
+	type="loc";
+    V=Vi;
+    W=Wi;
+    Vso=Vsoi;
+    Wso=Wsoi;
+    Wd=Wdi;
+    radV=Wdi;
+    radW=radWi;
+    radso=radsoi;
+    radWd=radWdi;
+    radcoul=radcouli;
+    aV=aVi;
+    aW=aWi;
+    aso=asoi;
+    aWd=aWdi;
+    delta_r=radiusi/double(points);
+	for(n=0;n<points;n++)
+	{
+      r(n)=delta_r*(n+1.);
+      Nuclear(n)=-V/(1.+exp((r(n)-radV)/aV))-I*W/
+        (1.+exp((r(n)-radW)/aW))-4.*I*Wd*
+        exp((r(n)-radWd)/aWd)/((1.+exp((r(n)-radWd)/aWd))
+                               *(1.+exp((r(n)-radWd)/aWd)));
+	}
+    pot=Nuclear;
+  }
+  void AddCoulomb(double q1q2);
+  void AddSpinOrbit(int l,double j,double s);
+  void Set(potential_optico* pot, double m1,double m2);
+  void Set();
+};
+
+class state {
+ public:
+  int id;
+  int nodes;
+  double spec;
+  double s;
+  double radius;
+  nlpotential* potential;
+  int l;
+  double j;
+  vec r;
+  cx_vec wf;
+  cx_vec vertex;
+  double energy;
+  double D0;
+  string file;
+  state(int points){
+    r.zeros(points);
+    wf.zeros(points);
+    vertex.zeros(points);
+    id=-1;
+    nodes=-1;
+    spec=-1.;
+    s=-1.;
+    radius=-1.;
+    l=-1;
+    j=-1.;
+    energy=0.;
+    D0=-1.;
+  }
+  void Set(estado* st, double si){
+    id=st->id;
+    l=st->l;
+    j=st->j;
+    nodes=st->nodos;
+    spec=st->spec;
+    energy=st->energia;
+    file=st->file;
+    s=si;
+  }
+  void GenScatt(double radiusi, double mass,double q1q2, nlpotential* potentiali, lagrange* lag);
+  void GenBound(double radiusi, double mass, double q1q2, double energyi, MeanField* potentiali);
+  void GenBound(double radiusi, double mass, double q1q2, MeanField* potentiali);
+  void Normalize(int rule);
+};
+
+
+
+
+
 
 struct distorted_wave {
 int id;
@@ -203,9 +458,9 @@ struct parametros {
   char locality[10];
   /******************************************/
 
-  struct potencial pot[MAX_POTS];
-  struct potencial_optico pot_opt[MAX_POTS];
-  struct estado st[MAX_ST];
+   potential pot[MAX_POTS];
+   potential_optico pot_opt[MAX_POTS];
+   estado st[MAX_ST];
   double radio;
   double matching_radio;
   double delta_r;
@@ -305,7 +560,7 @@ struct integrando_schica{
 	struct distorted_wave entrante[2];
 	struct estado* inicial_st;
 	struct estado* final_st;
-	struct potencial *pot;
+	struct potential *pot;
 	struct parametros_integral *dim1;
 	struct parametros_integral *dim2;
 	struct parametros_integral *dim3;
@@ -319,7 +574,7 @@ struct integrando_sgrande{
 	complejo *schica_menos;
 	struct estado* inicial_st;
 	struct estado* final_st;
-	struct potencial *pot;
+	struct potential *pot;
 	struct parametros_integral *dim1;
 	struct parametros_integral *dim2;
 	struct parametros_integral *dim3;
@@ -331,7 +586,7 @@ struct integrando_knock{
 	struct distorted_wave fac[MAX_L][2];
 	struct distorted_wave fbc[MAX_L][2];
 	struct estado* inicial_st;
-	struct potencial *pot;
+	struct potential *pot;
 	struct parametros_integral *dim1;
 	struct parametros_integral *dim2;
 	struct parametros_integral *dim3;
@@ -346,12 +601,12 @@ struct integrando_onept{
 	struct distorted_wave fbB[3];
 	struct estado* inicial_st;
 	struct estado* final_st;
-	struct potencial *pot;
+	struct potential *pot;
 	struct parametros_integral *dim1;
 	struct parametros_integral *dim2;
 	struct parametros_integral *dim3;
-	struct potencial_optico *core;
-	struct potencial_optico *opt;
+	struct potential_optico *core;
+	struct potential_optico *opt;
 	int prior;
 	int remnant;
 	int la;
@@ -392,54 +647,6 @@ struct Final_return
   std::vector<MyClass> wave_function;
 };
 
-class lagrange
-{
- public:
-  vector_dbl x;   // Lagrange points
-  vector_dbl w;   // Lagrange weights
-  vector_dbl r;   // radial grid (length pts), from 0 to a
-  int N;          // size of Lagrange basis
-  mat basis;     // Lagrange basis functions (pts x N)
-  double a;   // size of box;
-  lagrange() {};
-  lagrange (int pts,int Nl, double box){
-    N=Nl;
-    a=box;
-    int i;
-    double rn;
-    double step=box/double(pts);
-    for(i=0;i<N;i++)
-      {
-        x.push_back(0.);
-        w.push_back(0.);
-      }
-    rn=step;
-    for(i=0;i<pts;i++)
-      {
-        r.push_back(rn);
-        rn+=step;
-      }
-    basis.zeros(pts,N);
-  }
-  lagrange (int Nl, double box,double step){
-    double rn;
-    int i;
-    N=Nl;
-    a=box;
-    for(i=0;i<N;i++)
-      {
-        x.push_back(0.);
-        w.push_back(0.);
-      }
-    rn=step;
-    while(rn<=a)
-      {
-        r.push_back(rn);
-        rn+=step;
-      }
-    basis.zeros(r.size(),N);  
-  }
-};
   
 
 

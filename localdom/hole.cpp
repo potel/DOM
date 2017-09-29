@@ -28,13 +28,13 @@ void AmplitudeCaptureHole(struct parametros* parm)
   distorted_wave* fl=new distorted_wave;
   distorted_wave* gl_up=new distorted_wave;
   distorted_wave* gl_down=new distorted_wave;
-  potencial_optico *optico=new potencial_optico;
-  potencial_optico *core=new potencial_optico;
-  potencial_optico* v_up=new potencial_optico[1];
-  potencial_optico* v_down=new potencial_optico[1];
-  potencial_optico* vp_up=new potencial_optico[1];
-  potencial_optico* vp_down=new potencial_optico[1];
-  potencial_optico* pot_dumb=new potencial_optico;
+  potential_optico *optico=new potential_optico;
+  potential_optico *core=new potential_optico;
+  potential_optico* v_up=new potential_optico[1];
+  potential_optico* v_down=new potential_optico[1];
+  potential_optico* vp_up=new potential_optico[1];
+  potential_optico* vp_down=new potential_optico[1];
+  potential_optico* pot_dumb=new potential_optico;
   estado* st=new estado;
   estado* st_fin=new estado;
   ofstream fp1("dw_out1trans.txt");
@@ -149,7 +149,7 @@ void AmplitudeCaptureHole(struct parametros* parm)
   cout<<"******************************************************************"<<endl<<
     "***** Reading hole Green's function for (p,d) calculation    *****"<<endl<<
     "******************************************************************"<<endl;
-  /*Selecciona los potenciales opticos en los distintos canales*/
+  /*Selecciona los potentiales opticos en los distintos canales*/
   for (n=0;n<parm->num_opt;n++)
     {
       if(parm->optico_ingreso==parm->pot_opt[n].id) indx_ingreso=n;
@@ -159,8 +159,8 @@ void AmplitudeCaptureHole(struct parametros* parm)
       //if(parm->pot_transfer==parm->pot_opt[n].id) v_up=&(parm->pot_opt[n]);
       //	if(parm->scatt_pot==parm->pot_opt[n].id) v_down=&(parm->pot_opt[n]);
     }
-  //GeneraPotencialOptico(parm,v_up,1.,parm->m_A);
-  //GeneraPotencialOptico(parm,v_down,1.,parm->m_A);
+  //GeneraPotentialOptico(parm,v_up,1.,parm->m_A);
+  //GeneraPotentialOptico(parm,v_down,1.,parm->m_A);
   v_up->puntos=parm->puntos;
   v_down->puntos=parm->puntos;
   vp_up->puntos=parm->puntos;
@@ -251,7 +251,7 @@ void AmplitudeCaptureHole(struct parametros* parm)
   double* rmax=new double[1];
   puntos_r=FetchGF(&fl_gf,fin,rmax);
   cx_mat GreenFunction=zeros<cx_mat>(puntos_r,puntos_r);
-  nlpotential potNLdumb(puntos_r); 
+  nlpotential potNLdumb(puntos_r,parm->radio); 
   nlpotential* potNL=&(potNLdumb);
   lagrange laggfdumb(puntos_r,10,*rmax);
   lagrange* laggf=&(laggfdumb);
@@ -262,7 +262,7 @@ void AmplitudeCaptureHole(struct parametros* parm)
   //laggf->basis.print(misc5);
   vec rg=zeros<vec>(puntos_r);
   cout<<"points: "<<puntos_r<<endl;
-  potNL=new nlpotential(puntos_r);
+  potNL=new nlpotential(puntos_r,parm->radio);
   potNL->type=parm->locality;
   if(spectral==1)
     {
