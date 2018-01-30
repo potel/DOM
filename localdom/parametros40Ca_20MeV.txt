@@ -1,7 +1,7 @@
 num_st 2	# numero de estados. En una reacción, tiene que ser igual a a_numst+B_numst
 lmin 0      # momento angular mínimo. En una reacción tiene que ser 0.
-lmax 4 # momento angular máximo. En una reacción, número de ondas parciales.
-ltransfer 10 #momento angular transferido maximo. Usado para la captura neutronica.
+lmax 15 # momento angular máximo. En una reacción, número de ondas parciales.
+ltransfer 9 #momento angular transferido maximo. Usado para la captura neutronica.
 emin -1000.    # energía mínima. 
 emax 0. 	   # energía máxima.
 puntos 3000    # número de puntos en los que se definen las funciones.
@@ -26,10 +26,10 @@ scatt_pot 4
 prior 1
 remnant 1
 core_pot 1
-capture_angular 0
-enerange_min 1.
-enerange_max 27.
-enerange_step 0.3
+capture_angular 1
+enerange_min 10.
+enerange_max 10.01
+enerange_step 0.1
 ++++++++++++++ Descripción de la reacción +++++++++++++++++++++++++++++++++++++
 
 base1  20   # tamaños de la base usada para describir los estados de partícula independiente
@@ -129,7 +129,7 @@ form_factor 0			# si=1 calcula el factor de forma no local (two_trans tiene que 
 unidades milib				# unidades de la sección eficaz: milib->milibarn, fm2->fermi^2, b->barn, microb->microbarn
 adiabatico 1        
 zerorange 0     
-koning_delaroche 1 # potencial de Koning-Delaroche
+koning_delaroche 0 # potencial de Koning-Delaroche
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 InicioPotencialesOpticos
 

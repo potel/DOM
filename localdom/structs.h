@@ -43,18 +43,48 @@ double aWd;
 double radioWd;
 };
 
-struct estado {
-int id;
-int puntos;
-double radio;
-int l;
-double j;
-int nodos;
-double r[MAX_PTS];
-complejo wf[MAX_PTS];
-double energia;
-double spec;
-char file[100];
+class nlpotential {
+ public:
+  int id;
+  double radius;
+  string type; // type either 'loc', 'nloc', 'locnloc'
+  vec r;
+  cx_vec pot;
+  cx_mat nlpot;  
+  string file;
+  nlpotential (int points,double radiusi){
+    double delta_r;
+    int n;
+    r.zeros(points);
+    pot.zeros(points);
+    nlpot.zeros(points,points);
+    radius=radiusi;
+    delta_r=radius/double(points);
+    for(n=0;n<points;n++)
+      {
+        r(n)=delta_r*(n+1.);
+      }
+    type="locnloc";
+  }
+};
+
+
+class estado {
+ public:
+  int id;
+  nlpotential* pot;
+  int puntos;
+  double radio;
+  int l;
+  double j;
+  int nodos;
+  double r[MAX_PTS];
+  complejo wf[MAX_PTS];
+  double energia;
+  double spec;
+  char file[100];
+  estado() {};
+  
 };
 
 class lagrange
@@ -106,32 +136,6 @@ class lagrange
   }
 };
 
-class nlpotential {
- public:
-  int id;
-  double radius;
-  string type; // type either 'loc', 'nloc', 'locnloc'
-  vec r;
-  cx_vec pot;
-  cx_mat nlpot;  
-  string file;
-  nlpotential (int points,double radiusi){
-    double delta_r;
-    int n;
-    r.zeros(points);
-    pot.zeros(points);
-    nlpot.zeros(points,points);
-    radius=radiusi;
-    delta_r=radius/double(points);
-    for(n=0;n<points;n++)
-      {
-        r(n)=delta_r*(n+1.);
-      }
-    type="locnloc";
-  }
-  
-  
-};
 
 
 class MeanField : public nlpotential{
@@ -321,6 +325,7 @@ class state {
     file=st->file;
     s=si;
   }
+
   void GenScatt(double radiusi, double mass,double q1q2, nlpotential* potentiali, lagrange* lag);
   void GenBound(double radiusi, double mass, double q1q2, double energyi, MeanField* potentiali);
   void GenBound(double radiusi, double mass, double q1q2, MeanField* potentiali);
@@ -332,17 +337,18 @@ class state {
 
 
 
-struct distorted_wave {
-int id;
-int puntos;
-double radio;
-int l;
-double j;
-int nodos;
-double r[MAX_PTS];
-complejo wf[MAX_PTS];
-double energia;
-float spin;
+class distorted_wave {
+ public:
+  int id;
+  int puntos;
+  double radio;
+  int l;
+  double j;
+  int nodos;
+  double r[MAX_PTS];
+  complejo wf[MAX_PTS];
+  double energia;
+  float spin;
 };
 
 struct parametros {
