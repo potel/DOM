@@ -315,6 +315,27 @@ class state {
     energy=0.;
     D0=-1.;
   }
+  state(int points,double radiusi){
+    double step;
+    int n;
+    radius=radiusi;
+    r.zeros(points);
+    wf.zeros(points);
+    vertex.zeros(points);
+    id=-1;
+    nodes=-1;
+    spec=-1.;
+    s=-1.;
+    l=-1;
+    j=-1.;
+    energy=0.;
+    D0=-1.;
+    step=radiusi/double(points);
+    for(n=0;n<points;n++)
+      {
+        r(n)=(n+1)*step;
+      }
+  }
   void Set(estado* st, double si){
     id=st->id;
     l=st->l;

@@ -5,8 +5,8 @@ ltransfer 1 #momento angular transferido maximo. Usado para la captura neutronic
 
 emin -1000.    # energía mínima. 
 emax 0. 	   # energía máxima.
-puntos 2000    # número de puntos en los que se definen las funciones.
-radio 30.      #radio máximo.
+puntos 3000    # número de puntos en los que se definen las funciones.
+radio 50.      #radio máximo.
 num_cm 2       # número de potenciales de campo medio.
 num_opt 3      # número de potenciales ópticos.
 a_numst 1	   # número de estados monoparticulares del núcleo a (la reacción se define como A+a(=b+2)->B(=A+2)+b).
@@ -28,20 +28,20 @@ scatt_pot 2
 prior 1
 remnant 1
 capture_angular 1
-#enerange_min 0. 
-#enerange_max 1773
-#enerange_min 17.68 
-#enerange_max 17.73
 enerange_min 0. 
-enerange_max 17.85
+enerange_max 19.081
+#enerange_min 13. 
+#enerange_max 16.9
+#enerange_min 17.2 
+#enerange_max 18.1
 #enerange_min 15.5 
-#enerange_max 16.  
-#enerange_min 17.7   # peak for l=0, cutoff=100 
-#enerange_max 17.86    # peak forl=0, cutoff=100
+#enerange_max 16.
+#enerange_min 17.3 # peak for l=0, cutoff=100 
+#enerange_max 17.385    # peak forl=0, cutoff=100
 
-#enerange_min 17.65   # peak for l=1, cutoff=100 
-#enerange_max 17.87    # peak forl=1, cutoff=100
-enerange_step 0.01
+#enerange_min 17.0   # peak for l=1, cutoff=100 
+#enerange_max 17.07    # peak forl=1, cutoff=100
+enerange_step 0.005
 ++++++++++++++ Descripción de la reacción +++++++++++++++++++++++++++++++++++++
 
 base1  20   # tamaños de la base usada para describir los estados de partícula independiente
@@ -73,7 +73,7 @@ res_N 7
 
 
 proyectil a		# define cual es el proyectil
-energia_lab  21.4
+energia_lab  21.
 Qvalue  -2.2245       # Binding energy of deuteron
 
 
@@ -88,7 +88,7 @@ dw_spinA 1   #spin de las ondas distorsionadas entrantes
 dw_spinB 0.5   #spin de las ondas distorsionadas salientes
 
 lambda  0.	# momento angular del cluster transferido
-n_spin 0
+n_spin 0.5 
 a_Sn  -7.66247 # energía de extracción de un neutrón para el núcleo a-1 (debe ser<0, típicamente será la energía del estado del núcleo a con energía mas baja)
 B_Sn   -4.24091 # energía de extracción de un neutrón para el núcleo B-1 (debe ser<0, típicamente será la energía del estado del núcleo B con energía mas baja)
 +++++++++++++++++++ Parametros numericos +++++++++++++++++++++++++++++++++++
@@ -97,9 +97,9 @@ r_Ccmin 0.     # valor mínimo de r_Cc
 r_Ccmax  30.    # valor máximo de r_Cc
 r_A2min   0.    # valor mínimo de r_A2
 r_A2max   30.    # valor máximo de r_A2
-rCc_puntos 20 # número de puntos de integración gaussiana para r_Cc
-rA2_puntos  20  # número de puntos de integración gaussiana para r_A2
-theta_puntos  10   # número de puntos de integración gaussiana para theta
+rCc_puntos 40 # número de puntos de integración gaussiana para r_Cc
+rA2_puntos  40  # número de puntos de integración gaussiana para r_A2
+theta_puntos  15  # número de puntos de integración gaussiana para theta
 cross_puntos  200 # número de puntos en los que se evalúa la sección eficaz
 matching_radio 20.  #radio de matching para implementar las condiciones de contorno
 
@@ -129,7 +129,7 @@ form_factor 0			# si=1 calcula el factor de forma no local (two_trans tiene que 
 unidades milib				# unidades de la sección eficaz: milib->milibarn, fm2->fermi^2, b->barn, microb->microbarn
 adiabatico 1             
 koning_delaroche 2 # potencial de Koning-Delaroche
-locality locnloc  # locality of the potential: loc->local, nloc->non local, locnloc->local+non local
+locality loc  # locality of the potential: loc->local, nloc->non local, locnloc->local+non local
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 InicioPotencialesOpticos
 
@@ -225,10 +225,12 @@ InicioEstados
 id 1                                                        
 l 0
 j 0.5
-nodos 1
-spec 0.9
-energia -0.6249
-file     
+nodos 0
+spec 1.
+energia -0.15
+#file /home/gregory/DOM/localdom/potential_Gregory/nft_new/wfs.txt
+#file /home/gregory/projects/Be10/box50/cut100/wfp1.txt
+#file /home/gregory/projects/Be10/nocoupling/wfs.txt
 *********************
 
 
@@ -261,24 +263,55 @@ fl_cross_non	cross_non.txt #fichero con la contribución no ortogonal  la secci�
 fl_cross_tot	cross.txt #fichero con la sección eficaz total
 fl_amplitudes    amplitudes.txt #fichero con las amplitudes para cada onda parcial
 fl_dw			dw.txt   #fichero con las ondas distorsionadas
+
 #fl_gf		/home/gregory/DOM/localdom/potential_Gregory/NFT/gf_l0_r1r2_quadcoupling.dat  # Green's function
 #fl_se		/home/gregory/DOM/localdom/potential_Gregory/NFT/se_l0_r1r2_quadcoupling.dat		 # Non local self-energy matrix
 #fl_vloc		/home/gregory/DOM/localdom/potential_Gregory/NFT/vlocal_quadcoupling_l0.dat		 # Local potential
+
 #fl_gf		/home/gregory/DOM/localdom/potential_Gregory/NFT/gf_l1_r1r2_cut100.dat  # Green's function 
 #fl_se		/home/gregory/DOM/localdom/potential_Gregory/NFT/se_l1_r1r2_cut100.dat		 # Non local self-energy matrix
 #fl_vloc		/home/gregory/DOM/localdom/potential_Gregory/NFT/v_l1.dat		 # Local potential
+
 #fl_gf		/home/gregory/DOM/localdom/potential_Gregory/nft_new/write_green_greg_l0_r1r2.dat  # Green's function 
 #fl_se		/home/gregory/DOM/localdom/potential_Gregory/nft_new/write_self_greg_l0_r1r2.dat		 # Non local self-energy matrix
 #fl_vloc		/home/gregory/DOM/localdom/potential_Gregory/nft_new/read_vcent_sporb_l0.dat		 # Local potential
+
 #fl_gf		/home/gregory/projects/Be10/box50/cut100/write_green_greg_l2_r1r2.dat  # Green's function 
 #fl_se		/home/gregory/projects/Be10/box50/cut100/write_self_greg_l2_r1r2.dat		 # Non local self-energy matrix
 #fl_vloc		/home/gregory/projects/Be10/box50/cut100/read_vcent_sporb_l2.dat		 # Local potential
-fl_gf		/home/gregory/projects/Be10/nocoupling/write_green_greg_l0_r1r2.dat  # Green's function 
-fl_se		/home/gregory/projects/Be10/nocoupling/write_self_greg_l0_r1r2.dat		 # Non local self-energy matrix
+
+#fl_gf		/home/gregory/projects/Be10/box50/cut100/write_green_greg_l1_r1r2.dat  # Green's function 
+#fl_se		/home/gregory/projects/Be10/box50/cut100/write_self_greg_l1_r1r2.dat		 # Non local self-energy matrix
+#fl_vloc		/home/gregory/projects/Be10/box50/cut100/read_vcent_sporb_l1.dat		 # Local potential
+
+
+
+#fl_gf		/home/gregory/projects/Be10/box50/cut100/write_green_greg_l0_r1r2.dat  # Green's function 
+#fl_se		/home/gregory/projects/Be10/box50/cut100/write_self_greg_l0_r1r2.dat		 # Non local self-energy matrix
+#fl_vloc		/home/gregory/projects/Be10/box50/cut100/read_vcent_sporb_l0.dat		 # Local potential
+
+#fl_gf		/home/gregory/projects/Be10/box50/cut300/write_green_greg_l0_r1r2.dat  # Green's function 
+#fl_se		/home/gregory/projects/Be10/box50/cut300/write_self_greg_l0_r1r2.dat		 # Non local self-energy matrix
+#fl_vloc		/home/gregory/projects/Be10/box50/cut300/read_vcent_sporb_l0.dat		 # Local potential
+
+#fl_gf		/home/gregory/projects/Be10/box50/cut300/write_green_greg_l1_r1r2.dat  # Green's function 
+#fl_se		/home/gregory/projects/Be10/box50/cut300/write_self_greg_l1_r1r2.dat		 # Non local self-energy matrix
+#fl_vloc		/home/gregory/projects/Be10/box50/cut300/read_vcent_sporb_l1.dat		 # Local potential
+
+fl_gf		/home/gregory/projects/Be10/constant_mass/write_green_greg_l0_r1r2.dat  # Green's function 
+fl_se		/home/gregory/projects/Be10/constant_mass/write_self_greg_l0_r1r2.dat		 # Non local self-energy matrix
+fl_vloc		/home/gregory/projects/Be10/constant_mass/read_vcent_sporb_l0.dat		 # Local potential
+
+
+
+#fl_gf		/home/gregory/projects/Be10/nocoupling/write_green_greg_l0_r1r2.dat  # Green's function 
+#fl_se		/home/gregory/projects/Be10/nocoupling/write_self_greg_l0_r1r2.dat		 # Non local self-energy matrix
 #fl_vloc		/home/gregory/projects/Be10/nocoupling/read_vcent_sporb_l0.dat		 # Local potential
+
 #fl_vloc		/home/gregory/projects/Be10/nocoupling/simple_pot.dat		 # Local potential
 #fl_vloc		./test_potential.txt		 # Local potential
-fl_vloc		./test_potential30.txt		 # Local potential
+#fl_vloc		./test_potential50.txt		 # Local potential
+#fl_vloc		./pot_local.txt		 # Local potential
 
 
 

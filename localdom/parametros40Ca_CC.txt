@@ -1,11 +1,11 @@
 num_st 2	# numero de estados. En una reacción, tiene que ser igual a a_numst+B_numst
-lmin 2      # momento angular mínimo. En una reacción tiene que ser 0.
+lmin 3      # momento angular mínimo. En una reacción tiene que ser 0.
 lmax 10 # momento angular máximo. En una reacción, número de ondas parciales.
-ltransfer 3 #momento angular transferido maximo. Usado para la captura neutronica.
+ltransfer 4 #momento angular transferido maximo. Usado para la captura neutronica.
 emin -1000.    # energía mínima. 
 emax 0. 	   # energía máxima.
 puntos 3000    # número de puntos en los que se definen las funciones.
-radio 30.      #radio máximo.
+radio 40.      #radio máximo.
 num_cm 2       # número de potenciales de campo medio.
 num_opt 5      # número de potenciales ópticos.
 a_numst 1	   # número de estados monoparticulares del núcleo a (la reacción se define como A+a(=b+2)->B(=A+2)+b).
@@ -27,8 +27,10 @@ prior 1
 remnant 1
 core_pot 1
 capture_angular 1
-enerange_min 0.
-enerange_max 7.4
+enerange_min 0
+enerange_max 25.5
+#enerange_min 15.4
+#enerange_max 15.5
 #enerange_min 5.7
 #enerange_max 5.9
 enerange_step 0.01
@@ -84,13 +86,13 @@ int_Qvalue   -6.7923  # Q-value intermedio (transferencia de una partícula)
 J_a 0.			# momentos angulares de las especies nucleares
 J_A 0.
 J_b 0.
-J_B  0.
+J_B  3.5
 
 dw_spinA 0.   #spin de las ondas distorsionadas entrantes
 dw_spinB 0.   #spin de las ondas distorsionadas salientes
 
 lambda  0.	# momento angular del cluster transferido
-n_spin 0.
+n_spin 0.5
 a_Sn  -7.66247 # energía de extracción de un neutrón para el núcleo a-1 (debe ser<0, típicamente será la energía del estado del núcleo a con energía mas baja)
 B_Sn      -8.1 # energía de extracción de un neutrón para el núcleo B-1 (debe ser<0, típicamente será la energía del estado del núcleo B con energía mas baja)
 +++++++++++++++++++ Parametros numericos +++++++++++++++++++++++++++++++++++
@@ -99,9 +101,9 @@ r_Ccmin 0.     # valor mínimo de r_Cc
 r_Ccmax  15.    # valor máximo de r_Cc
 r_A2min   0.    # valor mínimo de r_A2
 r_A2max   15.    # valor máximo de r_A2
-rCc_puntos  15  # número de puntos de integración gaussiana para r_Cc
-rA2_puntos   15	  # número de puntos de integración gaussiana para r_A2
-theta_puntos  10    # número de puntos de integrción gaussiana para theta
+rCc_puntos   30  # número de puntos de integración gaussiana para r_Cc
+rA2_puntos   30	  # número de puntos de integración gaussiana para r_A2
+theta_puntos  15    # número de puntos de integrción gaussiana para theta
 cross_puntos  200 # número de puntos en los que se evalúa la sección eficaz
 matching_radio 20.  #radio de matching para implementar las condiciones de contorno
 
@@ -337,10 +339,10 @@ id 1
 tipo ws  # tipo de potencial. Si=ws->Woods-Saxon, Si=tang->Tang-Herndon.
 VV 38.146
 VSO  0.
-aV 0.68
+aV 0.67
 aSO 0.65
-RV    5.5274
-RSO   1.25
+RV    4.5
+RSO   4.2
 *******
 
 #id 0
@@ -364,7 +366,7 @@ InicioEstados
 
 id 0
 l 0
-j 0.
+j 0.5
 nodos 0
 spec 1.
 energia -2.2245
@@ -373,10 +375,10 @@ file
 
 id 1
 l 3
-j 3.
+j 3.5
 nodos 0
 spec 1.
-energia -8.5
+energia -7.6
 file      
 *************
 
@@ -395,8 +397,10 @@ fl_cross_non	cross_non.txt #fichero con la contribución no ortogonal  la secci�
 fl_cross_tot	cross.txt #fichero con la sección eficaz total
 fl_amplitudes    amplitudes.txt #fichero con las amplitudes para cada onda parcial
 fl_dw			dw.txt   #fichero con las ondas distorsionadas
-fl_gf		/home/gregory/DOM/localdom/potential_Gregory/d5/BIG_gf_reg_mesh   # Green's function 
-fl_se		/home/gregory/DOM/localdom/potential_Gregory/d5/BIG_optical_pot		 # Non local self-energy matrix
-fl_vloc		/home/gregory/DOM/localdom/potential_Gregory/NFT/v_l0.dat		 # Local potential
+#fl_gf		/home/gregory/DOM/localdom/potential_Gregory/f5/BIG_gf_reg_mesh   # Green's function 
+#fl_se		/home/gregory/DOM/localdom/potential_Gregory/f5/BIG_optical_pot		 # Non local self-energy matrix
+#fl_vloc		/home/gregory/DOM/localdom/potential_Gregory/NFT/v_l0.dat		 # Local potential
 
+fl_gf		/home/gregory/DOM/localdom/potential_Gregory/Bound_states/f7_bound/BIG_gf_reg_mesh   # Green's function 
+fl_se		/home/gregory/DOM/localdom/potential_Gregory/Bound_states/f7_bound/BIG_optical_pot		 # Non local self-energy matrix
 

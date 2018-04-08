@@ -239,7 +239,7 @@ int ReadNLpot(ifstream* fl_se,ifstream* fl_vloc,nlpotential* potential,double* r
 int ReadNLpot(ifstream* fl_se,ifstream* fl_vloc,nlpotential* potential,vec r,int dimension,
               double energy,int ll,int dj);
 int ReadNLpot(ifstream* fl_se,ifstream* fl_vloc,nlpotential* potential,double* r,int dimension,
-              double energy,int ll,int dj,complejo sigma);
+              double energy,int ll,int dj,complejo sigma, int ret);
 void SourceNL(complejo* rho,complejo* non,distorted_wave* f,distorted_wave* g_up,
 	      distorted_wave* g_down,estado* u,nlpotential* v,double* r,int puntos_r,potential_optico* optico,
 	      potential_optico* core,int l,double rBn,parametros* parm, parametros_integral* dim1,parametros_integral* dim2);
@@ -282,6 +282,9 @@ complejo Non_local_wavefunction(distorted_wave* funcion,std::complex<double>** v
 void LagrangeBasis(lagrange* lag);
 complejo NLwavefunction(distorted_wave* funcion,nlpotential* v,vector_dbl r1,vector_dbl r2, double q1q2, double masa,double radio_max,
 			int puntos,double radio_match,ofstream* fp,lagrange* lag);
+complejo NLwavefunction(estado* st,nlpotential* v, double q1q2, double masa,double radio_max,
+                        int puntos,ofstream* fp,lagrange* lag);
+complejo NLwavefunction(state* st,nlpotential* v, double q1q2, double masa,ofstream* fp,lagrange* lag);
 complejo interpola2D_cmpxVec(complejo** funcion,vector_dbl r1,vector_dbl r2,
 			     double posicion1,double posicion2);
 //int FetchGF(ifstream* fl_gf,char* fin);
@@ -292,3 +295,13 @@ void GF2Pot(cx_mat &gf,vec &r, double energy,nlpotential* v,lagrange* lag,int l,
 void GFgenerator(nlpotential* v,cx_mat &gf,double masa,ofstream* fp,lagrange* lag,double energy,double eta,int l);
 double interpola(vec funcion,vec r,double posicion);
 double Absorption(nlpotential* pot,estado* wf);
+void GF2WF(complejo** gf,state* st,double* r,int puntos_r);
+complejo SuperAbsorption(nlpotential* pot,complejo** gf,double* rg,int points);
+void CrossOneTrans(complejo ***Tlalb,struct parametros *parm);
+double AcoplamientoAngular(int l1,int l2,int l3,int l4,int K,double coseno1,double coseno2,double coseno3);
+void SourceAltNL(complejo* rho,complejo* non,distorted_wave* f,distorted_wave* g_up,
+	      distorted_wave* g_down,estado* u,nlpotential* v,cx_vec &vnlocal,double* r,int puntos_r,potential_optico* optico,
+                 potential_optico* core,int l,double rn,parametros* parm, parametros_integral* dim1,parametros_integral* dim2);
+double Wigner9j(float j1,float j2,float j12,float j3,float j4,float j34,float j13,float j24,float j);
+double LevelDensity(complejo** gf,nlpotential* pot,double* r,int puntos_r,parametros_integral* dim1);
+double LevelDensity(complejo** gf,nlpotential* pot,double* r,int puntos_r,parametros_integral* dim1,estado* st,double energy);
