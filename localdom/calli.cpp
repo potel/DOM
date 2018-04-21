@@ -235,8 +235,8 @@ void Capture(struct parametros* parm)
 	double* rms=new double[1];
     complejo* potential_p=new complejo[parm->puntos];
     complejo* potential_n=new complejo[parm->puntos];
-    potential_optico* pot_p;
-    potential_optico* pot_n;
+    potential_optico* pot_p=new potential_optico[1];
+    potential_optico* pot_n=new potential_optico[1];
     // optical pot1(parm->puntos,parm->radio);
     // pot1.Set(&parm->pot_opt[0],2,40);
     // pot1.Set();
@@ -247,7 +247,8 @@ void Capture(struct parametros* parm)
     // exit(0);
     cout<<"Generando potentiales de campo medio"<<endl;
     
-    //KoningDelaroche(parm->energia_lab,parm->T_N,parm->T_carga,0.1,potential_p,potential_n,0,0.,pot_p,pot_n);
+    // KoningDelaroche(parm->energia_lab,parm->T_N,parm->T_carga,0.1,potential_p,potential_n,0,0.,pot_p,pot_n);
+    KoningDelaroche(20.,parm->T_N,parm->T_carga,0.1,potential_p,potential_n,0,0.,pot_p,pot_n);
 	HanShiShen(parm->energia_lab,parm->T_N,parm->T_carga);
 	for(n=0;n<parm->num_cm;n++)
 	{
@@ -1140,7 +1141,7 @@ void AmplitudeCaptureCC(struct parametros* parm)
   cout<<"Number of points fetched from "<<fl_gf<<": "<<puntos_r<<". Largest r="<<rg[puntos_r-1]<<"fm"<<endl;
   complejo** GreenFunction=matriz_cmpx(puntos_r,puntos_r);
   complejo** NLpot=matriz_cmpx(puntos_r,puntos_r);
-  lagrange laggfdumb(2000,200,20.);
+  lagrange laggfdumb(parm->puntos,100,49.);
   lagrange* laggf=&(laggfdumb);
   state stdumb(parm->puntos,parm->radio);
   stdumb.Set(st_fin,0.5);
@@ -1149,10 +1150,12 @@ void AmplitudeCaptureCC(struct parametros* parm)
   double maxsp=0.;
   double eres_out=-1000.;
   double c1;
+  complejo phase_shift;
   stf->Set(st_fin,0.5);
   LagrangeBasis(laggf);
   cout<<" Lagrange vectors: "<<laggf->N<<"   box: "<<laggf->a<<"   points: "<<laggf->r.size()<<endl;
   cx_vec v_row;
+  vector_dbl rr;
   gf.zeros(puntos_r,puntos_r);
   cout<<"points: "<<puntos_r<<endl;
   potNL=new nlpotential(puntos_r,parm->radio);
@@ -1166,8 +1169,8 @@ void AmplitudeCaptureCC(struct parametros* parm)
   v_row.zeros(dim1->num_puntos);
   sigma=0.;
   //flagpot=ReadNLpot(&fl_se,&fl_vloc,potNL,rg,puntos_r,Ecm,l,dj,sigma,1);
-  fl_se.clear();
-  fl_se.seekg(0);
+  //fl_se.clear();
+  //fl_se.seekg(0);
   sigma=I*Absorption(potNL,st_fin);
   cout<<"Absorption: "<<sigma<<endl;
   //sigma=0.;
@@ -1176,6 +1179,7 @@ void AmplitudeCaptureCC(struct parametros* parm)
   stf->energy=-0.6249;
   //stf->energy=-0.7;
   ofstream fp("neutron_bound_state.txt");
+  ofstream scatfile("neutron_scattering_state.txt");
   if(spectral==1)
     {
       cout<<"Computing spectral function"<<endl;
@@ -1199,6 +1203,11 @@ void AmplitudeCaptureCC(struct parametros* parm)
           //Ecm+=0.01;
           //stf->energy=Ecm;
           //NLwavefunction(stf,potNL,0.,0.909091,&fp,laggf);
+          fl->energia=0.0186;
+          fl->energia=Ecm;
+          fl->l=l;
+          phase_shift=NLwavefunction(fl,potNL,rr,rr,0.,0.91,parm->radio,parm->puntos,parm->matching_radio,&scatfile,laggf);
+          if(real(phase_shift)<0.) phase_shift+=PI;
           //exit(0);
           Ecm_out=parm->energia_cm-Ecm-2.2245;
           energia_out=(parm->n1_masa+(parm->T_masa))*Ecm_out/(parm->T_masa);
@@ -1209,6 +1218,7 @@ void AmplitudeCaptureCC(struct parametros* parm)
           if(abs(sp)>maxsp) {maxsp=abs(sp); e_res=Ecm; eres_out=energia_out;}
           cout<<Ecm<<"  "<<abs(sp)/PI<<"  Resonant energy, neutron: "<<e_res<<"  Resonant energy, proton: "<<eres_out<<endl;
           misc2<<Ecm<<"  "<<energia_out<<"  "<<abs(sp)/PI<<"  "<<abs(ldd)/PI<<endl;
+          misc3<<Ecm<<"  "<<real(phase_shift)<<"  "<<imag(phase_shift)<<endl;
           if(flagGF==0 || flagpot==0)
             {
               cout<<"Exiting loop on Ecm="<<Ecm<<" with flagGF="<<flagGF<<" and flagpot="<<flagpot<<endl;
@@ -1368,6 +1378,7 @@ void AmplitudeCaptureCC(struct parametros* parm)
                     //SourceNL(rhom,nonm,fl,gl_up,gl_down,st,potNL,v_row,rg,puntos_r,&(parm->pot_opt[indx_ingreso]),vp_up,l,rn,parm,dim3,dim2);
                     //if(ld==4 && lp==5)
                     SourceAltNL(rhom,nonm,fl,gl_up,gl_down,st,potNL,v_row,rg,puntos_r,&(parm->pot_opt[indx_ingreso]),vp_up,l,rn,parm,dim3,dim2);
+                    //exit(0);
                     //Tonept[ld][lp][l]+=pow(I,ld-lp)*pow(-1.,l)*onept*sqrt(2.*ld+1.)*exp_delta_coulomb_f[lp]*exp_delta_coulomb_i[ld]*
                     //stint*rhom[0]*rAn*rAn*((dim1->b)-(dim1->a))*dim1->pesos[n]/(2.*(2.*l+1.));
                     Tonept[ld][lp][l]+=
@@ -1389,7 +1400,7 @@ void AmplitudeCaptureCC(struct parametros* parm)
                     //if(ld==0) misc4<<rAn<<"  "<<-real(rho[n][l][0][lp])<<"  "<<-imag(rho[n][l][0][lp])<<"  "<<abs(rho[n][l][0][lp])<<endl;
                   }
                 }
-              //if(energia_trans>0.) ElasticBreakupNL(Teb,rho,Ecm,potNL,dim1,parm,l,lp,k_n,rg,rg,puntos_r,lag);
+              if(energia_trans>0.) ElasticBreakupNL(Teb,rho,Ecm,potNL,dim1,parm,l,lp,k_n,rg,rg,puntos_r,lag);
               for(n=0;n<dim1->num_puntos;n++){
                 rn= (dim1->a)+((dim1->b)-(dim1->a))*((dim1->puntos[n])+1.)/2.;
                 for(m=0;m<=lp;m++){
@@ -1407,8 +1418,8 @@ void AmplitudeCaptureCC(struct parametros* parm)
                   //cout<<"lp: "<<lp<<"  rn: "<<rn<<endl;
                 }
               }
-               misc3<<lp<<"  "<<real(Tonept[lp][lp][l])<<"  "<<imag(Tonept[lp][lp][l])
-                         <<"  "<<abs(Tonept[lp][lp][l])<<endl;
+               // misc3<<lp<<"  "<<real(Tonept[lp][lp][l])<<"  "<<imag(Tonept[lp][lp][l])
+               //           <<"  "<<abs(Tonept[lp][lp][l])<<endl;
             }
           inc_break[l]=0.;
           elastic_break[l]=0.;
@@ -1425,7 +1436,7 @@ void AmplitudeCaptureCC(struct parametros* parm)
           fp9<<"  "<<inc_break[l]<<"  "<<elastic_break[l]<<"  ";
           misc1<<l<<"  "<<inc_break[l]<<"  "<<elastic_break[l]<<endl;
           //Ecm+=0.005;
-          CrossOneTrans(Tonept,parm);
+          //CrossOneTrans(Tonept,parm);
         }
       //TalysInput(inc_break_lmenos,inc_break_lmas,energia_trans,parm,&fp3,&fp4,&fp7,parm->J_A);
       cout<<"NEB cross section:  "<<cross_total<<"   EB cross section:  "<<cross_total_elasticb<<endl;
@@ -1901,6 +1912,7 @@ void SourceAltNL(complejo* rho,complejo* non,distorted_wave* f,distorted_wave* g
   downfrac=0.;
   remnant=0.; 
   vloc=interpola_cmpx(v->pot,v->r,rAn);
+  //cout<<"In Source, lp="<<lp<<endl;
   //misc4<<rAn<<"  "<<real(vloc)<<endl;
   for (n1 =0;n1<dim1->num_puntos; n1++) {
     rBp = (dim1->a)+((dim1->b)-(dim1->a))*((dim1->puntos[n1])+1.)/2.;
@@ -1945,13 +1957,14 @@ void SourceAltNL(complejo* rho,complejo* non,distorted_wave* f,distorted_wave* g
         //couplingnl=1.;
         sumaF+=flnl*udnl*vnlocal(n3)*couplingnl*rAnnl*rAnnl*dim1->pesos[n3]*((dim1->b)-(dim1->a))/(2.*rdnl);
         //sumaF=0.;
-        //misc3<<suma<<"  "<<abs(coupling)<<"  "<<abs(rAnnl*rAnnl*dim1->pesos[n1]*dim1->pesos[n3]*dim2->pesos[n2]/(rdnl))<<endl;
+        //if(rAnnl==rAn) misc6<<rAnnl<<"  "<<real(vnlocal(n3))<<"  "<<imag(vnlocal(n3))<<endl;
       }
       //coupling=1.;
       //cout<<"coupling: "<<coupling;
       suma+=rBp*seno*(upfrac*gl_up+downfrac*gl_down)*(fl*ud*(vloc-remnant)*coupling/rd+sumaF)*
             dim1->pesos[n1]*dim2->pesos[n2];
-
+      //misc4<<rAn<<"  "<<abs(rBp*seno*gl_up*fl*ud*(vloc-remnant)*coupling/rd)<<"  "
+      //   <<abs(rBp*seno*gl_up*sumaF)<<" "<<abs(rBp*seno*(upfrac*gl_up+downfrac*gl_down)*(fl*ud*(vloc-remnant)*coupling/rd+sumaF))<<endl;
         // suma+=(vloc-remnant)*coupling*
         // dim1->pesos[n1]*dim2->pesos[n2];
       //sumanon+=rBp*seno*fl*(upfrac*gl_up+downfrac*gl_down)*ud*coupling*
@@ -1973,8 +1986,8 @@ void SourceAltNL(complejo* rho,complejo* non,distorted_wave* f,distorted_wave* g
     }
   }
    // misc4<<rAn<<"  "<<real(suma*((dim1->b)-(dim1->a))*((dim2->b)-(dim2->a))/4.)<<"  "
-   //      <<imag(suma*((dim1->b)-(dim1->a))*((dim2->b)-(dim2->a))/4.)<<"  "
-   //      <<abs(suma*((dim1->b)-(dim1->a))*((dim2->b)-(dim2->a))/4.)<<endl;
+   //        <<imag(suma*((dim1->b)-(dim1->a))*((dim2->b)-(dim2->a))/4.)<<"  "
+   //        <<abs(suma*((dim1->b)-(dim1->a))*((dim2->b)-(dim2->a))/4.)<<endl;
   // misc4<<ld<<"  "<<real(suma*((dim1->b)-(dim1->a))*((dim2->b)-(dim2->a))/4.)<<"  "
   //      <<imag(suma*((dim1->b)-(dim1->a))*((dim2->b)-(dim2->a))/4.)<<"  "
   //      <<abs(suma*((dim1->b)-(dim1->a))*((dim2->b)-(dim2->a))/4.)<<endl;
@@ -2096,6 +2109,7 @@ void Localize(complejo** nlf,double* r,int puntos_r,complejo* lf,parametros_inte
 // Version to use with nlpotential class /////
 //                                       /////
 /////////////////////////////////////////////
+
 void Localize(nlpotential* nlf,complejo* lf,parametros_integral* dim)
 {    
   int n1,n2,puntos_r;
@@ -2113,10 +2127,11 @@ void Localize(nlpotential* nlf,complejo* lf,parametros_integral* dim)
       lf[n1]+=Rp*Rp*nlfint*dim->pesos[n2]*((dim->b)-(dim->a))/2.;
       //misc4<<R<<"  "<<Rp<<"  "<<nlfint<<endl;
     }
-    misc1<<R<<"  "<<real(lf[n1])<<"  "<<imag(lf[n1])<<endl;
-    misc2<<R<<"  "<<real(nlf->nlpot(n1,n1))<<"  "<<imag(nlf->nlpot(n1,n1))<<endl;
-    misc3<<R<<"  "<<real(nlf->pot(n1))<<"  "<<imag(nlf->pot(n1))<<endl;
+    //misc1<<R<<"  "<<real(lf[n1])<<"  "<<imag(lf[n1])<<endl;
+    //misc5<<R<<"  "<<real(nlf->nlpot(n1,n1))<<"  "<<imag(nlf->nlpot(n1,n1))<<endl;
+    //misc3<<R<<"  "<<real(nlf->pot(n1))<<"  "<<imag(nlf->pot(n1))<<endl;
   }
+  //exit(0);
 }
 
 double LevelDensity(complejo** gf,nlpotential* pot,double* r,int puntos_r,parametros_integral* dim1)
@@ -4181,7 +4196,7 @@ int ReadGF(ifstream* fl_gf,complejo** GF,double *r,int dimension,
       //cout<<"In ReadGF 1"<<endl;
       while(line.compare(0,4,finstr,0,4))
         {
-          //       cout<<"In ReadGF 2  "<<cont2<<endl;
+          //cout<<"In ReadGF 2  "<<cont2<<endl;
           sscanf(line.c_str(),"%g %g %g %g",&r1,&r2,&RealPart,&ImaginaryPart);
           if(r1==r1old){
             cont2++;
@@ -4199,9 +4214,9 @@ int ReadGF(ifstream* fl_gf,complejo** GF,double *r,int dimension,
           //misc5<<GF[cont1][cont2]<<endl;
           pos=fl_gf->tellg();
           flag=getline(*fl_gf,line);
-          //misc5<<finstr<<endl<<line.c_str()<<"  "<<line.compare(0,4,finstr,0,4)<<endl<<endl;
+          //misc5<<cont1<<"  "<<finstr<<endl<<line.c_str()<<"  "<<line.compare(0,4,finstr,0,4)<<endl<<endl;
         }
-      //cout<<ene<<"  "<<*einitial<<"  "<<nstep<<"  "<<efinal<<endl;
+      //cout<<ene<<"  "<<*einitial<<"  "<<nstep<<"  "<<efinal<<"  "<<ll<<"  "<<l<<endl;
       if((ene>*einitial+nstep)&&(ene<efinal)&&(ll==l))
         {
           cout<<"Reading Green's function, energy: "<<ene<<"    L: "<<l<<"    j: "<<j
@@ -4637,6 +4652,7 @@ void KoningDelaroche(double E,double N,double Z,double r,complejo* potential_p,c
 	Epf,Vv,Wv,rV,aV,Wd,rD,aD,rSO,aSO,rwd,awd,radioV,radioW,radioWd,radio_coul,
 	derivada,Wdd,delta_E,Vso,Wso,radioSO,ls,alpha,DVc;
 	ofstream fp("KDPotential.txt");
+    cout<<"quillo1"<<endl;
 	fp<<"Lab Energy: "<<E<<" MeV. N: "<<N<<". Z: "<<Z<<endl;
 	fp<<"*********************************************"<<endl<<endl;
 	ls=(j*(j+1.)-l*(l+1.)-0.75);
@@ -4686,7 +4702,7 @@ void KoningDelaroche(double E,double N,double Z,double r,complejo* potential_p,c
 		-2.*(ls*Vso)*exp((r-radioSO)/aSO)/(r*aSO*(1.+exp((r-radioSO)/aSO))*(1.+exp((r-radioSO)/aSO)));
 //   misc2<<r<<"  "<<real(*potential_p)<<"  "<<imag(*potential_p)<<endl;
 //	cout<<" rV: "<<rV<<" aV: "<<aV<<" v1p: "<<v1p<<" v2p: "<<v2p<<" v3p: "<<v3p<<" Epf: "<<Epf<<" Vv: "<<Vv<<endl;
-
+    cout<<"quillo2"<<endl;
 	pot_p->V=Vv;
 	pot_p->Vso=2.*Vso;
 	pot_p->W=Wv;
@@ -4704,7 +4720,7 @@ void KoningDelaroche(double E,double N,double Z,double r,complejo* potential_p,c
 	pot_p->radioWd=radioWd;
 	pot_p->rso=radioWd;
 	pot_p->radio_coul=radio_coul;
-
+    cout<<"Writing KD potential"<<endl;
 	fp<<"Protons: "<<endl<<endl;
 	fp<<"RealVolumen "<<Vv<<endl<<
 			"ImaginarioVolumen  "<<Wv<<endl<<
@@ -6085,9 +6101,11 @@ complejo NLwavefunction(distorted_wave* dw,nlpotential* v,vector_dbl r1,vector_d
   //int start_s=clock();
   gsl_sf_result F,G,Fp,Gp;
   energy=dw->energia;
+  if(energy==0.) energy=0.01;
   //energy=10.;
   hbarx=HC*HC/(2.*AMU*masa);
   q=sqrt(energy/hbarx);
+  cout<<q<<"  "<<energy<<endl;
   etac=q1q2*masa*E2HC*AMU/(HC*q);
   cx_mat TLmatrix=zeros<cx_mat>(lag->N,lag->N);
   cx_mat Vmatrix=zeros<cx_mat>(lag->N,lag->N);
@@ -6097,6 +6115,7 @@ complejo NLwavefunction(distorted_wave* dw,nlpotential* v,vector_dbl r1,vector_d
   delta_r=radio_max/double(puntos);
   dw->puntos=puntos;
   dw->radio=radio_max;
+  cout<<"points: "<<dw->puntos<<"   radius: "<<dw->radio<<endl;
   basis_a=lag->basis.row(lag->basis.n_rows-1).t(); // vector of length N with the value of each Lagrange function at a
   // Initialization of Coulomb functions at a
   gsl_sf_coulomb_wave_FG_e(etac,q*lag->a,dw->l,0,&F,&Fp,&G,&Gp,&exp_F,&exp_G);
@@ -6104,7 +6123,7 @@ complejo NLwavefunction(distorted_wave* dw,nlpotential* v,vector_dbl r1,vector_d
   Hm=(G.val-I*F.val);
   Hpp=q*(Gp.val+I*Fp.val);
   Hmp=q*(Gp.val-I*Fp.val);
-  cout<<"puntos: "<<r1[r1.size()-1]<<"  "<<r1[r1.size()-2]<<"  "<<r1[r1.size()-3]<<"  "<<r1[r1.size()-4]<<"  "<<r1.size()<<endl;
+  //cout<<"puntos: "<<r1[r1.size()-1]<<"  "<<r1[r1.size()-2]<<"  "<<r1[r1.size()-3]<<"  "<<r1[r1.size()-4]<<"  "<<r1.size()<<endl;
   // Kinetic energy, Bloch term and energy eigenvalue
   
   for(i=0;i<lag->N;i++)
@@ -6126,12 +6145,14 @@ complejo NLwavefunction(distorted_wave* dw,nlpotential* v,vector_dbl r1,vector_d
     {
       ri=lag->a*lag->x[i];
       vloc=interpola_cmpx(v->pot,v->r,ri);
+      //vloc=real(interpola_cmpx(v->pot,v->r,ri));
       Vmatrix(i,i)=vloc+hbarx*dw->l*(dw->l+1.)/(ri*ri);  // central potential and energy
       for(j=0;j<lag->N;j++)
         {
           rj=lag->a*lag->x[j];
           //cout<<"Entering interpola2D_cmpxVec"<<endl;
           pot=interpola2D_cmpx(v->nlpot,v->r,v->r,ri,rj);
+          //pot=real(interpola2D_cmpx(v->nlpot,v->r,v->r,ri,rj));
           //cout<<"out of interpola2D_cmpxVec"<<endl;
           //	  cout<<ri<<"  "<<"  "<<rj<<"  "<<pot<<"  "<<v[4][5]<<endl;
           Vmatrix(i,j)+=ri*rj*lag->a*sqrt(lag->w[i]*lag->w[j]/4.)*pot;
@@ -6146,7 +6167,7 @@ complejo NLwavefunction(distorted_wave* dw,nlpotential* v,vector_dbl r1,vector_d
   //cout<<"R-matrix: "<<Rmatrix<<endl;
   S=(Hm-lag->a*Rmatrix*Hmp)/(Hp-lag->a*Rmatrix*Hpp);
   phase_shift=-I*log(S)/2.;
-  cout<<"Phase shift: "<<phase_shift<<endl;
+  //cout<<"Phase shift: "<<phase_shift<<endl;
   c=I*hbarx*(Hmp-S*Hpp)*Gmatrix*basis_a/2.;  // c coefficients (see eq. (3.13))
   //abs(c).print(misc4);
   for(i=0;i<lag->basis.n_rows;i++)
@@ -6169,12 +6190,14 @@ complejo NLwavefunction(distorted_wave* dw,nlpotential* v,vector_dbl r1,vector_d
     }
   gsl_sf_coulomb_wave_FG_e(etac,q*lag->a,dw->l,0,&F,&Fp,&G,&Gp,&exp_F,&exp_G);
   factor=exp(I*(phase_shift))*(cos(phase_shift)*F.val+sin(phase_shift)*G.val)/dw->wf[lag->basis.n_rows];
-  cout<<"factor: "<<factor<<endl;
+  //cout<<"factor: "<<factor<<endl;
+  factor=1.;
   for(i=0;i<dw->puntos;i++)
     {
       dw->wf[i]=factor*dw->wf[i];
       //gsl_sf_coulomb_wave_FG_e(etac,q*dw->r[i],dw->l,0,&F,&Fp,&G,&Gp,&exp_F,&exp_G);
-      *fp<<dw->r[i]<<"   "<<real(dw->wf[i])<<"  "<<imag(dw->wf[i])<<endl;
+      //cout<<dw->r[i]<<"   "<<real(dw->wf[i])<<"  "<<imag(dw->wf[i])<<endl;
+      *fp<<dw->r[i]<<"   "<<-real(dw->wf[i])<<"  "<<imag(dw->wf[i])<<endl;
     }
   int stop_s=clock();
   //cout<<"Time in NLwavefunction: "<<(stop_s-start_s)/double(CLOCKS_PER_SEC)<<" s"<<endl;
@@ -6188,7 +6211,7 @@ complejo NLwavefunction(distorted_wave* dw,nlpotential* v,vector_dbl r1,vector_d
 complejo NLwavefunction(state* st,nlpotential* v, double q1q2, double masa,ofstream* fp,lagrange* lag)
 {       
   double delta_r,hbarx,central,part3,part4,ri,rj,q,etac,delta_a,energy,norm;
-  complejo pot,Rmatrix,W,Wp,Wi,Wip,factor,vloc,spectral1,spectral2,absorption,S,phase_shift;
+  complejo pot,Rmatrix,W,Wp,Wi,Wip,factor,vloc,spectral1,spectral2,absorption,S,phase_shift,jost,jostold;
   int i,j,points;
   //int start_s=clock();
   gsl_sf_result F,G,Fp,Gp;
@@ -6204,6 +6227,10 @@ complejo NLwavefunction(state* st,nlpotential* v, double q1q2, double masa,ofstr
   cx_mat DysonG=zeros<cx_mat>(lag->N,lag->N);
   cx_mat G0=zeros<cx_mat>(lag->N,lag->N);
   cx_mat Diffmatrix=zeros<cx_mat>(lag->N,lag->N);
+  cx_mat Ematrix=zeros<cx_mat>(lag->N,lag->N);
+  cx_mat Hmatrix=zeros<cx_mat>(lag->N,lag->N);
+  cx_mat eigenvectors=zeros<cx_mat>(lag->N,lag->N);
+  cx_vec eigenvalues=zeros<cx_vec>(lag->N);
   vec basis_a(lag->N);
   cx_vec c;
   points=st->r.size();
@@ -6221,11 +6248,11 @@ complejo NLwavefunction(state* st,nlpotential* v, double q1q2, double masa,ofstr
   //Wp=0.;
   //cout<<"puntos: "<<r1[r1.size()-1]<<"  "<<r1[r1.size()-2]<<"  "<<r1[r1.size()-3]<<"  "<<r1[r1.size()-4]<<"  "<<r1.size()<<endl;
   // Kinetic energy, Bloch term and energy eigenvalue
-  
+  cout<<"Computing bound state."<<endl;
   for(i=0;i<lag->N;i++)
     {
       TLmatrix(i,i)=hbarx*((4.*lag->N*lag->N+4.*lag->N+3.0)*lag->x[i]*(1.-lag->x[i])-6.*lag->x[i]+1.)/
-        (3.*lag->a*lag->a*(lag->x[i]*lag->x[i])*((1.-lag->x[i])*(1.-lag->x[i])))-energy;
+        (3.*lag->a*lag->a*(lag->x[i]*lag->x[i])*((1.-lag->x[i])*(1.-lag->x[i])));
       for(j=i+1;j<lag->N;j++)
         {
           part3=pow(-1.,i+j)/(lag->a*lag->a*sqrt(lag->x[i]*lag->x[j]*(1.-lag->x[i])*(1.-lag->x[j])));
@@ -6241,41 +6268,83 @@ complejo NLwavefunction(state* st,nlpotential* v, double q1q2, double masa,ofstr
     {
       ri=lag->a*lag->x[i];
       vloc=interpola_cmpx(v->pot,v->r,ri);
+      //vloc=real(interpola_cmpx(v->pot,v->r,ri));
       Vmatrix(i,i)=vloc+hbarx*st->l*(st->l+1.)/(ri*ri);  // central potential and energy
       for(j=0;j<lag->N;j++)
         {
           rj=lag->a*lag->x[j];
           //cout<<"Entering interpola2D_cmpxVec"<<endl;
           pot=interpola2D_cmpx(v->nlpot,v->r,v->r,ri,rj);
+          //pot=real(interpola2D_cmpx(v->nlpot,v->r,v->r,ri,rj));
+          //pot=0.;
           //cout<<"out of interpola2D_cmpxVec"<<endl;
           //	  cout<<ri<<"  "<<"  "<<rj<<"  "<<pot<<"  "<<v[4][5]<<endl;
           Vmatrix(i,j)+=ri*rj*lag->a*sqrt(lag->w[i]*lag->w[j]/4.)*pot;
         }
     }
-  //G0=inv(-TLmatrix);
-  Gmatrix=inv(-TLmatrix-Vmatrix);
-  //DysonG=G0+G0*Vmatrix*Gmatrix;
-  //Diffmatrix=DysonG-Gmatrix;
-  // spectral1=imag(trace(Gmatrix));
-  // spectral2=imag(0.5*trace(trans(Gmatrix)*(Vmatrix-trans(Vmatrix))*Gmatrix));
-  // cout<<"spectral 1: "<<spectral1<<"     spectral 2: "<<spectral2<<endl;
-    
-  //Gmatrix.print(misc4);
-  //DysonG.print(misc5);
-  //Diffmatrix.print(misc6);
+  Hmatrix=(TLmatrix+Vmatrix);
+  //eig_sym(eigenvalues,eigenvectors,Hmatrix);
+  //eigenvalues.print(misc3);
+  //eigenvectors.print(misc4);
+  //eigenvalues.print(stdout);
+  //cout<<"Energies: "<<eigenvalues(0)<<", "<<eigenvalues(1)<<", "<<eigenvalues(2)<<endl;
   //exit(0);
-  //TLmatrix.print(misc3);
-  //Vmatrix.print(misc4);
+  // for(energy=-0.4;energy<-0.34;energy+=0.0001)
+  //   {
+  //     cout<<"Energy: "<<energy<<endl;
+  //     q=sqrt(-energy/hbarx);
+  //     etac=q1q2*masa*E2HC*AMU/(HC*q);
+  //     W=exp(-q*lag->a);
+  //     Wi=exp(q*lag->a);
+  //     Wp=-q*exp(-q*lag->a);
+  //     Wip=q*exp(q*lag->a);
+  //     Ematrix=energy*Ematrix.eye(lag->N,lag->N);
+  //     //G0=inv(-TLmatrix);
+  //     Gmatrix=inv(Ematrix-TLmatrix-Vmatrix);
+  //     //DysonG=G0+G0*Vmatrix*Gmatrix;
+  //     //Diffmatrix=DysonG-Gmatrix;
+  //     // spectral1=imag(trace(Gmatrix));
+  //     // spectral2=imag(0.5*trace(trans(Gmatrix)*(Vmatrix-trans(Vmatrix))*Gmatrix));
+  //     // cout<<"spectral 1: "<<spectral1<<"     spectral 2: "<<spectral2<<endl;
+    
+  //     //Gmatrix.print(misc4);
+  //     //DysonG.print(misc5);
+  //     //Diffmatrix.print(misc6);
+  //     //exit(0);
+  //     //TLmatrix.print(misc3);
+  //     //Vmatrix.print(misc4);
+  //     Rmatrix=hbarx*dot(basis_a.t(),Gmatrix*basis_a)/lag->a;
+  //     //cout<<"R-matrix: "<<Rmatrix<<endl;
+  //     S=(Wi-lag->a*Rmatrix*Wip)/(W-lag->a*Rmatrix*Wp);
+  //     jost=W-lag->a*Rmatrix*Wp;
+  //     phase_shift=-I*log(S)/2.;
+  //     cout<<"Phase shift: "<<phase_shift<<endl;
+  //     //  c=hbarx*(Wip-S*Wp)*Gmatrix*basis_a/2.;  // c coefficients (see eq. (3.13))
+  //     c=hbarx*(Wp)*Gmatrix*basis_a/2.;  // c coefficients (see eq. (3.13))
+  //     //abs(c).print(misc4);
+  //     misc4<<energy<<"  "<<real(jost)<<"  "<<imag(jost)<<"  "<<real(phase_shift)<<"  "<<imag(phase_shift)<<"  "<<abs(phase_shift)<<endl;
+  //     //   misc4<<energy<<"  "<<abs(S)<<"  "<<abs(W-lag->a*Rmatrix*Wp)/abs(W)<<endl;
+  //   }
+  //exit(0);
+  energy=-0.369;
+  energy=-0.36;
+  cout<<"Energy: "<<energy<<endl;
+  q=sqrt(-energy/hbarx);
+  etac=q1q2*masa*E2HC*AMU/(HC*q);
+  W=exp(-q*lag->a);
+  Wi=exp(q*lag->a);
+  Wp=-q*exp(-q*lag->a);
+  Wip=q*exp(q*lag->a);
+  Ematrix=energy*Ematrix.eye(lag->N,lag->N);
+  Gmatrix=inv(Ematrix-TLmatrix-Vmatrix);
   Rmatrix=hbarx*dot(basis_a.t(),Gmatrix*basis_a)/lag->a;
-  //cout<<"R-matrix: "<<Rmatrix<<endl;
   S=(Wi-lag->a*Rmatrix*Wip)/(W-lag->a*Rmatrix*Wp);
+  jost=W-lag->a*Rmatrix*Wp;
   phase_shift=-I*log(S)/2.;
   cout<<"Phase shift: "<<phase_shift<<endl;
-  //  c=hbarx*(Wip-S*Wp)*Gmatrix*basis_a/2.;  // c coefficients (see eq. (3.13))
-  c=hbarx*(Wp)*Gmatrix*basis_a/2.;  // c coefficients (see eq. (3.13))
+  c=hbarx*(Wip-S*Wp)*Gmatrix*basis_a/2.;  // c coefficients (see eq. (3.13))
   //abs(c).print(misc4);
-  //  misc4<<energy<<"  "<<abs(Wi-lag->a*Rmatrix*Wip)/abs(Wi)<<"  "<<abs(W-lag->a*Rmatrix*Wp)/abs(W)<<endl;
-  //   misc4<<energy<<"  "<<abs(S)<<"  "<<abs(W-lag->a*Rmatrix*Wp)/abs(W)<<endl;
+ 
   norm=0.;
   for(i=0;i<lag->N;i++)
     {
@@ -7090,7 +7159,7 @@ void CrossOneTrans(complejo ***Tlalb,struct parametros *parm)
   bool less,more;
   ofstream fp(parm->fl_cross_tot);
   int li=0;
-  int lf=0;
+  int lf=1;
   float ji=0.5;
   float jf=0.5;
   constante=parm->k_Bb*parm->mu_Aa*parm->mu_Bb*AMU*AMU*(2.*parm->J_B+1.)/(parm->k_Aa*4.*PI*PI*pow(HC,4.)*
@@ -7163,8 +7232,10 @@ void CrossOneTrans(complejo ***Tlalb,struct parametros *parm)
 								mm=long(m+ji);
 								if((abs(M-m)<=jf))
 								{
-									amp[MM][mm]+=Tlalb[la][lb][K]*ClebsGordan(ji,m,jf,M-m,K,M)*
-											ClebsGordan(lb,M,la,0,K,M)*gsl_sf_legendre_sphPlm(lb,abs(M),costheta);
+                                  amp[MM][mm]+=Tlalb[la][lb][K]*ClebsGordan(ji,m,jf,M-m,K,M)*
+                                    ClebsGordan(lb,M,la,0,K,M)*gsl_sf_legendre_sphPlm(lb,abs(M),costheta);
+                                  //         amp[MM][mm]+=Tlalb[la][lb][K]*
+                                  //		ClebsGordan(lb,M,la,0,K,M)*gsl_sf_legendre_sphPlm(lb,abs(M),costheta);
                                     //if(n==1) misc5<<la<<"  "<<lb<<"  "<<K<<"  "<<abs(Tlalb[la][lb][K])<<endl;
 								}
 							}
@@ -7250,4 +7321,116 @@ double Wigner9j(float j1,float j2,float j12,float j3,float j4,float j34,float j1
 	cg=sqrt((2.*j12+1.)*(2.*j34+1.)*(2.*j13+1.)*(2.*j24+1.))*gsl_sf_coupling_9j(int(2.*j1),int(2.*j2),int(2.*j12),int(2.*j3),int(2.*j4),int(2.*j34),
 			int(2.*j13),int(2.*j24),int(2.*j));
 	return cg;
+}
+
+
+// Lagrange basis initializer, from 0 to a
+void lagrange::LagrangeBasis()
+{
+  const double EPS=1.0e-10;
+  int m,j,i;
+  double z1,z,pp,p3,p2,p1,value;
+  m=(N+1)/2;
+  for (i=0;i<m;i++) {
+    z=cos(PI*(i+0.75)/(N+0.5));
+    do {
+      p1=1.0;
+      p2=0.0;
+      for (j=0;j<N;j++) {
+        p3=p2;
+        p2=p1;
+        p1=((2.0*j+1.0)*z*p2-j*p3)/(j+1);
+      }
+      pp=N*(z*p1-p2)/(z*z-1.0);
+      z1=z;
+      z=z1-p1/pp;
+    } while (fabs(z-z1) > EPS);
+    x[i]=(-z+1.0)/2.0;
+    x[N-1-i]=(z+1.0)/2.0;
+    w[i]=2./((1.0-z*z)*pp*pp);
+    w[N-1-i]=w[i];
+  }
+  //cout<<"quillo! LagrangeBasis 1"<<endl;
+  //lag->basis.print(misc3);
+  for(m=0;m<r.size();m++)
+    {
+      for(i=1;i<=N;i++)
+        {
+          if (r[m]==a*x[i-1])
+            {
+              basis(m,i-1)= pow(-1.,N+i)*sqrt(a*x[i-1]*(1.-x[i-1]));
+              basis_i(m,i-1)=basis(m,i-1);
+              //misc2<<lag->N<<"  "<<lag->r[m]<<"  "<<2.*lag->r[m]/lag->a-1.<<"  "<<endl;
+            }
+          else 
+            {
+              value=2.*r[m]/a-1.;
+              if (value>1.) value=1.; 
+              if (value<-1.) value=-1.;
+              basis(m,i-1)= pow(-1.0,N+i)*r[m]/(a*x[i-1])*sqrt(a*x[i-1]*(1.-x[i-1]))
+                *gsl_sf_legendre_Pl(N,value)/(r[m]-a*x[i-1]);
+               basis_i(m,i-1)=pow(-1.0,N+i)*sqrt(a*x[i-1]*(1.-x[i-1]))
+                *gsl_sf_legendre_Pl(N,value)/(r[m]-a*x[i-1]);
+            }
+          //misc5<<lag->basis(m,i-1)<<"  "<<lag->r[m]<<"  "<<lag->x[i-1]<<"  "<<lag->a<<endl;
+        }
+    }
+  //lag->basis.print(misc4);
+}
+
+
+// Lagrange basis initializer from initial to initial+a
+void lagrange::LagrangeBasis(double initial)
+{
+  const double EPS=1.0e-10;
+  int m,j,i;
+  double z1,z,pp,p3,p2,p1,value;
+  a1=initial;
+  m=(N+1)/2;
+  for (i=0;i<m;i++) {
+    z=cos(PI*(i+0.75)/(N+0.5));
+    do {
+      p1=1.0;
+      p2=0.0;
+      for (j=0;j<N;j++) {
+        p3=p2;
+        p2=p1;
+        p1=((2.0*j+1.0)*z*p2-j*p3)/(j+1);
+      }
+      pp=N*(z*p1-p2)/(z*z-1.0);
+      z1=z;
+      z=z1-p1/pp;
+    } while (fabs(z-z1) > EPS);
+    x[i]=(-z+1.0)/2.0;
+    x[N-1-i]=(z+1.0)/2.0;
+    w[i]=2./((1.0-z*z)*pp*pp);
+    w[N-1-i]=w[i];
+  }
+  //cout<<"quillo! LagrangeBasis 1"<<endl;
+  //lag->basis.print(misc3);
+  for(m=0;m<r.size();m++)
+    {
+      for(i=1;i<=N;i++)
+        {
+          if (r[m]==a*x[i-1]+a1)
+            {
+              basis(m,i-1)= pow(-1.,N+i)*sqrt(a*x[i-1]*(1.-x[i-1]));
+              basis_i(m,i-1)=basis(m,i-1);
+              //misc2<<lag->N<<"  "<<lag->r[m]<<"  "<<2.*lag->r[m]/lag->a-1.<<"  "<<endl;
+            }
+          else 
+            {
+              //value=2.*r[m]/a-1.;
+              value=(2.*(r[m]-a1)-a)/a;
+              if (value>1.) value=1.; 
+              if (value<-1.) value=-1.;
+              basis(m,i-1)= pow(-1.0,N+i)*r[m]/(a*x[i-1])*sqrt(a*x[i-1]*(1.-x[i-1]))
+                *gsl_sf_legendre_Pl(N,value)/(r[m]-a*x[i-1]);
+              basis_i(m,i-1)= pow(-1.0,N+i)*sqrt(a*x[i-1]*(1.-x[i-1]))
+                *gsl_sf_legendre_Pl(N,value)/(r[m]-a*x[i-1]);
+            }
+          //misc5<<lag->basis(m,i-1)<<"  "<<lag->r[m]<<"  "<<lag->x[i-1]<<"  "<<lag->a<<endl;
+        }
+    }
+  //lag->basis.print(misc4);
 }

@@ -95,7 +95,10 @@ class lagrange
   vector_dbl r;   // radial grid (length pts), from 0 to a
   int N;          // size of Lagrange basis
   mat basis;     // Lagrange basis functions (pts x N)
+  mat basis_i;     // Lagrange irregular basis functions (pts x N)
   double a;   // size of box;
+  double a1;  // initial point for propagation method
+  double a2;   //final point for propagation method
   lagrange() {};
   lagrange (int pts,int Nl, double box){
     N=Nl;
@@ -115,6 +118,29 @@ class lagrange
         rn+=step;
       }
     basis.zeros(pts,N);
+    a1=0.;
+  }
+  lagrange (int pts,int Nl,double box,double initial){
+    N=Nl;
+    a=box;
+    a1=initial;
+    a2=a1+a;
+    int i;
+    double rn;
+    double step=box/double(pts);
+    for(i=0;i<N;i++)
+      {
+        x.push_back(0.);
+        w.push_back(0.);
+      }
+    rn=step;
+    for(i=0;i<pts;i++)
+      {
+        r.push_back(rn);
+        rn+=step;
+      }
+    basis.zeros(pts,N);
+    basis_i.zeros(pts,N);
   }
   lagrange (int Nl, double box,double step){
     double rn;
@@ -134,6 +160,8 @@ class lagrange
       }
     basis.zeros(r.size(),N);  
   }
+  void LagrangeBasis();
+  void LagrangeBasis(double initial);
 };
 
 
