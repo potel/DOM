@@ -538,7 +538,8 @@ struct parametros {
   char fl_dw[100];
   char fl_gf[100];
   char fl_se[100];
-  char fl_vloc[100];  
+  char fl_vloc[100];
+  char fl_vnonloc[100];  
   char file_dens[100];
   char unidades[10];
   int debug;

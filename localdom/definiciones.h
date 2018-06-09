@@ -234,6 +234,8 @@ int ReadGF(ifstream* fl_gf,cx_mat & GF,vec & r,int dimension,
 int ReadGF(complejo** GF,double *r,int dimension,
            double einitial,estado* st,complejo sigma);
 void AddCoulomb(potential_optico* v,double q1q2);
+int ReadNLpot(ifstream* fl_se,ifstream* fl_vloc,ifstream* fl_vnonloc,nlpotential* potential,nlpotential* vnonloc,double* r,int dimension,
+              double energy,int ll,int dj);
 int ReadNLpot(ifstream* fl_se,ifstream* fl_vloc,nlpotential* potential,double* r,int dimension,
 	      double energy,int ll,int dj);
 int ReadNLpot(ifstream* fl_se,ifstream* fl_vloc,nlpotential* potential,vec r,int dimension,
