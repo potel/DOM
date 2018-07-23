@@ -307,3 +307,4 @@ void SourceAltNL(complejo* rho,complejo* non,distorted_wave* f,distorted_wave* g
 double Wigner9j(float j1,float j2,float j12,float j3,float j4,float j34,float j13,float j24,float j);
 double LevelDensity(complejo** gf,nlpotential* pot,double* r,int puntos_r,parametros_integral* dim1);
 double LevelDensity(complejo** gf,nlpotential* pot,double* r,int puntos_r,parametros_integral* dim1,estado* st,double energy);
+void InterpolateSeries();

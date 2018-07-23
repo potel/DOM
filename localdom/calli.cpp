@@ -24,6 +24,8 @@ ofstream informe("informe.txt");
 int DOM(int l,double j, double Ecm, double r);
 int main(int argc,char* argv[]){
   parametros *parm=new struct parametros;
+  //InterpolateSeries();
+  //exit(0);
   cout<<"Project managed with Git!!"<<" parameter file: "<<argv[1]<<endl;
   if (!parm) Error("No se pudo reservar memoria para parametros");
   const char* input=argv[1];
@@ -249,7 +251,7 @@ void Capture(struct parametros* parm)
     cout<<"Generando potentiales de campo medio"<<endl;
     
     // KoningDelaroche(parm->energia_lab,parm->T_N,parm->T_carga,0.1,potential_p,potential_n,0,0.,pot_p,pot_n);
-    KoningDelaroche(20.,parm->T_N,parm->T_carga,0.1,potential_p,potential_n,0,0.,pot_p,pot_n);
+    KoningDelaroche(15.,parm->T_N,parm->T_carga,0.1,potential_p,potential_n,0,0.,pot_p,pot_n);
 	HanShiShen(parm->energia_lab,parm->T_N,parm->T_carga);
 	for(n=0;n<parm->num_cm;n++)
 	{
@@ -927,7 +929,9 @@ void AmplitudeCaptureCC(struct parametros* parm)
   ofstream fp10;
   fp10.open("dsdEdO.txt");
   ofstream fp11;
-  fp11.open("dsdEpartial.txt");
+  fp11.open("dsdEangular_range.txt");
+   ofstream fp12;
+  fp12.open("dsdO.txt");
   ifstream fl_gf;
   ifstream fl_se;
   ifstream fl_vloc;
@@ -1130,10 +1134,12 @@ void AmplitudeCaptureCC(struct parametros* parm)
   int flagsmooth=0;
   const string kind="gauss";
   double cutoff=50.;
-  double r1,r2,ldd;
+  double r1,r2,ldd,Ecm_old,deltaE;
   complejo stint;
   spectral=0;
   flagpot=1;
+  Ecm_old=1000.;
+  deltaE=0.;
   double onept=16.*sqrt(2.)*pow(PI,2.5)/(parm->k_Aa*parm->k_Bb);
   double oneptAlt=32.*sqrt(2.)*pow(PI,3)/(parm->k_Aa*parm->k_Bb);
   //cout<<"factor: "<<onept<<endl;
@@ -1251,14 +1257,20 @@ void AmplitudeCaptureCC(struct parametros* parm)
   Ecm_out=(parm->T_masa)*energia_out/(parm->n1_masa+(parm->T_masa));
   Ecmmax=parm->energia_cm-(((parm->T_masa)*parm->enerange_min/(parm->n1_masa+(parm->T_masa))))-2.2245;
   Ecm=parm->energia_cm-Ecm_out-2.2245;
-  
+  for(n=0;n<parm->cross_puntos;n++)
+    {
+      cross_integrated[n]=0.;
+    }
   for(;;)
     {
+      fp12<<"& Energy: "<<Ecm<<endl;
       l=parm->lmin;
       dj=2*parm->J_B;
+      if(Ecm>Ecmmax) {cout<<Ecm<<">"<<Ecmmax<<", exiting energy loop."<<endl; break;}
       cout<<"Start reading GF for l="<<l<<", j="<<dj/2.<<endl;
       //l=0;
       flagGF=ReadGF(&fl_gf,GreenFunction,rg,puntos_r,&Ecm,Ecmmax,parm->enerange_step,l,dj);
+      if(Ecm_old<999.) {deltaE=Ecm-Ecm_old; cout<<"deltaE: "<<deltaE<<"    Ecm: "<<Ecm<<"     Ecm_old: "<<Ecm_old<<endl;}
       //GF2WF(GreenFunction,stf,rg,puntos_r);
       cout<<"Start reading SE for l="<<l<<", j="<<dj/2.<<endl;
       //flagpot=ReadNLpot(&fl_se,&fl_vloc,potNL,rg,puntos_r,Ecm,l,dj,sigma,-1);
@@ -1308,7 +1320,8 @@ void AmplitudeCaptureCC(struct parametros* parm)
       fp9<<energia_out<<"  "<<Ecm<<"  ";
       misc1<<"& Energy of detected cluster (lab frame): "<<energia_out<<"    Energy of absorbed cluster (CM frame): "<<Ecm<<endl;
       //		misc2<<endl<<"*********************  Ep= "<<energia_out<<" ****************************"<<endl;
-      k_n=sqrt(2.*parm->n1_masa*AMU*Ecm)/HC;
+      k_n=0.;
+      if(Ecm>0.) k_n=sqrt(2.*parm->n1_masa*AMU*Ecm)/HC;
       k_p=sqrt(2.*parm->m_b*AMU*Ecm_out)/HC;
       rhoE=parm->m_b*AMU*k_p/(8.*PI*PI*PI*HC*HC);
       cout<<rhoE<<"  "<<parm->m_b<<"  "<<k_p<<endl;
@@ -1359,7 +1372,7 @@ void AmplitudeCaptureCC(struct parametros* parm)
               gl_up->l=lp;
               gl_up->spin=parm->n_spin;
               gl_up->j=lp+parm->n_spin;
-                            GeneraDWspin(gl_up,vp_up,parm->Z_B*parm->Z_b,parm->m_b*parm->res_masa/(parm->m_b+parm->res_masa),
+              GeneraDWspin(gl_up,vp_up,parm->Z_B*parm->Z_b,parm->m_b*parm->res_masa/(parm->m_b+parm->res_masa),
                          parm->radio,parm->puntos,parm->matching_radio,&fp2);
               //exit(0);
               gl_down->energia=Ecm_out;
@@ -1398,9 +1411,9 @@ void AmplitudeCaptureCC(struct parametros* parm)
                     v_row=v_nonloc.row(n).st();
                     stint=interpola_cmpx(st_fin->wf,st_fin->r,rAn,st_fin->puntos);
                     //if(ld==lp) misc3<<rAn<<"  "<<real(stint)<<endl;
-                    //SourceNL(rhom,nonm,fl,gl_up,gl_down,st,potNL,v_row,rg,puntos_r,&(parm->pot_opt[indx_ingreso]),vp_up,l,rn,parm,dim3,dim2);
+                    SourceNL(rhom,nonm,fl,gl_up,gl_down,st,potNL,v_row,rg,puntos_r,&(parm->pot_opt[indx_ingreso]),vp_up,l,rn,parm,dim3,dim2);
                     //if(ld==4 && lp==5)
-                    SourceAltNL(rhom,nonm,fl,gl_up,gl_down,st,potNL,v_row,rg,puntos_r,&(parm->pot_opt[indx_ingreso]),vp_up,l,rn,parm,dim3,dim2);
+                    //SourceAltNL(rhom,nonm,fl,gl_up,gl_down,st,potNL,v_row,rg,puntos_r,&(parm->pot_opt[indx_ingreso]),vp_up,l,rn,parm,dim3,dim2);
                     //exit(0);
                     //Tonept[ld][lp][l]+=pow(I,ld-lp)*pow(-1.,l)*onept*sqrt(2.*ld+1.)*exp_delta_coulomb_f[lp]*exp_delta_coulomb_i[ld]*
                     //stint*rhom[0]*rAn*rAn*((dim1->b)-(dim1->a))*dim1->pesos[n]/(2.*(2.*l+1.));
@@ -1410,14 +1423,14 @@ void AmplitudeCaptureCC(struct parametros* parm)
 
                     //Tonept[ld][lp][l]+=stint*rhom[0]*rAn*rAn*((dim1->b)-(dim1->a))*dim1->pesos[n]/(4.*sqrt(PI));
                     Tonept[ld][lp][l]+=stint*rhom[0]*rAn*rAn*((dim1->b)-(dim1->a))*dim1->pesos[n]/2.;
-                    // if(ld==0) misc4<<rAn<<"  "<<abs(Tonept[ld][lp][l])<<"  "<<abs(rhom[0]/(2*sqrt(PI)))<<"  "
-                    //                                  <<abs(stint*rhom[0]*rAn*rAn/(2*sqrt(PI)))<<"  "<<abs(stint*rAn*rAn)<<endl;
+                    if(ld==0) misc4<<rAn<<"  "<<abs(Tonept[ld][lp][l])<<"  "<<abs(rhom[0]/(2*sqrt(PI)))<<"  "
+                                                      <<abs(stint*rhom[0]*rAn*rAn/(2*sqrt(PI)))<<"  "<<abs(stint*rAn*rAn)<<endl;
                     for(m=0;m<=lp;m++){
-                      //rho[n][l][m][lp]+=(redfac*rhofac*ClebsGordan(lp,-m,ld,0,l,-m)*rhom[0]);
-                      //if(parm->prior==1) non[n][l][m][lp]+=(rhofac*ClebsGordan(lp,-m,ld,0,l,-m)*nonm[0]*rn);
-                      rho[n][l][m][lp]+=(redfac*rhofacAlt*ClebsGordan(lp,-m,ld,0,l,-m)*rhom[0]);
+                      rho[n][l][m][lp]+=(redfac*rhofac*ClebsGordan(lp,-m,ld,0,l,-m)*rhom[0]);
+                      if(parm->prior==1) non[n][l][m][lp]+=(rhofac*ClebsGordan(lp,-m,ld,0,l,-m)*nonm[0]*rn);
+                      //rho[n][l][m][lp]+=(redfac*rhofacAlt*ClebsGordan(lp,-m,ld,0,l,-m)*rhom[0]);
                       //cout<<"rho: "<<rho[n][l][m][lp]<<"  "<<ClebsGordan(lp,-m,ld,0,l,-m)<<"  "<<redfac*rhofacAlt<<"  "<<rhom[0]<<endl;
-                      if(parm->prior==1) non[n][l][m][lp]+=(rhofacAlt*ClebsGordan(lp,-m,ld,0,l,-m)*nonm[0]*rn);
+                      //if(parm->prior==1) non[n][l][m][lp]+=(rhofacAlt*ClebsGordan(lp,-m,ld,0,l,-m)*nonm[0]*rn);
                     }
                     //if(n==5 && lp==ld) misc4<<lp<<"  "<<real(rhom[0]/(2.*sqrt(PI)))
                     //<<"  "<<imag(rhom[0]/(2.*sqrt(PI)))<<"  "<<abs(rhom[0]/(2.*sqrt(PI)))<<endl;
@@ -1482,25 +1495,37 @@ void AmplitudeCaptureCC(struct parametros* parm)
               direct[0]=0.;
               non_orth[0]=0.;
               cross_term[0]=0.;
-              cross=0.;
+              cross=0.;               
+              cross=AbsorcionAngularNL(potNL,phi_up,non,dim1,parm,theta,rg,puntos_r);
+              //cross+=AbsorcionAngular(v_up,phi_up,non,dim1,parm,theta,
+              //			  direct,non_orth,cross_term,cross_down);
+              elastic_cross=0.;
+              if(Ecm>0.) elastic_cross=ElasticBreakupAngular(Teb,parm->lmax,theta);
+              //cout<<"Elastic cross: "<<elastic_cross<<"   Ecm: "<<Ecm<<endl;
               if((theta>=PI*parm->angle0/180.)&&(theta<=PI*parm->angle1/180.))
                 {
-                  cross=AbsorcionAngularNL(potNL,phi_up,non,dim1,parm,theta,rg,puntos_r);
-                  //cross+=AbsorcionAngular(v_up,phi_up,non,dim1,parm,theta,
-				  //			  direct,non_orth,cross_term,cross_down);
-                  elastic_cross=ElasticBreakupAngular(Teb,parm->lmax,theta);
                   cross_total+=sigma_const*escala*rhoE*cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
                   cross_total_elasticb+=rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
-                  fp10<<theta*180./PI<<"  "<<sigma_const*escala*rhoE*cross<<
-                    "  "<<rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross<<"  "<<
-                    sigma_const*escala*rhoE*(cross)+(rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross)<<endl;
                 }
+              fp10<<theta*180./PI<<"  "<<sigma_const*escala*rhoE*cross<<
+                "  "<<rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross<<"  "<<
+                sigma_const*escala*rhoE*(cross)+(rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross)<<endl;
+              cross_integrated[n]+=(sigma_const*escala*rhoE*cross+rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross)*deltaE;
+              fp12<<theta*180./PI<<"  "<<cross_integrated[n]<<endl;
             }
-          cout<<"NEB cross section:  "<<cross_total<<"   EB cross section:  "<<cross_total_elasticb<<endl;
+          cout<<"NEB cross section, integrated between "<<parm->angle0<<" degrees and "<<parm->angle1<<" degrees: "
+              <<cross_total<<"   EB cross section:  "<<cross_total_elasticb<<endl;
           fp11<<Ecm<<"  "<<cross_total<<"  "<<cross_total_elasticb<<endl;
-          exit(0);
+          //exit(0);
         }
+      Ecm_old=Ecm;
     }
+  cout<<"delta E="<<deltaE<<endl;
+  // for(n=0;n<parm->cross_puntos;n++)
+  //   {
+  //     theta=PI*double(n)/double(parm->cross_puntos);
+  //     fp12<<theta*180./PI<<"  "<<cross_integrated[n]*deltaE<<endl;
+  //   }
   cout<<"Out of loop"<<endl;
   delete[] S;
   delete[] rho;
@@ -4213,6 +4238,7 @@ int ReadGF(ifstream* fl_gf,complejo** GF,double *r,int dimension,
       flag=getline(*fl_gf,line);
       sscanf(line.c_str(),"%g %g %g %g",&r1,&r2,&RealPart,&ImaginaryPart);
       cout<<" Energy: "<<ene<<endl;
+      if(ene>efinal) {cout<<"Maximum energy reached while reading Green's function."<<endl; *einitial=ene; return 0;}
       //cout<<"end: "<<finstr<<endl;
       //exit(0);
       GF[0][0]=double(RealPart)+I*double(ImaginaryPart);
@@ -7344,9 +7370,9 @@ void CrossOneTrans(complejo ***Tlalb,struct parametros *parm)
   bool less,more;
   ofstream fp(parm->fl_cross_tot);
   int li=0;
-  int lf=1;
+  int lf=3;
   float ji=0.5;
-  float jf=0.5;
+  float jf=3.5;
   constante=parm->k_Bb*parm->mu_Aa*parm->mu_Bb*AMU*AMU*(2.*parm->J_B+1.)/(parm->k_Aa*4.*PI*PI*pow(HC,4.)*
                                                                           (2.*ji+1.)*(2.*jf+1.)*(2.*parm->J_A+1.));
   int la,lb,n,K,len,flag,Kmax,Kmin,M,MM,mm;
@@ -7618,4 +7644,47 @@ void lagrange::LagrangeBasis(double initial)
         }
     }
   //lag->basis.print(misc4);
+}
+void InterpolateSeries()
+{
+  ifstream fl_input;
+  ofstream fl_output;
+  int points=500;
+  int n,count,index;
+  double r0=0.;
+  double r1=2.8;
+  double range;
+  double step,val_int,r,step0;
+  double* input=new double[points];
+  double* r_input=new double[points];
+  string line;
+  float val,rr,dumb;
+  bool flag;
+  range=r1-r0;
+  step0=range/double(points);
+  fl_output.open("/home/gregory/projects/10Li/results/dsdEangular_range_interpolated_d52.txt");
+  //fl_input->open("/home/gregory/projects/10Li/results/dsdEangular_range_p12.txt",ios::in);
+  fl_input.open("/home/gregory/projects/10Li/results/dsdEangular_range_d52.txt");
+  flag=getline(fl_input,line);
+  count=0;
+  while(flag)
+    {
+      sscanf(line.c_str(),"%g %g %g",&rr,&dumb,&val);
+      input[count]=double(val);
+      r_input[count]=double(rr);
+      //misc1<<rr<<"  "<<val<<endl;
+      count++;
+      flag=getline(fl_input,line);
+    }
+  step=r_input[count-1]/double(count);
+  cout<<"Number of points: "<<count<<"  step: "<<step<<endl;
+  
+  for(n=0;n<points;n++)
+    {
+      r=(n)*step0;
+      index=int(ceil(r/step)) - 1;
+      //val_int=interpola_dbl(input, r_input,r,count);
+      //      fl_output<<r<<"  "<<val_int<<endl;
+      fl_output<<r<<"  "<<input[index]<<endl;
+    }
 }
