@@ -96,6 +96,9 @@ class lagrange
   int N;          // size of Lagrange basis
   mat basis;     // Lagrange basis functions (pts x N)
   mat basis_i;     // Lagrange irregular basis functions (pts x N)
+  mat del_basis;     // derivative of Lagrange basis functions (pts x N)
+  mat del_basis_i;     // derivative of Lagrange irregular basis functions (pts x N)
+
   double a;   // size of box;
   double a1;  // initial point for propagation method
   double a2;   //final point for propagation method
@@ -118,6 +121,9 @@ class lagrange
         rn+=step;
       }
     basis.zeros(pts,N);
+    basis_i.zeros(pts,N);
+    del_basis.zeros(pts,N);
+    del_basis_i.zeros(pts,N);
     a1=0.;
   }
   lagrange (int pts,int Nl,double box,double initial){
@@ -141,6 +147,8 @@ class lagrange
       }
     basis.zeros(pts,N);
     basis_i.zeros(pts,N);
+    del_basis.zeros(pts,N);
+    del_basis_i.zeros(pts,N);
   }
   lagrange (int Nl, double box,double step){
     double rn;
@@ -158,7 +166,10 @@ class lagrange
         r.push_back(rn);
         rn+=step;
       }
-    basis.zeros(r.size(),N);  
+    basis.zeros(r.size(),N);
+    basis_i.zeros(r.size(),N);
+    del_basis.zeros(r.size(),N);
+    del_basis_i.zeros(r.size(),N);
   }
   void LagrangeBasis();
   void LagrangeBasis(double initial);
@@ -474,6 +485,7 @@ struct parametros {
   int relativista;
   int eikonal;
   int twonuceikonal;
+  int spectral;
   double a_Sn;
   double B_Sn;
   int remnant;

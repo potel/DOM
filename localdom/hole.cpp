@@ -19,6 +19,7 @@ void AmplitudeCaptureHole(struct parametros* parm)
   parametros_integral *dim4=new parametros_integral;
   complejo* exp_delta_coulomb_i=new complejo[parm->lmax];
   complejo* exp_delta_coulomb_f=new complejo[parm->lmax];
+  double* cross_integrated=new double[parm->cross_puntos+1];
   double eta_f=parm->Z_a*parm->Z_A*E2HC*parm->mu_Bb*AMU/(HC*parm->k_Bb);
   double eta_i=parm->eta;
   double step,rn,energia_out,energia_trans,k_d,k_n,cross,elastic_cross,
@@ -35,6 +36,7 @@ void AmplitudeCaptureHole(struct parametros* parm)
   potential_optico* vp_up=new potential_optico[1];
   potential_optico* vp_down=new potential_optico[1];
   potential_optico* pot_dumb=new potential_optico;
+  cx_mat v_nonloc;
   estado* st=new estado;
   estado* st_fin=new estado;
   ofstream fp1("dw_out1trans.txt");
@@ -55,6 +57,11 @@ void AmplitudeCaptureHole(struct parametros* parm)
   fp9.open("dsdE.txt");
   ofstream fp10;
   fp10.open("dsdEdO.txt");
+  ofstream fp11;
+  fp11.open("dsdEangular_range.txt");
+  ofstream fp12;
+  fp12.open("dsdO.txt");
+
   ifstream fl_gf;
   ifstream fl_se;
   ifstream fl_vloc;
@@ -237,10 +244,13 @@ void AmplitudeCaptureHole(struct parametros* parm)
   r_F=1000.;
   e_res=st_fin->energia;
   puntos_r=153;
-  Ecm_out=parm->energia_cm+parm->enerange_min-parm->Qvalue;
+  Ecm_out=parm->energia_cm-parm->enerange_min-parm->Qvalue;
   Ecmmax=parm->enerange_max;
   Ecm=parm->enerange_min;
   cout<<"Ecm starts at  "<<Ecm<<" MeV and ends at "<<Ecmmax<<" MeV"<<endl;
+  double Ecm_old,deltaE,r1,r2;
+  Ecm_old=1000.;
+  deltaE=0.;
   cout<<endl<<endl<<endl;
   int flagsmooth=0;
   const string kind="gauss";
@@ -249,21 +259,30 @@ void AmplitudeCaptureHole(struct parametros* parm)
   flagpot=1;
   char fin[20];
   double* rmax=new double[1];
-  puntos_r=FetchGF(&fl_gf,fin,rmax);
+  cx_vec v_row;
+  vec rg=zeros<vec>(3000);
+  puntos_r=FetchGF(&fl_gf,fin,rg);
+  rg=zeros<vec>(puntos_r);
+  //cout<<"quillo 1"<<endl;
   cx_mat GreenFunction=zeros<cx_mat>(puntos_r,puntos_r);
+  //cout<<"quillo 2"<<endl;
   nlpotential potNLdumb(puntos_r,parm->radio); 
+  //cout<<"quillo 3"<<endl;
   nlpotential* potNL=&(potNLdumb);
+  //cout<<"quillo 4"<<endl;
   lagrange laggfdumb(puntos_r,10,*rmax);
+  //cout<<"quillo 5"<<endl;
   lagrange* laggf=&(laggfdumb);
   cout<<laggf->N<<"  "<<laggf->a<<"  "<<laggf->basis.size()<<"  "<<laggf->r.size()<<"  "<<laggf->w.size()<<endl;
   LagrangeBasis(laggf);
   //potNL->nlpot.print(misc4);
   //exit(0);
   //laggf->basis.print(misc5);
-  vec rg=zeros<vec>(puntos_r);
   cout<<"points: "<<puntos_r<<endl;
   potNL=new nlpotential(puntos_r,parm->radio);
   potNL->type=parm->locality;
+  v_nonloc.zeros(dim1->num_puntos,dim1->num_puntos);
+  v_row.zeros(dim1->num_puntos);
   if(spectral==1)
     {
       for(;;)
@@ -282,8 +301,8 @@ void AmplitudeCaptureHole(struct parametros* parm)
           //Localize(NLpot,rg,puntos_r,localpot,dim1);
           sp=Spectral(GreenFunction,rg,puntos_r,dim1);
           //exit(0);
-          cout<<Ecm<<"  "<<abs(sp)<<endl;
-          misc2<<Ecm<<"  "<<abs(sp)<<endl;
+          cout<<Ecm<<"  "<<abs(sp)/PI<<endl;
+          misc2<<Ecm<<"  "<<abs(sp)/PI<<endl;
           //exit(0);
           if(flagGF==0 || flagpot==0)
             {
@@ -293,16 +312,35 @@ void AmplitudeCaptureHole(struct parametros* parm)
         }
       exit(0);
     }
+  Ecm_old=1000.;
+  for(n=0;n<parm->cross_puntos;n++)
+    {
+      cross_integrated[n]=0.;
+    }
   for(;;)
     {
+      fp12<<"& Energy: "<<Ecm<<endl;
       l=parm->lmin;
       dj=2*l+1;
       cout<<"Start reading GF for l="<<l<<", j="<<dj/2.<<endl;
       flagGF=ReadGF(&fl_gf,GreenFunction,rg,puntos_r,&Ecm,Ecmmax,parm->enerange_step,l,dj);
+      if(Ecm_old<999.) {deltaE=Ecm-Ecm_old; cout<<"deltaE: "<<deltaE<<"    Ecm: "<<Ecm<<"     Ecm_old: "<<Ecm_old<<endl;}
+      cout<<"Start reading SE for l="<<l<<", j="<<dj/2.<<endl;
       flagpot=ReadNLpot(&fl_se,&fl_vloc,potNL,rg,puntos_r,Ecm,l,dj);
+      if(potNL->type=="nloc" || potNL->type=="locnloc")
+        {
+          for(n=0;n<dim1->num_puntos;n++)
+            {
+              r1 = (dim1->a)+((dim1->b)-(dim1->a))*((dim1->puntos[n])+1.)/2.;
+              for(m=0;m<dim1->num_puntos;m++)
+                {
+                  r2 = (dim1->a)+((dim1->b)-(dim1->a))*((dim1->puntos[m])+1.)/2.;
+                  v_nonloc(n,m)=interpola2D_cmpx(potNL->nlpot,potNL->r,potNL->r,r1,r2);
+                }
+            }
+        }
       //GF2Pot(GreenFunction,rg,Ecm,potNL,laggf,l,parm->n1_masa*parm->m_b/parm->m_a,0.0002);
       //exit(0);
-      cout<<"Start reading SE for l="<<l<<", j="<<dj/2.<<endl;
       //flagpot=ReadNLpot(&fl_se,&fl_vloc,potNL,rg,puntos_r,Ecm,l,dj);
       flagsmooth=SmoothPotential(potNL,cutoff,kind);
       if(flagsmooth==1)
@@ -329,7 +367,9 @@ void AmplitudeCaptureHole(struct parametros* parm)
       fp9<<energia_out<<"  "<<Ecm<<"  ";
       misc1<<"& Energy of detected cluster (lab frame): "<<energia_out<<"    Energy of absorbed cluster (CM frame): "<<Ecm<<endl;
       //		misc2<<endl<<"*********************  Ep= "<<energia_out<<" ****************************"<<endl;
-      k_n=sqrt(2.*parm->n1_masa*AMU*Ecm)/HC;
+      k_n=0;
+
+      if(Ecm>0) k_n=sqrt(2.*parm->n1_masa*AMU*Ecm)/HC;
       k_d=sqrt(2.*parm->m_B*AMU*Ecm_out)/HC;
       rhoE=parm->m_b*AMU*k_d/(8.*PI*PI*PI*HC*HC);
       rhoE_n=parm->n1_masa*AMU*k_n/(8.*PI*PI*PI*HC*HC);
@@ -339,12 +379,16 @@ void AmplitudeCaptureHole(struct parametros* parm)
       //exit(0);
       for(l=parm->lmin;l<parm->ltransfer;l++)
         {
+          //l=1;
           cout<<"L: "<<l<<endl;
           for(lp=0;lp<parm->lmax;lp++)
             {
               if(parm->remnant==1 && parm->prior==1) {
                 GeneraRemnant(optico,core,&parm->pot_opt[indx_salida],vp_up,parm->T_carga*parm->P_carga,
-                              0.,0,0,parm->mu_Aa,parm->m_B);
+                                                         parm->T_carga*parm->P_carga,0,0,parm->mu_Aa,parm->m_B);
+                //GeneraRemnant(optico,core,&parm->pot_opt[indx_salida],vp_up,0.,
+                //            0.,0,0,parm->mu_Aa,parm->m_B);
+
               }
               gl_up->energia=Ecm_out;
               gl_up->l=lp;
@@ -382,13 +426,15 @@ void AmplitudeCaptureHole(struct parametros* parm)
                     for(m=0;m<=lp;m++){
                       rhom[m]=0.;
                     }
-                    rAn=km*rn;
-                    dim3->a=rAn-parm->r_A2max;
-                    dim3->b=rAn+parm->r_A2max;
-                    if(dim3->a<0.) dim3->a=0.;
-                    if(dim3->b>parm->radio) dim3->b=parm->radio-1.;
-                    GaussLegendre(dim3->puntos,dim3->pesos,dim3->num_puntos);
-                    SourceNL(rhom,nonm,fl,gl_up,gl_down,st,potNL,rg,puntos_r,optico,core,l,rn,parm,dim3,dim2);
+                    rAn=rn;
+                    v_row=v_nonloc.row(n).st();
+                    // dim3->a=rAn-parm->r_A2max;
+                    // dim3->b=rAn+parm->r_A2max;
+                    // if(dim3->a<0.) dim3->a=0.;
+                    // if(dim3->b>parm->radio) dim3->b=parm->radio-1.;
+                    //                  GaussLegendre(dim3->puntos,dim3->pesos,dim3->num_puntos);
+                    SourceNL(rhom,nonm,fl,gl_up,gl_down,st,potNL,v_row,rg,puntos_r,optico,core,l,rn,parm,dim3,dim2);
+                    //SourceNL(rhom,nonm,fl,gl_up,gl_down,st,potNL,rg,puntos_r,optico,core,l,rn,parm,dim3,dim2);
                     for(m=0;m<=lp;m++){
                       rho[n][l][m][lp]+=(redfac*rhofac*ClebsGordan(lp,-m,ld,0,l,-m)*rhom[0]);
                       if(parm->prior==1) non[n][l][m][lp]+=(rhofac*ClebsGordan(lp,-m,ld,0,l,-m)*nonm[0]*rn);
@@ -457,17 +503,23 @@ void AmplitudeCaptureHole(struct parametros* parm)
                   cross=AbsorcionAngularNL(potNL,phi_up,non,dim1,parm,theta,rg,puntos_r);
                   //cross+=AbsorcionAngular(v_up,phi_up,non,dim1,parm,theta,
 				  //			  direct,non_orth,cross_term,cross_down);
-                  elastic_cross=ElasticBreakupAngular(Teb,parm->lmax,theta);
+                  elastic_cross=0.;
+                  if(energia_trans>0.) elastic_cross=ElasticBreakupAngular(Teb,parm->lmax,theta);
                   cross_total+=sigma_const*escala*rhoE*cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
                   cross_total_elasticb+=rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross*sin(theta)*2.*PI*PI/double(parm->cross_puntos);
                   fp10<<theta*180./PI<<"  "<<sigma_const*escala*rhoE*cross<<
                     "  "<<rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross<<"  "<<
                     sigma_const*escala*rhoE*(cross)+(rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross)<<endl;
                 }
+              cross_integrated[n]+=(sigma_const*escala*rhoE*cross+rhoE*rhoE_n*escala*sigma_const*PI*elastic_cross)*deltaE;
+              //cout<<" Angular integration: "<<cross_integrated[n]<<"  "<<cross<<"  "<<elastic_cross<<"  "<<rhoE_n<<"  "<<rhoE<<endl;
+              fp12<<theta*180./PI<<"  "<<cross_integrated[n]<<endl;
             }
           cout<<"NEB cross section:  "<<cross_total<<"   EB cross section:  "<<cross_total_elasticb<<endl;
-          exit(0);
+          
+              exit(0);
         }
+      Ecm_old=Ecm;
     }
   cout<<"Out of loop"<<endl;
   delete[] S;
