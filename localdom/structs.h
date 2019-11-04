@@ -486,6 +486,7 @@ struct parametros {
   int eikonal;
   int twonuceikonal;
   int spectral;
+  int inverse_mass;
   double a_Sn;
   double B_Sn;
   int remnant;
@@ -525,9 +526,9 @@ struct parametros {
   char locality[10];
   /******************************************/
 
-   potential pot[MAX_POTS];
-   potential_optico pot_opt[MAX_POTS];
-   estado st[MAX_ST];
+  potential pot[MAX_POTS];
+  potential_optico pot_opt[MAX_POTS];
+  estado st[MAX_ST];
   double radio;
   double matching_radio;
   double delta_r;
